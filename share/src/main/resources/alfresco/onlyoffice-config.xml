@@ -3,7 +3,7 @@
     <config evaluator="string-compare" condition="DocLibActions">
         <actions>
             <action id="document-onlyoffice-edit" type="link" label="actions.document.onlyoffice-edit">
-                <param name="href">onlyoffice-edit?nodeRef={node.nodeRef}</param>
+                <param name="href">onlyoffice-edit?nodeRef={node.nodeRef}&amp;new=</param>
                 <param name="target">_blank</param>
                 <evaluator>evaluator.doclib.action.onlyofficeEditMimetype</evaluator>
                 <permissions>
@@ -19,6 +19,42 @@
                 <action index="90" id="document-onlyoffice-edit" />
             </actionGroup>
         </actionGroups>
+    </config>
+
+    <config evaluator="string-compare" condition="DocumentLibrary">
+        <create-content>
+            <content id="document-onlyoffice-create-docx" type="link" label="actions.document.onlyoffice-create-docx">
+                <param name="href">onlyoffice-edit?nodeRef={nodeRef}&amp;new=application/vnd.openxmlformats-officedocument.wordprocessingml.document</param>
+                <param name="target">_blank</param>
+                <permissions>
+                    <permission allow="true">Write</permission>
+                </permissions>
+            </content>
+        </create-content>
+    </config>
+
+    <config evaluator="string-compare" condition="DocumentLibrary">
+        <create-content>
+            <content id="document-onlyoffice-create-xlsx" type="link" label="actions.document.onlyoffice-create-xlsx">
+                <param name="href">onlyoffice-edit?nodeRef={nodeRef}&amp;new=application/vnd.openxmlformats-officedocument.spreadsheetml.sheet</param>
+                <param name="target">_blank</param>
+                <permissions>
+                    <permission allow="true">Write</permission>
+                </permissions>
+            </content>
+        </create-content>
+    </config>
+
+    <config evaluator="string-compare" condition="DocumentLibrary">
+        <create-content>
+            <content id="document-onlyoffice-create-pptx" type="link" label="actions.document.onlyoffice-create-pptx">
+                <param name="href">onlyoffice-edit?nodeRef={nodeRef}&amp;new=application/vnd.openxmlformats-officedocument.presentationml.presentation</param>
+                <param name="target">_blank</param>
+                <permissions>
+                    <permission allow="true">Write</permission>
+                </permissions>
+            </content>
+        </create-content>
     </config>
 
     <config evaluator="string-compare" condition="DocLibActions">
