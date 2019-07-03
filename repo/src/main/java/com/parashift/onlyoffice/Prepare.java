@@ -68,6 +68,7 @@ public class Prepare extends AbstractWebScript {
 
     @Override
     public void execute(WebScriptRequest request, WebScriptResponse response) throws IOException {
+        mesService.registerResourceBundle("alfresco/messages/prepare");
         if (request.getParameter("nodeRef") != null) {
 
             String newFileMime = request.getParameter("new");
@@ -78,7 +79,7 @@ public class Prepare extends AbstractWebScript {
 
                 String ext = mimetypeService.getExtension(newFileMime);
 
-                String baseName = "NewDoc";
+                String baseName = mesService.getMessage("onlyoffice.newdoc-filename-" + ext);
                 String newName = baseName + "." + ext;
 
                 NodeRef node = nodeService.getChildByName(nodeRef, ContentModel.ASSOC_CONTAINS, newName);
@@ -101,7 +102,10 @@ public class Prepare extends AbstractWebScript {
                 ContentWriter writer = contentService.getWriter(nodeRef, ContentModel.PROP_CONTENT, true);
                 writer.setMimetype(newFileMime);
 
-                InputStream in = getClass().getResourceAsStream("/docxtmpl");
+                String tag = mesService.getLocale().toLanguageTag().substring(0, 2);
+                if ("de en es fr it ru".indexOf(tag) == -1) tag = "en";
+
+                InputStream in = getClass().getResourceAsStream("/newdocs/" + tag + "/new." + ext);
 
                 writer.putContent(in);
             }
