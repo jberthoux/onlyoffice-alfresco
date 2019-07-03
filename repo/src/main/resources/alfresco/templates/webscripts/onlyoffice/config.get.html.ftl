@@ -12,10 +12,22 @@
    <@section label=msg("onlyoffice-config.doc-section") />
 
    <form id="docservcfg" action="${url.service}" method="POST" accept-charset="utf-8">
-      <div class="control field">
-         <label class="label" for="onlyurl">${msg("onlyoffice-config.doc-url")}</label>
-         <br/>
-         <input class="value" id="onlyurl" name="url" size="35" placeholder="http://docserver/" title="${msg('onlyoffice-config.doc-url-tooltip')}" pattern="http(s)?://.*" value="${callbackurl}" />
+      <div class="column-full">
+         <div class="control field column-left">
+            <label class="label" for="onlyurl">${msg("onlyoffice-config.doc-url")}</label>
+            <br/>
+            <input class="value" id="onlyurl" name="url" size="35" placeholder="http://docserver/" title="${msg('onlyoffice-config.doc-url-tooltip')}" pattern="http(s)?://.*" value="${docurl}" />
+         </div>
+         <div class="control field column-right">
+            <label class="label" for="onlyinnerurl">${msg("onlyoffice-config.doc-url-inner")}</label>
+            <br/>
+            <input class="value" id="onlyinnerurl" name="innerurl" size="35" placeholder="http://docserver/" title="${msg('onlyoffice-config.doc-url-inner-tooltip')}" pattern="http(s)?://.*" value="${docinnerurl}" />
+         </div>
+         <div class="control field column=left">
+            <label class="label" for="alfurl">${msg("onlyoffice-config.alf-url")}</label>
+            <br/>
+            <input class="value" id="alfurl" name="alfurl" size="35" placeholder="http://alfresco/" title="${msg('onlyoffice-config.alf-url-tooltip')}" pattern="http(s)?://.*" value="${alfurl}" />
+         </div>
       </div>
       <div class="control field">
          <label class="label" for="jwtsecret">${msg("onlyoffice-config.jwt-secret")}</label>
@@ -35,6 +47,8 @@
 <script type="text/javascript">//<![CDATA[
    (function() {
       var url = document.getElementById("onlyurl");
+      var innerurl = document.getElementById("onlyinnerurl");
+      var alfurl = document.getElementById("alfurl");
       var cert = document.getElementById("onlycert");
       var jwts = document.getElementById("jwtsecret");
 
@@ -79,6 +93,8 @@
          if (!reg.test(url.value)) { return null; }
 
          obj.url = url.value.trim();
+         obj.innerurl = innerurl.value.trim();
+         obj.alfurl = alfurl.value.trim();
          obj.cert = cert.checked.toString();
          obj.jwtsecret = jwts.value.trim();
 

@@ -118,7 +118,7 @@ public class Prepare extends AbstractWebScript {
                     responseJson.put("token", jwtManager.createToken(responseJson));
                 }
 
-                responseJson.put("onlyofficeUrl", configManager.getOrDefault("url", "http://127.0.0.1/"));
+                responseJson.put("onlyofficeUrl", util.getEditorUrl());
 
                 logger.debug("Sending JSON prepare object");
                 logger.debug(responseJson.toString(3));
