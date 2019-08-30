@@ -11,14 +11,12 @@ import org.alfresco.service.cmr.repository.MimetypeService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.extensions.webscripts.AbstractWebScript;
-import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 import org.springframework.stereotype.Component;
@@ -77,6 +75,9 @@ public class CallBack extends AbstractWebScript {
     @Override
     public void execute(WebScriptRequest request, WebScriptResponse response) throws IOException {
 
+        Integer code = 0;
+        Exception error = null;
+
         logger.debug("Received JSON Callback");
         try {
             JSONObject callBackJSon = new JSONObject(request.getContent().getContent());
@@ -94,15 +95,11 @@ public class CallBack extends AbstractWebScript {
                 }
 
                 if (token == null || token == "") {
-                    response.setStatus(403);
-                    response.getWriter().write("{\"error\": 0, \"message\": \"Expected JWT\"}");
-                    return;
+                    throw new SecurityException("Expected JWT");
                 }
 
                 if (!jwtManager.verify(token)) {
-                    response.setStatus(403);
-                    response.getWriter().write("{\"error\": 0, \"message\": \"Wrong JWT\"}");
-                    return;
+                    throw new SecurityException("JWT verification failed");
                 }
 
                 JSONObject bodyFromToken = new JSONObject(new String(Base64.getUrlDecoder().decode(token.split("\\.")[1]), "UTF-8"));
@@ -119,7 +116,6 @@ public class CallBack extends AbstractWebScript {
 
             //Status codes from here: https://api.onlyoffice.com/editors/editor
 
-            int saved = 0;
             switch(callBackJSon.getInt("status")) {
                 case 0:
                     logger.error("ONLYOFFICE has reported that no doc with the specified key can be found");
@@ -137,10 +133,7 @@ public class CallBack extends AbstractWebScript {
                 case 2:
                     logger.debug("Document Updated, changing content");
                     lockService.unlock(nodeRef);
-                    if (!updateNode(nodeRef, callBackJSon.getString("url")))
-                    {
-                        saved = 1;
-                    }
+                    updateNode(nodeRef, callBackJSon.getString("url"));
                     break;
                 case 3:
                     logger.error("ONLYOFFICE has reported that saving the document has failed");
@@ -152,36 +145,46 @@ public class CallBack extends AbstractWebScript {
                     break;
             }
 
-            response.getWriter().write("{\"error\":" + saved + "}");
-        } catch (JSONException ex) {
-            throw new WebScriptException("Unable to deserialize JSON: " + ex.getMessage());
+        } catch (SecurityException ex) {
+            code = 403;
+            error = ex;
+        } catch (Exception ex) {
+            code = 500;
+            error = ex;
+        }
+
+        if (error != null) {
+            response.setStatus(code);
+            logger.error(ExceptionUtils.getFullStackTrace(error));
+
+            response.getWriter().write("{\"error\":1, \"message\":\"" + error.getMessage() + "\"}");
+        } else {
+            response.getWriter().write("{\"error\":0}");
         }
     }
 
-    private boolean updateNode(NodeRef nodeRef, String url) {
+    private void updateNode(NodeRef nodeRef, String url) throws Exception {
         logger.debug("Retrieving URL:{}", url);
-            ContentData contentData = (ContentData) nodeService.getProperty(nodeRef, ContentModel.PROP_CONTENT);
-            String mimeType = contentData.getMimetype();
+        ContentData contentData = (ContentData) nodeService.getProperty(nodeRef, ContentModel.PROP_CONTENT);
+        String mimeType = contentData.getMimetype();
 
-            if (converterService.shouldConvertBack(mimeType)) {
-                try {
-                    logger.debug("Should convert back");
-                    url = converterService.convert(nodeRef.getId(), "docx", mimetypeService.getExtension(mimeType), url);
-                } catch (Exception e) {
-                    logger.error(ExceptionUtils.getFullStackTrace(e));
-                    return false;
-                }
-            }
-
+        if (converterService.shouldConvertBack(mimeType)) {
             try {
-                checkCert();
-                InputStream in = new URL( url ).openStream();
-                contentService.getWriter(nodeRef, ContentModel.PROP_CONTENT, true).putContent(in);
-            } catch (IOException e) {
-                logger.error(ExceptionUtils.getFullStackTrace(e));
-                return false;
+                logger.debug("Should convert back");
+                url = converterService.convert(nodeRef.getId(), "docx", mimetypeService.getExtension(mimeType), url);
+            } catch (Exception e) {
+                throw new Exception("Error while converting document back to original format: " + e.getMessage(), e);
             }
-        return true;
+        }
+
+        try {
+            checkCert();
+            InputStream in = new URL( url ).openStream();
+            contentService.getWriter(nodeRef, ContentModel.PROP_CONTENT, true).putContent(in);
+        } catch (IOException e) {
+            logger.error(ExceptionUtils.getFullStackTrace(e));
+            throw new Exception("Error while downloading new document version: " + e.getMessage(), e);
+        }
     }
 
     private void checkCert() {
