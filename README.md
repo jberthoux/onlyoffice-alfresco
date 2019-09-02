@@ -115,11 +115,11 @@ The ONLYOFFICE integration follows the API documented [here](https://api.onlyoff
 * User navigates to a document within Alfresco Share and selects the `Edit in ONLYOFFICE` action.
 * Alfresco Share makes a request to the repo end (URL of the form: `/parashift/onlyoffice/prepare?nodeRef={nodeRef}`).
 * Alfresco Repo end prepares a JSON object for the Share with the following properties:
-  * **docUrl**: the URL that ONLYOFFICE Document Server uses to download the document (includes the `alf_ticket` of the current user),
+  * **url**: the URL that ONLYOFFICE Document Server uses to download the document (includes the `alf_ticket` of the current user),
   * **callbackUrl**: the URL that ONLYOFFICE Document Server informs about status of the document editing;
   * **onlyofficeUrl**: the URL that the client needs to reply to ONLYOFFICE Document Server (provided by the onlyoffice.url property);
   * **key**: the UUID+Modified Timestamp to instruct ONLYOFFICE Document Server whether to download the document again or not;
-  * **docTitle**: the document Title (name).
+  * **title**: the document Title (name).
 * Alfresco Share takes this object and constructs a page from a freemarker template, filling in all of those values so that the client browser can load up the editor.
 * The client browser makes a request for the javascript library from ONLYOFFICE Document Server and sends ONLYOFFICE Document Server the docEditor configuration with the above properties.
 * Then ONLYOFFICE Document Server downloads the document from Alfresco and the user begins editing.
