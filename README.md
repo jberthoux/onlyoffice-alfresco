@@ -27,9 +27,8 @@ To start using ONLYOFFICE Document Server with Alfresco, the following steps mus
 
 1. The latest stable Oracle Java version is necessary for the successful build. If you do not have it installed, use the following commands to install Oracle Java 8:
     ```bash
-    sudo add-apt-repository ppa:webupd8team/java
     sudo apt-get update
-    sudo apt-get install oracle-java8-installer
+    sudo apt-get install openjdk-8-jdk
     ```
 
 2. Install latest Maven:
