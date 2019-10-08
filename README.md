@@ -8,9 +8,11 @@ Tested with [Alfresco 6.\*](https://github.com/keensoft/alfresco-docker-template
 ## Features
 * Currently the following document formats can be opened and edited with this plugin: DOCX, XLSX, PPTX.
 * The plugin will create a new **Edit in ONLYOFFICE** menu option within the document library for Office documents.
-![editinonlyoffice](edit_in_onlyoffice.png)
+* ![editinonlyoffice](images/edit_in_onlyoffice.png)
 * This allows multiple users to collaborate in real time and to save back those changes to Alfresco.
-
+* And a **Convert using ONLYOFFICE** option to quickly convert ODT, ODP, ODS, DOC, XLS, PPT files to their Office Open XML counterpart
+* Context menu **Create new..** option within document library.
+* ![createnew](images/create_new.png)
 
 ## Installing ONLYOFFICE Document Server
 
@@ -52,7 +54,7 @@ Installation process is described [here](https://maven.apache.org/install.html)
 
 6. Make sure that Document Server will be able to POST to Alfresco
 
-    You may need to change these lines in `alfresco-global.properties`
+    You may need to change these lines in `alfresco-global.properties` or you can set it using [configuration page](#configuration)
 
     ```
     alfresco.host=<hostname>
@@ -87,13 +89,13 @@ docker-compose up
 
 ## Configuration
 
-Module configuration can be found at `/alfresco/s/onlyoffice/onlyoffice-config` page
+Module configuration can be found inside `Alfresco Administration Console` or by simply navigating to `http://<alfrescohost>/alfresco/s/onlyoffice/onlyoffice-config`
 
 > You can also add `onlyoffice.url` in `alfresco-global.properties`. Configuration made via settings page will override `alfresco-global.properties`.
 
 ## JWT
 
-JWT can be configured via configuration page or by adding `onlyoffice.jwtsecret` в `alfresco-global.properties`.
+JWT can be configured via [configuration page](#configuration) or by adding `onlyoffice.jwtsecret` in `alfresco-global.properties`.
 
 The JWT configuration on the Document Server side can be found [here](https://api.onlyoffice.com/editors/signature/).
 
