@@ -138,7 +138,7 @@ public class Converter extends AbstractContentTransformer2 {
             body.put("url", url);
 
             StringEntity requestEntity = new StringEntity(body.toString(), ContentType.APPLICATION_JSON);
-            HttpPost request = new HttpPost(configManager.getOrDefault("url", "http://127.0.0.1/") + "ConvertService.ashx");
+            HttpPost request = new HttpPost(util.getEditorInnerUrl() + "ConvertService.ashx");
             request.setEntity(requestEntity);
             request.setHeader("Accept", "application/json");
 
