@@ -2,6 +2,8 @@ package com.parashift.onlyoffice;
 
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.policy.BehaviourFilter;
+import org.alfresco.repo.security.authentication.AuthenticationUtil;
+import org.alfresco.repo.transaction.RetryingTransactionHelper.RetryingTransactionCallback;
 import org.alfresco.service.cmr.lock.LockService;
 import org.alfresco.service.cmr.lock.LockStatus;
 import org.alfresco.service.cmr.lock.LockType;
@@ -10,7 +12,9 @@ import org.alfresco.service.cmr.repository.ContentService;
 import org.alfresco.service.cmr.repository.MimetypeService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.transaction.TransactionService;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,6 +74,9 @@ public class CallBack extends AbstractWebScript {
     @Autowired
     Converter converterService;
 
+    @Autowired
+    TransactionService transactionService;
+
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
@@ -113,37 +120,38 @@ public class CallBack extends AbstractWebScript {
 
             String[] keyParts = callBackJSon.getString("key").split("_");
             NodeRef nodeRef = new NodeRef("workspace://SpacesStore/" + keyParts[0]);
+            String hash = (String) nodeService.getProperty(nodeRef, Util.EditingHashAspect);
+            String queryHash = request.getParameter("cb_key");
 
-            //Status codes from here: https://api.onlyoffice.com/editors/editor
-
-            switch(callBackJSon.getInt("status")) {
-                case 0:
-                    logger.error("ONLYOFFICE has reported that no doc with the specified key can be found");
-                    lockService.unlock(nodeRef);
-                    break;
-                case 1:
-                    if(lockService.getLockStatus(nodeRef).equals(LockStatus.NO_LOCK)) {
-                        logger.debug("Document open for editing, locking document");
-                        behaviourFilter.disableBehaviour(nodeRef);
-                        lockService.lock(nodeRef, LockType.WRITE_LOCK);
-                    } else {
-                        logger.debug("Document already locked, another user has entered/exited");
-                    }
-                    break;
-                case 2:
-                    logger.debug("Document Updated, changing content");
-                    lockService.unlock(nodeRef);
-                    updateNode(nodeRef, callBackJSon.getString("url"));
-                    break;
-                case 3:
-                    logger.error("ONLYOFFICE has reported that saving the document has failed");
-                    lockService.unlock(nodeRef);
-                    break;
-                case 4:
-                    logger.debug("No document updates, unlocking node");
-                    lockService.unlock(nodeRef);
-                    break;
+            if (hash == null || queryHash == null || !hash.equals(queryHash)) {
+                throw new SecurityException("Security hash verification failed");
             }
+
+            String username = null;
+
+            if (callBackJSon.has("users")) {
+                JSONArray array = callBackJSon.getJSONArray("users");
+                if (array.length() > 0) {
+                    username = (String) array.get(0);
+                }
+            }
+
+            if (username == null && callBackJSon.has("actions")) {
+                JSONArray array = callBackJSon.getJSONArray("actions");
+                if (array.length() > 0) {
+                    username = ((JSONObject) array.get(0)).getString("userid");
+                }
+            }
+
+            if (username != null) {
+                AuthenticationUtil.setRunAsUser(username);
+            } else {
+                throw new SecurityException("No user information");
+            }
+            Boolean reqNew = transactionService.isReadOnly();
+            transactionService.getRetryingTransactionHelper()
+                .doInTransaction(new ProccessRequestCallback(callBackJSon, nodeRef), reqNew, reqNew);
+            AuthenticationUtil.clearCurrentSecurityContext();
 
         } catch (SecurityException ex) {
             code = 403;
@@ -160,6 +168,59 @@ public class CallBack extends AbstractWebScript {
             response.getWriter().write("{\"error\":1, \"message\":\"" + error.getMessage() + "\"}");
         } else {
             response.getWriter().write("{\"error\":0}");
+        }
+    }
+
+    private class ProccessRequestCallback implements RetryingTransactionCallback<Object> {
+
+        private JSONObject callBackJSon;
+        private NodeRef nodeRef;
+
+        public ProccessRequestCallback(JSONObject json, NodeRef node) {
+            callBackJSon = json;
+            nodeRef = node;
+        }
+
+        @Override
+        public Object execute() throws Throwable {
+            //Status codes from here: https://api.onlyoffice.com/editors/editor
+            switch(callBackJSon.getInt("status")) {
+                case 0:
+                    logger.error("ONLYOFFICE has reported that no doc with the specified key can be found");
+                    lockService.unlock(nodeRef);
+                    logger.info("removing prop");
+                    nodeService.removeProperty(nodeRef, Util.EditingHashAspect);
+                    break;
+                case 1:
+                    if(lockService.getLockStatus(nodeRef).equals(LockStatus.NO_LOCK)) {
+                        logger.debug("Document open for editing, locking document");
+                        behaviourFilter.disableBehaviour(nodeRef);
+                        lockService.lock(nodeRef, LockType.WRITE_LOCK);
+                    } else {
+                        logger.debug("Document already locked, another user has entered/exited");
+                    }
+                    break;
+                case 2:
+                    logger.debug("Document Updated, changing content");
+                    lockService.unlock(nodeRef);
+                    logger.info("removing prop");
+                    nodeService.removeProperty(nodeRef, Util.EditingHashAspect);
+                    updateNode(nodeRef, callBackJSon.getString("url"));
+                    break;
+                case 3:
+                    logger.error("ONLYOFFICE has reported that saving the document has failed");
+                    lockService.unlock(nodeRef);
+                    logger.info("removing prop");
+                    nodeService.removeProperty(nodeRef, Util.EditingHashAspect);
+                    break;
+                case 4:
+                    logger.debug("No document updates, unlocking node");
+                    lockService.unlock(nodeRef);
+                    logger.info("removing prop");
+                    nodeService.removeProperty(nodeRef, Util.EditingHashAspect);
+                    break;
+            }
+            return null;
         }
     }
 
