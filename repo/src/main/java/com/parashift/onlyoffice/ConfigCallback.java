@@ -81,21 +81,22 @@ public class ConfigCallback extends AbstractWebScript {
                 return;
             }
 
+            String docTestUrl = docInnerUrl.isEmpty() ? docUrl : docInnerUrl;
             logger.debug("Checking docserv url");
-            if (!CheckDocServUrl(docInnerUrl)) {
+            if (!CheckDocServUrl(docTestUrl)) {
                 response.getWriter().write("{\"success\": false, \"message\": \"docservunreachable\"}");
                 return;
             }
 
             try {
                 logger.debug("Checking docserv commandservice");
-                if (!CheckDocServCommandService(docInnerUrl)) {
+                if (!CheckDocServCommandService(docTestUrl)) {
                     response.getWriter().write("{\"success\": false, \"message\": \"docservcommand\"}");
                     return;
                 }
 
                 logger.debug("Checking docserv convert");
-                if (!CheckDocServConvert(docInnerUrl)) {
+                if (!CheckDocServConvert(docTestUrl)) {
                     response.getWriter().write("{\"success\": false, \"message\": \"docservconvert\"}");
                     return;
                 }
