@@ -113,7 +113,7 @@ public class ConfigCallback extends AbstractWebScript {
     }
 
     private String AppendSlash(String url) {
-        if (!url.endsWith("/")) {
+        if (!url.isEmpty() && !url.endsWith("/")) {
             url = url + "/";
         }
         return url;
