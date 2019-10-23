@@ -18,4 +18,14 @@
 		  class="com.parashift.onlyoffice.ConvertAction"
 		  parent="action-executer">
     </bean>
+
+    <bean id="webscripts.resources"
+          class="org.alfresco.i18n.ResourceBundleBootstrapComponent">
+
+      <property name="resourceBundles">
+         <list>
+            <value>alfresco.web-extension.messages.admin-console</value>
+         </list>
+      </property>
+   </bean>
 </beans>
