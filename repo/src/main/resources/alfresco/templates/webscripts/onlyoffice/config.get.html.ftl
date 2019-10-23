@@ -8,36 +8,44 @@
 <@page title=msg("onlyoffice-config.title") readonly=true>
 
 </form>
-<div class="column-full">
+<div class="column-left">
    <@section label=msg("onlyoffice-config.doc-section") />
 
    <form id="docservcfg" action="${url.service}" method="POST" accept-charset="utf-8">
-      <div class="column-full">
-         <div class="control field column-left">
-            <label class="label" for="onlyurl">${msg("onlyoffice-config.doc-url")}</label>
-            <br/>
-            <input class="value" id="onlyurl" name="url" size="35" placeholder="http://docserver/" title="${msg('onlyoffice-config.doc-url-tooltip')}" pattern="http(s)?://.*" value="${docurl}" />
-         </div>
-         <div class="control field column-right">
-            <label class="label" for="onlyinnerurl">${msg("onlyoffice-config.doc-url-inner")}</label>
-            <br/>
-            <input class="value" id="onlyinnerurl" name="innerurl" size="35" placeholder="http://docserver/" title="${msg('onlyoffice-config.doc-url-inner-tooltip')}" pattern="http(s)?://.*" value="${docinnerurl}" />
-         </div>
-         <div class="control field column=left">
-            <label class="label" for="alfurl">${msg("onlyoffice-config.alf-url")}</label>
-            <br/>
-            <input class="value" id="alfurl" name="alfurl" size="35" placeholder="http://alfresco/" title="${msg('onlyoffice-config.alf-url-tooltip')}" pattern="http(s)?://.*" value="${alfurl}" />
-         </div>
+      <div class="description section">${msg("onlyoffice-config.description")}</div>
+      <div class="control text">
+         <label class="label" for="onlyurl">${msg("onlyoffice-config.doc-url")}</label>
+         <span class="value">
+            <input id="onlyurl" name="url" size="35" placeholder="http://docserver/" title="${msg('onlyoffice-config.doc-url-tooltip')}" pattern="http(s)?://.*" value="${docurl}" />
+         </span>
       </div>
-      <div class="control field">
+      <div class="control text">
          <label class="label" for="jwtsecret">${msg("onlyoffice-config.jwt-secret")}</label>
-         <br/>
-         <input class="value" id="jwtsecret" name="url" size="35" value="${jwtsecret}" />
+         <span class="value">
+            <input class="value" id="jwtsecret" name="url" size="35" value="${jwtsecret}" />
+         </span>
       </div>
-      <div class="control field">
-         <input class="value" id="onlycert" name="cert" type="checkbox" ${cert} />
-         <label class="label" for="onlycert">${msg("onlyoffice-config.ignore-ssl-cert")}</label>
-      </div>
+
+      <@tsection label=msg("onlyoffice-config.doc-section")>
+         <div class="control text">
+            <label class="label" for="onlyinnerurl">${msg("onlyoffice-config.doc-url-inner")}</label>
+            <span class="value">
+               <input class="value" id="onlyinnerurl" name="innerurl" size="35" placeholder="http://docserver/" title="${msg('onlyoffice-config.doc-url-inner-tooltip')}" pattern="http(s)?://.*" value="${docinnerurl}" />
+            </span>
+         </div>
+         <div class="control text section">
+            <label class="label" for="alfurl">${msg("onlyoffice-config.alf-url")}</label>
+            <span class="value">
+               <input class="value" id="alfurl" name="alfurl" size="35" placeholder="http://alfresco/" title="${msg('onlyoffice-config.alf-url-tooltip')}" pattern="http(s)?://.*" value="${alfurl}" />
+            </span>
+         </div>
+         <div class="control field">
+            <input class="value" id="onlycert" name="cert" type="checkbox" ${cert} />
+            <label class="label" for="onlycert">${msg("onlyoffice-config.ignore-ssl-cert")}</label>
+         </div>
+      </@tsection>
+
+      <br>
       <input id="postonlycfg" type="button" value="${msg('onlyoffice-config.save-btn')}"/>
    </form>
    <br>
