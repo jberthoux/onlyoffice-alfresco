@@ -29,7 +29,7 @@ import java.util.Properties;
     Copyright (c) Ascensio System SIA 2019. All rights reserved.
     http://www.onlyoffice.com
 */
-@Component(value = "webscript.onlyoffice.config.post")
+@Component(value = "webscript.onlyoffice.onlyoffice-config.post")
 public class ConfigCallback extends AbstractWebScript {
 
     @Autowired

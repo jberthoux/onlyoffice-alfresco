@@ -14,7 +14,7 @@ import java.util.Map;
     Copyright (c) Ascensio System SIA 2019. All rights reserved.
     http://www.onlyoffice.com
 */
-@Component(value = "webscript.onlyoffice.config.get")
+@Component(value = "webscript.onlyoffice.onlyoffice-config.get")
 public class Config extends DeclarativeWebScript {
 
     @Autowired
