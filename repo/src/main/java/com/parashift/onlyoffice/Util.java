@@ -59,7 +59,7 @@ public class Util {
             nodeService.setProperty(nodeRef, EditingHashAspect, hash);
         }
 
-        return getAlfrescoUrl() + "/s/parashift/onlyoffice/callback?nodeRef=" + nodeRef.toString() + "&cb_key=" + hash;
+        return getAlfrescoUrl() + "s/parashift/onlyoffice/callback?nodeRef=" + nodeRef.toString() + "&cb_key=" + hash;
     }
 
     public String getConversionUrl(String key) {
