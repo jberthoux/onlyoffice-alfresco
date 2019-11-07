@@ -26,7 +26,7 @@
          </span>
       </div>
 
-      <@tsection label=msg("onlyoffice-config.doc-section")>
+      <@tsection label=msg("onlyoffice-config.advanced-section")>
          <div class="control text">
             <label class="label" for="onlyinnerurl">${msg("onlyoffice-config.doc-url-inner")}</label>
             <span class="value">
