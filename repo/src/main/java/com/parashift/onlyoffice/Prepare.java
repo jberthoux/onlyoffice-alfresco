@@ -1,10 +1,14 @@
 package com.parashift.onlyoffice;
 
 import org.alfresco.model.ContentModel;
+import org.alfresco.service.cmr.repository.ContentService;
+import org.alfresco.service.cmr.repository.ContentWriter;
+import org.alfresco.service.cmr.repository.MimetypeService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.cmr.security.PersonService.PersonInfo;
+import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.repo.i18n.MessageService;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
@@ -17,11 +21,12 @@ import org.springframework.extensions.webscripts.AbstractWebScript;
 import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
-import org.springframework.extensions.webscripts.connector.User;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -41,6 +46,12 @@ public class Prepare extends AbstractWebScript {
     NodeService nodeService;
 
     @Autowired
+    ContentService contentService;
+
+    @Autowired
+    MimetypeService mimetypeService;
+
+    @Autowired
     MessageService mesService;
 
     @Autowired
@@ -57,9 +68,47 @@ public class Prepare extends AbstractWebScript {
 
     @Override
     public void execute(WebScriptRequest request, WebScriptResponse response) throws IOException {
+        mesService.registerResourceBundle("alfresco/messages/prepare");
         if (request.getParameter("nodeRef") != null) {
 
+            String newFileMime = request.getParameter("new");
             NodeRef nodeRef = new NodeRef(request.getParameter("nodeRef"));
+
+            if (newFileMime != null && !newFileMime.isEmpty()) {
+                logger.debug("Creating new node");
+
+                String ext = mimetypeService.getExtension(newFileMime);
+
+                String baseName = mesService.getMessage("onlyoffice.newdoc-filename-" + ext);
+                String newName = baseName + "." + ext;
+
+                NodeRef node = nodeService.getChildByName(nodeRef, ContentModel.ASSOC_CONTAINS, newName);
+                if (node != null) {
+                    Integer i = 0;
+                    do {
+                        i++;
+                        newName = baseName + " (" +  Integer.toString(i) + ")." + ext;
+                        node = nodeService.getChildByName(nodeRef, ContentModel.ASSOC_CONTAINS, newName);
+                    } while (node != null);
+                }
+
+                Map<QName, Serializable> props = new HashMap<QName, Serializable>(1);
+                props.put(ContentModel.PROP_NAME, newName);
+
+                nodeRef = this.nodeService.createNode(nodeRef, ContentModel.ASSOC_CONTAINS,
+                    QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, newName), ContentModel.TYPE_CONTENT, props)
+                    .getChildRef();
+
+                ContentWriter writer = contentService.getWriter(nodeRef, ContentModel.PROP_CONTENT, true);
+                writer.setMimetype(newFileMime);
+
+                String tag = mesService.getLocale().toLanguageTag().substring(0, 2);
+                if ("de en es fr it ru".indexOf(tag) == -1) tag = "en";
+
+                InputStream in = getClass().getResourceAsStream("/newdocs/" + tag + "/new." + ext);
+
+                writer.putContent(in);
+            }
 
             Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
 
@@ -118,7 +167,7 @@ public class Prepare extends AbstractWebScript {
                     responseJson.put("token", jwtManager.createToken(responseJson));
                 }
 
-                responseJson.put("onlyofficeUrl", configManager.getOrDefault("url", "http://127.0.0.1/"));
+                responseJson.put("onlyofficeUrl", util.getEditorUrl());
 
                 logger.debug("Sending JSON prepare object");
                 logger.debug(responseJson.toString(3));

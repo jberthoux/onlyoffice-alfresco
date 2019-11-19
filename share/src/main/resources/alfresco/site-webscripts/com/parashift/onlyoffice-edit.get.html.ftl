@@ -21,7 +21,7 @@
         <div id="placeholder"></div>
     </div>
     <script>
-    var config = JSON.parse('${config}');
+    var config = ${config};
     new DocsAPI.DocEditor("placeholder", config);
     </script>
 </body>

@@ -29,7 +29,7 @@ import java.util.Properties;
     Copyright (c) Ascensio System SIA 2019. All rights reserved.
     http://www.onlyoffice.com
 */
-@Component(value = "webscript.onlyoffice.config.post")
+@Component(value = "webscript.onlyoffice.onlyoffice-config.post")
 public class ConfigCallback extends AbstractWebScript {
 
     @Autowired
@@ -60,13 +60,17 @@ public class ConfigCallback extends AbstractWebScript {
             logger.debug(data.toString(3));
 
             String docUrl = data.getString("url").trim();
+            String docInnerUrl = data.getString("innerurl").trim();
+            String alfUrl = data.getString("alfurl").trim();
             String jwtSecret = data.getString("jwtsecret").trim();
 
-            if (!docUrl.endsWith("/")) {
-                docUrl = docUrl + "/";
-            }
+            docUrl = AppendSlash(docUrl);
+            docInnerUrl = AppendSlash(docInnerUrl);
+            alfUrl = AppendSlash(alfUrl);
 
             configManager.set("url", docUrl);
+            configManager.set("innerurl", docInnerUrl);
+            configManager.set("alfurl", alfUrl);
             configManager.set("cert", data.getString("cert"));
             configManager.set("jwtsecret", jwtSecret);
 
@@ -77,21 +81,22 @@ public class ConfigCallback extends AbstractWebScript {
                 return;
             }
 
+            String docTestUrl = docInnerUrl.isEmpty() ? docUrl : docInnerUrl;
             logger.debug("Checking docserv url");
-            if (!CheckDocServUrl(docUrl)) {
+            if (!CheckDocServUrl(docTestUrl)) {
                 response.getWriter().write("{\"success\": false, \"message\": \"docservunreachable\"}");
                 return;
             }
 
             try {
                 logger.debug("Checking docserv commandservice");
-                if (!CheckDocServCommandService(docUrl)) {
+                if (!CheckDocServCommandService(docTestUrl)) {
                     response.getWriter().write("{\"success\": false, \"message\": \"docservcommand\"}");
                     return;
                 }
 
                 logger.debug("Checking docserv convert");
-                if (!CheckDocServConvert(docUrl)) {
+                if (!CheckDocServConvert(docTestUrl)) {
                     response.getWriter().write("{\"success\": false, \"message\": \"docservconvert\"}");
                     return;
                 }
@@ -106,6 +111,13 @@ public class ConfigCallback extends AbstractWebScript {
             logger.debug(msg);
             response.getWriter().write("{\"success\": false, \"message\": \"jsonparse\"}");
         }
+    }
+
+    private String AppendSlash(String url) {
+        if (!url.isEmpty() && !url.endsWith("/")) {
+            url = url + "/";
+        }
+        return url;
     }
 
     private Boolean CheckDocServUrl(String url) {

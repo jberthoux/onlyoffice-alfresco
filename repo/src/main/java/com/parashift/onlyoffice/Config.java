@@ -14,7 +14,7 @@ import java.util.Map;
     Copyright (c) Ascensio System SIA 2019. All rights reserved.
     http://www.onlyoffice.com
 */
-@Component(value = "webscript.onlyoffice.config.get")
+@Component(value = "webscript.onlyoffice.onlyoffice-config.get")
 public class Config extends DeclarativeWebScript {
 
     @Autowired
@@ -23,7 +23,9 @@ public class Config extends DeclarativeWebScript {
     @Override
     protected Map<String, Object> executeImpl(WebScriptRequest req, Status status, Cache cache) {
         Map<String, Object> model = new HashMap<String, Object>();
-        model.put("callbackurl", configManager.getOrDefault("url", "http://127.0.0.1/"));
+        model.put("docurl", configManager.getOrDefault("url", "http://127.0.0.1/"));
+        model.put("docinnerurl", configManager.getOrDefault("innerurl", ""));
+        model.put("alfurl", configManager.getOrDefault("alfurl", ""));
 
         String cert = (String) configManager.getOrDefault("cert", "no");
         model.put("cert", cert.equals("true") ? "checked=\"\"" : "");

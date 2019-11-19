@@ -8,9 +8,11 @@ Tested with [Alfresco 6.\*](https://github.com/keensoft/alfresco-docker-template
 ## Features
 * Currently the following document formats can be opened and edited with this plugin: DOCX, XLSX, PPTX.
 * The plugin will create a new **Edit in ONLYOFFICE** menu option within the document library for Office documents.
-![editinonlyoffice](edit_in_onlyoffice.png)
+* ![editinonlyoffice](images/edit_in_onlyoffice.png)
 * This allows multiple users to collaborate in real time and to save back those changes to Alfresco.
-
+* And a **Convert using ONLYOFFICE** option to quickly convert ODT, ODP, ODS, DOC, XLS, PPT files to their Office Open XML counterpart
+* Context menu **Create new..** option within document library.
+* ![createnew](images/create_new.png)
 
 ## Installing ONLYOFFICE Document Server
 
@@ -27,9 +29,8 @@ To start using ONLYOFFICE Document Server with Alfresco, the following steps mus
 
 1. The latest stable Oracle Java version is necessary for the successful build. If you do not have it installed, use the following commands to install Oracle Java 8:
     ```bash
-    sudo add-apt-repository ppa:webupd8team/java
     sudo apt-get update
-    sudo apt-get install oracle-java8-installer
+    sudo apt-get install openjdk-8-jdk
     ```
 
 2. Install latest Maven:
@@ -53,7 +54,7 @@ Installation process is described [here](https://maven.apache.org/install.html)
 
 6. Make sure that Document Server will be able to POST to Alfresco
 
-    You may need to change these lines in `alfresco-global.properties`
+    You may need to change these lines in `alfresco-global.properties` or you can set it using [configuration page](#configuration)
 
     ```
     alfresco.host=<hostname>
@@ -88,13 +89,13 @@ docker-compose up
 
 ## Configuration
 
-Module configuration can be found at `/alfresco/s/onlyoffice/onlyoffice-config` page
+Module configuration can be found inside `Alfresco Administration Console` or by simply navigating to `http://<alfrescohost>/alfresco/s/onlyoffice/onlyoffice-config`
 
 > You can also add `onlyoffice.url` in `alfresco-global.properties`. Configuration made via settings page will override `alfresco-global.properties`.
 
 ## JWT
 
-JWT can be configured via configuration page or by adding `onlyoffice.jwtsecret` в `alfresco-global.properties`.
+JWT can be configured via [configuration page](#configuration) or by adding `onlyoffice.jwtsecret` in `alfresco-global.properties`.
 
 The JWT configuration on the Document Server side can be found [here](https://api.onlyoffice.com/editors/signature/).
 
@@ -115,11 +116,11 @@ The ONLYOFFICE integration follows the API documented [here](https://api.onlyoff
 * User navigates to a document within Alfresco Share and selects the `Edit in ONLYOFFICE` action.
 * Alfresco Share makes a request to the repo end (URL of the form: `/parashift/onlyoffice/prepare?nodeRef={nodeRef}`).
 * Alfresco Repo end prepares a JSON object for the Share with the following properties:
-  * **docUrl**: the URL that ONLYOFFICE Document Server uses to download the document (includes the `alf_ticket` of the current user),
+  * **url**: the URL that ONLYOFFICE Document Server uses to download the document (includes the `alf_ticket` of the current user),
   * **callbackUrl**: the URL that ONLYOFFICE Document Server informs about status of the document editing;
   * **onlyofficeUrl**: the URL that the client needs to reply to ONLYOFFICE Document Server (provided by the onlyoffice.url property);
   * **key**: the UUID+Modified Timestamp to instruct ONLYOFFICE Document Server whether to download the document again or not;
-  * **docTitle**: the document Title (name).
+  * **title**: the document Title (name).
 * Alfresco Share takes this object and constructs a page from a freemarker template, filling in all of those values so that the client browser can load up the editor.
 * The client browser makes a request for the javascript library from ONLYOFFICE Document Server and sends ONLYOFFICE Document Server the docEditor configuration with the above properties.
 * Then ONLYOFFICE Document Server downloads the document from Alfresco and the user begins editing.

@@ -1,5 +1,18 @@
 # Change Log
 
+## 4.0.0
+## Added
+ - `Create new..` context menu option in Share
+ - Ukrainian translation [#14](https://github.com/ONLYOFFICE/onlyoffice-alfresco/issues/14)
+
+## Changed
+ - Document Editing Service address is now splitted in two settings: inner address (address that alfresco will use to access service) and public address (address that user will use access editors)
+
+## Fixed
+ - an issue with `'` sign in document title [#15](https://github.com/ONLYOFFICE/onlyoffice-alfresco/issues/15)
+ - an issue when document wouldn't save due to automatic logoff [#12](https://github.com/ONLYOFFICE/onlyoffice-alfresco/issues/12)
+ - an issue when `Edit on ONLYOFFICE` button was available even if the document was blocked by other editors [#13](https://github.com/ONLYOFFICE/onlyoffice-alfresco/issues/13)
+
 ## 3.0.0
 ## Added
 - configuration page in administration console
