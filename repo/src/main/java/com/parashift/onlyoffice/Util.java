@@ -1,5 +1,6 @@
 package com.parashift.onlyoffice;
 
+import org.alfresco.model.ContentModel;
 import org.alfresco.repo.admin.SysAdminParams;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
@@ -10,9 +11,13 @@ import org.alfresco.service.namespace.QName;
 import org.alfresco.util.UrlUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.io.Serializable;
 import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 
 /*
    Copyright (c) Ascensio System SIA 2019. All rights reserved.
@@ -42,6 +47,10 @@ public class Util {
     public static final QName EditingHashAspect = QName.createQName("onlyoffice:editing-hash");
 
     public String getKey(NodeRef nodeRef) {
+        Map<QName, Serializable> props = new HashMap<>();
+        props.put(ContentModel.PROP_INITIAL_VERSION, true);
+        versionService.ensureVersioningEnabled(nodeRef, props);
+
         Version v = versionService.getCurrentVersion(nodeRef);
         return nodeRef.getId() + "_" + v.getVersionLabel();
     }
