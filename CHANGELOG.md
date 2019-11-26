@@ -1,5 +1,10 @@
 # Change Log
 
+## 4.0.1
+## Fixed
+ - fixed an issue when trying to create a new file [#18](https://github.com/ONLYOFFICE/onlyoffice-alfresco/issues/18)
+ - fixed an issue with ansi encoding for es, fr, de languages [#18](https://github.com/ONLYOFFICE/onlyoffice-alfresco/issues/18)
+
 ## 4.0.0
 ## Added
  - `Create new..` context menu option in Share
