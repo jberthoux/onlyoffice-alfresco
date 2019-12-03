@@ -138,6 +138,7 @@ public class Prepare extends AbstractWebScript {
             JSONObject editorConfigObject = new JSONObject();
             JSONObject userObject = new JSONObject();
             JSONObject permObject = new JSONObject();
+            JSONObject customizationObject = new JSONObject();
 
             try {
                 String docTitle = (String) properties.get(ContentModel.PROP_NAME);
@@ -162,6 +163,8 @@ public class Prepare extends AbstractWebScript {
                 editorConfigObject.put("callbackUrl", callbackUrl);
                 editorConfigObject.put("user", userObject);
                 userObject.put("id", username);
+                editorConfigObject.put("customization", customizationObject);
+                customizationObject.put("forcesave", configManager.getAsBoolean("forcesave"));
 
                 if (personInfo == null) {
                     userObject.put("name", username);
