@@ -27,8 +27,8 @@ public class Config extends DeclarativeWebScript {
         model.put("docinnerurl", configManager.getOrDefault("innerurl", ""));
         model.put("alfurl", configManager.getOrDefault("alfurl", ""));
 
-        String cert = (String) configManager.getOrDefault("cert", "no");
-        model.put("cert", cert.equals("true") ? "checked=\"\"" : "");
+        model.put("cert", configManager.getAsBoolean("cert") ? "checked=\"\"" : "");
+        model.put("forcesave", configManager.getAsBoolean("forcesave") ? "checked=\"\"" : "");
 
         model.put("jwtsecret", configManager.getOrDefault("jwtsecret", ""));
         return model;

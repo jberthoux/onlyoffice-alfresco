@@ -47,6 +47,17 @@ public class ConfigManager {
         return value;
     }
 
+    public Boolean getAsBoolean(String key) {
+        String formedKey = formKey(key);
+        Object value = attributeService.getAttribute(formedKey);
+
+        if (value == null) {
+            value = globalProp.getOrDefault(formedKey, "");
+        }
+
+        return (value != null && ((String)value).equals("true")) ? true : false;
+    }
+
     private String formKey(String key) {
         return "onlyoffice." + key;
     }
