@@ -8,6 +8,7 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.cmr.security.PersonService.PersonInfo;
+import org.alfresco.service.cmr.version.VersionService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.repo.i18n.MessageService;
@@ -61,6 +62,9 @@ public class Prepare extends AbstractWebScript {
     ConfigManager configManager;
 
     @Autowired
+    VersionService versionService;
+
+    @Autowired
     JwtManager jwtManager;
 
     @Autowired
@@ -108,6 +112,10 @@ public class Prepare extends AbstractWebScript {
                 InputStream in = getClass().getResourceAsStream("/newdocs/" + tag + "/new." + ext);
 
                 writer.putContent(in);
+
+                Map<QName, Serializable> versionProps = new HashMap<>();
+                props.put(ContentModel.PROP_INITIAL_VERSION, true);
+                versionService.ensureVersioningEnabled(nodeRef, versionProps);
             }
 
             Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
