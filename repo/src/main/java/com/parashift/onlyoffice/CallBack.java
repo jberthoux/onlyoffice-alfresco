@@ -118,8 +118,7 @@ public class CallBack extends AbstractWebScript {
                 }
             }
 
-            String[] keyParts = callBackJSon.getString("key").split("_");
-            NodeRef nodeRef = new NodeRef("workspace://SpacesStore/" + keyParts[0]);
+            NodeRef nodeRef = new NodeRef(request.getParameter("nodeRef"));
             String hash = (String) nodeService.getProperty(nodeRef, Util.EditingHashAspect);
             String queryHash = request.getParameter("cb_key");
 
