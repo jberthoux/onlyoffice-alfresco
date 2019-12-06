@@ -7,4 +7,7 @@ pObj = eval('(' + remote.call("/parashift/onlyoffice/prepare?nodeRef=" + url.arg
 model.onlyofficeUrl = pObj.onlyofficeUrl;
 model.docTitle = pObj.document.title;
 delete (pObj.onlyofficeUrl);
+if (pObj.mime) {
+    delete (pObj.mime);
+}
 model.config = JSON.stringify(pObj);
