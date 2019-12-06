@@ -29,6 +29,7 @@ public class Config extends DeclarativeWebScript {
 
         String cert = (String) configManager.getOrDefault("cert", "no");
         model.put("cert", cert.equals("true") ? "checked=\"\"" : "");
+        model.put("webpreview", ((String)configManager.getOrDefault("webpreview", "")).equals("true") ? "checked=\"\"" : "");
 
         model.put("jwtsecret", configManager.getOrDefault("jwtsecret", ""));
         return model;
