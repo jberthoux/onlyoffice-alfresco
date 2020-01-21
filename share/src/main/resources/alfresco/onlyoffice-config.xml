@@ -15,10 +15,6 @@
                 <param name="href">onlyoffice-edit?readonly=1&amp;nodeRef={node.nodeRef}&amp;amp;new=</param>
                 <param name="target">_blank</param>
                 <evaluator>evaluator.doclib.action.onlyofficeEditMimetype</evaluator>
-                <!--<evaluator>evaluator.doclib.action.allowOnlyofficeEdit</evaluator>-->
-                <!--<permissions>
-                    <permission allow="true">Read</permission>
-                </permissions>-->
             </action>
         </actions>
         <actionGroups>
