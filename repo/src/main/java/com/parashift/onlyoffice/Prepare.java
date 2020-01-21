@@ -71,13 +71,6 @@ public class Prepare extends AbstractWebScript {
         mesService.registerResourceBundle("alfresco/messages/prepare");
         if (request.getParameter("nodeRef") != null) {
             boolean isReadOnly = request.getParameter("readonly") != null;
-            /*
-            String[] parameters = request.getParameterNames();
-            String output = "isReadOnly = " + isReadOnly + "\n";
-            for(int i=0;i<parameters.length;i++)
-                output += parameters[i] + "\n";
-            throw new WebScriptException(output);
-*/
 
             String newFileMime = request.getParameter("new");
             NodeRef nodeRef = new NodeRef(request.getParameter("nodeRef"));
