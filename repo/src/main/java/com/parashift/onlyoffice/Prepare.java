@@ -147,15 +147,16 @@ public class Prepare extends AbstractWebScript {
                 documentObject.put("fileType", docExt);
                 documentObject.put("key", key);
                 documentObject.put("permissions", permObject);
-                permObject.put("edit", true);
 
                 responseJson.put("editorConfig", editorConfigObject);
                 editorConfigObject.put("lang", mesService.getLocale().toLanguageTag());
 
-                if(isReadOnly)
+                if (isReadOnly) {
                     editorConfigObject.put("mode", "view");
-                else
+                } else {
                     editorConfigObject.put("mode", "edit");
+                    permObject.put("edit", true);
+                }
 
                 editorConfigObject.put("callbackUrl", callbackUrl);
                 editorConfigObject.put("user", userObject);

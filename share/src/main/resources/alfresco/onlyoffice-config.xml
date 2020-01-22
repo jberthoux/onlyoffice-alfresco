@@ -12,9 +12,12 @@
                 </permissions>
             </action>
             <action id="document-onlyoffice-read" type="link" label="actions.document.onlyoffice-read">
-                <param name="href">onlyoffice-edit?readonly=1&amp;nodeRef={node.nodeRef}&amp;amp;new=</param>
+                <param name="href">onlyoffice-edit?readonly=1&amp;nodeRef={node.nodeRef}&amp;new=</param>
                 <param name="target">_blank</param>
                 <evaluator>evaluator.doclib.action.onlyofficeEditMimetype</evaluator>
+                <permissions>
+                    <permission allow="false">Write</permission>
+                </permissions>
             </action>
         </actions>
         <actionGroups>
