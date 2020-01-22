@@ -3,7 +3,8 @@
     http://www.onlyoffice.com
 */
 
-pObj = eval('(' + remote.call("/parashift/onlyoffice/prepare?nodeRef=" + url.args.nodeRef + "&new=" + url.args.new) + ')');
+var readonly = url.args.readonly ? "readonly=1&" : "";
+pObj = eval('(' + remote.call("/parashift/onlyoffice/prepare?" + readonly + "nodeRef=" + url.args.nodeRef + "&new=" + url.args.new) + ')');
 model.onlyofficeUrl = pObj.onlyofficeUrl;
 model.docTitle = pObj.document.title;
 delete (pObj.onlyofficeUrl);
