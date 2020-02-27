@@ -1,31 +1,81 @@
 # ONLYOFFICE Alfresco module package
 
-This plugin enables users to edit office documents from Alfresco Share using ONLYOFFICE Document Server.
+This plugin enables users to edit office documents from Alfresco Share using ONLYOFFICE Document Server - - [Community or Integration Edition](#onlyoffice-document-server-editions).
 
 Tested with [Alfresco 6.\*](https://github.com/keensoft/alfresco-docker-template/tree/master/templates/201806-GA)
 
 
 ## Features
-* Currently the following document formats can be opened and edited with this plugin: DOCX, XLSX, PPTX.
-* The plugin will create a new **Edit in ONLYOFFICE** menu option within the document library for Office documents.
-* ![editinonlyoffice](images/edit_in_onlyoffice.png)
-* This allows multiple users to collaborate in real time and to save back those changes to Alfresco.
-* And a **Convert using ONLYOFFICE** option to quickly convert ODT, ODP, ODS, DOC, XLS, PPT files to their Office Open XML counterpart
-* Context menu **Create new..** option within document library.
-* ![createnew](images/create_new.png)
+
+* Create and edit text documents, spreadsheets, and presentations.
+* Share documents with other users.
+* Co-edit documents in real-time: use two co-editing modes (Fast and Strict), Track Changes, comments, and built-in chat.
+
+Supported formats:
+
+* For viewing and editing: DOCX, XLSX, PPTX.
+* For converting to Office Open XML: ODT, ODP, ODS, DOC, XLS, PPT.
+
+To convert a specific file, select `Convert using ONLYOFFICE` action. Resulting file will be placed in the same folder. You can also configure rules for a folder, that will automatically convert files on upload or on change. Details [here](https://docs.alfresco.com/5.1/tasks/library-folder-rules-define-create.html).
 
 ## Installing ONLYOFFICE Document Server
 
-You will need an instance of ONLYOFFICE Document Server that is resolvable and connectable both from Alfresco and any end clients (version 3.0 and later are supported for use with the plugin). If that is not the case, use the official ONLYOFFICE Document Server documentation page: [Document Server for Linux](http://helpcenter.onlyoffice.com/server/linux/document/linux-installation.aspx). ONLYOFFICE Document Server must also be able to POST to Alfresco directly.
+You will need an instance of ONLYOFFICE Document Server that is resolvable and connectable both from Alfresco and any end clients (version 3.0 and later are supported for use with the plugin). ONLYOFFICE Document Server must also be able to POST to Alfresco directly.
 
-The easiest way to start an instance of ONLYOFFICE Document Server is to use [Docker](https://github.com/onlyoffice/Docker-DocumentServer).
+You can install free Community version of ONLYOFFICE Document Server or scalable enterprise-level Integration Edition.
 
+To install free Community version, use [Docker](https://github.com/onlyoffice/Docker-DocumentServer) (recommended) or follow [these instructions](https://helpcenter.onlyoffice.com/server/linux/document/linux-installation.aspx) for Debian, Ubuntu, or derivatives.  
+
+To install Integration Edition, follow instructions [here](https://helpcenter.onlyoffice.com/server/integration-edition/index.aspx).
+
+Community Edition vs Integration Edition comparison can be found [here](#onlyoffice-document-server-editions).
 
 ## Installing ONLYOFFICE Alfresco module package
 
 To start using ONLYOFFICE Document Server with Alfresco, the following steps must be performed for Ubuntu 14.04:
 
-> Steps **1** &mdash; **4** are only necessary if you for some reason plan to compile the ONLYOFFICE Alfresco module package yourself (e.g. edit the source code and compile it afterwards). If you do not want to do that and plan to use the already compiled module files, please skip to step **5** directly. The latest compiled package files are available [here](https://github.com/onlyoffice/onlyoffice-alfresco/releases).
+The latest compiled package files are available [here](https://github.com/onlyoffice/onlyoffice-alfresco/releases).
+
+1. Upload the compiled **\*.jar** packages to directories accordingly for your Alfresco installation:
+    * from `onlyoffice-alfresco/repo/target/` to the `/webapps/alfresco/WEB-INF/lib/` for Alfresco repository,
+    * from `onlyoffice-alfresco/share/target/` to `/webapps/share/WEB-INF/lib/` for Share.
+
+2. Make sure that Document Server will be able to POST to Alfresco.
+
+    You may need to change these lines in `alfresco-global.properties` or you can set it using [configuration page](#configuration)
+
+    ```
+    alfresco.host=<hostname>
+    alfresco.port=443
+    alfresco.protocol=https
+
+    share.host=<hostname>
+    share.port=443
+    share.protocol=https
+    ```
+
+    > Probably located here `/usr/local/tomcat/shared/classes/alfresco-global.properties`
+
+3. Restart Alfresco:
+    ```bash
+    sudo ./alfresco.sh stop
+    sudo ./alfresco.sh start
+    ```
+The module can be checked in administrator tools at `share/page/console/admin-console/module-package` in Alfresco.
+
+## Configuration
+
+Module configuration can be found inside `Alfresco Administration Console` or by simply navigating to `http://<alfrescohost>/alfresco/s/onlyoffice/onlyoffice-config`
+
+> You can also add `onlyoffice.url` in `alfresco-global.properties`. Configuration made via settings page will override `alfresco-global.properties`.
+
+JWT can be configured via [configuration page](#configuration) or by adding `onlyoffice.jwtsecret` in `alfresco-global.properties`.
+
+The JWT configuration on the Document Server side can be found [here](https://api.onlyoffice.com/editors/signature/).
+
+## Compiling ONLYOFFICE Alfresco module package
+
+If you plan to compile the ONLYOFFICE Alfresco module package yourself (e.g. edit the source code and compile it afterwards), follow these steps. 
 
 1. The latest stable Oracle Java version is necessary for the successful build. If you do not have it installed, use the following commands to install Oracle Java 8:
     ```bash
@@ -47,67 +97,13 @@ Installation process is described [here](https://maven.apache.org/install.html)
     mvn clean install
     ```
 
-5. Upload the compiled **\*.jar** packages to directories accordingly for your Alfresco installation:
-    * from `onlyoffice-alfresco/repo/target/` to the `/webapps/alfresco/WEB-INF/lib/` for Alfresco repository,
-    * from `onlyoffice-alfresco/share/target/` to `/webapps/share/WEB-INF/lib/` for Share.
-    > You can download the already compiled package files [here](https://github.com/onlyoffice/onlyoffice-alfresco/releases) and place them to the respective directories.
-
-6. Make sure that Document Server will be able to POST to Alfresco
-
-    You may need to change these lines in `alfresco-global.properties` or you can set it using [configuration page](#configuration)
-
-    ```
-    alfresco.host=<hostname>
-    alfresco.port=443
-    alfresco.protocol=https
-
-    share.host=<hostname>
-    share.port=443
-    share.protocol=https
-    ```
-
-    > Probably located here `/usr/local/tomcat/shared/classes/alfresco-global.properties`
-
-7. Restart Alfresco:
-    ```bash
-    sudo ./alfresco.sh stop
-    sudo ./alfresco.sh start
-    ```
-
-The module can be checked in administrator tools at `share/page/console/admin-console/module-package` in Alfresco.
-
-
-## Building from docker-compose
-
-Other way to build ONLYOFFICE Alfresco module package is using docker-compose file.
+Another way to build ONLYOFFICE Alfresco module package is using docker-compose file.
 
 Use this command from project directory:
 
 ```bash
 docker-compose up
 ```
-
-## Configuration
-
-Module configuration can be found inside `Alfresco Administration Console` or by simply navigating to `http://<alfrescohost>/alfresco/s/onlyoffice/onlyoffice-config`
-
-> You can also add `onlyoffice.url` in `alfresco-global.properties`. Configuration made via settings page will override `alfresco-global.properties`.
-
-## JWT
-
-JWT can be configured via [configuration page](#configuration) or by adding `onlyoffice.jwtsecret` in `alfresco-global.properties`.
-
-The JWT configuration on the Document Server side can be found [here](https://api.onlyoffice.com/editors/signature/).
-
-## Convertation
-
-File types that can be converted
-
-* `.doc`, `.odt` -> `.docx`
-* `.xls`, `.ods` -> `.xlsx`
-* `.ppt`, `.odp` -> `.pptx`
-
-To convert one specific file you can simply select `Convert using ONLYOFFICE` action. Resulting file will be placed in the same folder. You can also configure rules for a folder, that will automatically convert files on upload or on change. You can read how such rules can be configured [here](https://docs.alfresco.com/5.1/tasks/library-folder-rules-define-create.html).
 
 ## How it works
 
