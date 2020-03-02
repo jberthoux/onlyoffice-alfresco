@@ -120,6 +120,7 @@ public class Converter extends AbstractContentTransformer2 {
             saveFromUrl(url, writer);
         } catch (Exception ex) {
             logger.info("Conversion failed: " + ex.getMessage());
+            throw ex;
         } finally {
             if (OnGoingConversions.containsKey(key)) {
                 OnGoingConversions.remove(key);
