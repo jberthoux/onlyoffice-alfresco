@@ -9,8 +9,11 @@ import org.apache.http.HttpException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.http.ssl.TrustStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,10 +22,15 @@ import org.apache.http.entity.ContentType;
 
 import org.json.JSONObject;
 
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLSession;
 
 /*
     Copyright (c) Ascensio System SIA 2019. All rights reserved.
@@ -129,7 +137,7 @@ public class Converter extends AbstractContentTransformer2 {
     }
 
     public String convert(String key, String srcType, String outType, String url) throws SecurityException, Exception {
-        try(CloseableHttpClient httpClient = HttpClients.createDefault()) {
+        try (CloseableHttpClient httpClient = GetClient()) {
             JSONObject body = new JSONObject();
             body.put("async", false);
             body.put("embeddedfonts", true);
@@ -181,8 +189,8 @@ public class Converter extends AbstractContentTransformer2 {
     }
 
     private void saveFromUrl(String fileUrl, ContentWriter writer) throws Exception {
-
-        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+        try (CloseableHttpClient httpClient = GetClient()) {
+            logger.debug("Getting file from " + fileUrl);
             HttpGet request = new HttpGet(fileUrl);
 
             try(CloseableHttpResponse response = httpClient.execute(request)) {
@@ -195,5 +203,32 @@ public class Converter extends AbstractContentTransformer2 {
                 }
             }
         }
+    }
+
+    private CloseableHttpClient GetClient() throws Exception {
+        CloseableHttpClient httpClient;
+
+        String cert = (String) configManager.getOrDefault("cert", "no");
+        if (cert.equals("true")) {
+            logger.debug("Ignoring SSL");
+            SSLContextBuilder builder = new SSLContextBuilder();
+            builder.loadTrustMaterial(null, new TrustStrategy() {
+                @Override
+                public boolean isTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                    return true;
+                }
+            });
+            SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(builder.build(), new HostnameVerifier() {
+                @Override
+                public boolean verify(String hostname, SSLSession session) {
+                    return true;
+                }
+            });
+            httpClient = HttpClients.custom().setSSLSocketFactory(sslsf).build();
+        } else {
+            httpClient = HttpClients.createDefault();
+        }
+
+        return httpClient;
     }
 }
