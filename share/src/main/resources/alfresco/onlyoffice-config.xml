@@ -24,9 +24,8 @@
 
     <config evaluator="string-compare" condition="DocumentLibrary">
         <create-content>
-            <content id="document-onlyoffice-create-docx" type="link" label="actions.document.onlyoffice-create-docx">
-                <param name="href">onlyoffice-edit?nodeRef={nodeRef}&amp;new=application/vnd.openxmlformats-officedocument.wordprocessingml.document</param>
-                <param name="target">_blank</param>
+            <content id="document-onlyoffice-create-docx" type="javascript" label="actions.document.onlyoffice-create-docx">
+                <param name="function">onOnlyofficeCreateDocx</param>
                 <permissions>
                     <permission allow="true">Write</permission>
                 </permissions>
@@ -36,9 +35,8 @@
 
     <config evaluator="string-compare" condition="DocumentLibrary">
         <create-content>
-            <content id="document-onlyoffice-create-xlsx" type="link" label="actions.document.onlyoffice-create-xlsx">
-                <param name="href">onlyoffice-edit?nodeRef={nodeRef}&amp;new=application/vnd.openxmlformats-officedocument.spreadsheetml.sheet</param>
-                <param name="target">_blank</param>
+            <content id="document-onlyoffice-create-xlsx" type="javascript" label="actions.document.onlyoffice-create-xlsx">
+                <param name="function">onOnlyofficeCreateXlsx</param>
                 <permissions>
                     <permission allow="true">Write</permission>
                 </permissions>
@@ -48,9 +46,8 @@
 
     <config evaluator="string-compare" condition="DocumentLibrary">
         <create-content>
-            <content id="document-onlyoffice-create-pptx" type="link" label="actions.document.onlyoffice-create-pptx">
-                <param name="href">onlyoffice-edit?nodeRef={nodeRef}&amp;new=application/vnd.openxmlformats-officedocument.presentationml.presentation</param>
-                <param name="target">_blank</param>
+            <content id="document-onlyoffice-create-pptx" type="javascript" label="actions.document.onlyoffice-create-pptx">
+                <param name="function">onOnlyofficeCreatePptx</param>
                 <permissions>
                     <permission allow="true">Write</permission>
                 </permissions>
@@ -78,4 +75,9 @@
         </actionGroups>
     </config>
 
+    <config evaluator="string-compare" condition="DocLibCustom">
+        <dependencies>
+            <js src="components/documentlibrary/onlyoffice-doclib-actions.js" />
+        </dependencies>
+    </config>
 </alfresco-config>
