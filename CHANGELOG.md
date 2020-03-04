@@ -1,5 +1,13 @@
 # Change Log
 
+## 4.0.2
+## Added
+ - Ukrainian translations for `Create ...` menu [#22](https://github.com/ONLYOFFICE/onlyoffice-alfresco/pull/22)
+
+## Fixed
+ - Creating a new document was opening an editor in a current tab instead of a new one [#28](https://github.com/ONLYOFFICE/onlyoffice-alfresco/issues/28)
+ - `Ignore SSL certificate` setting now is taken into consideration when converting a document [#27](https://github.com/ONLYOFFICE/onlyoffice-alfresco/issues/27)
+
 ## 4.0.1
 ## Fixed
  - fixed an issue when trying to create a new file [#18](https://github.com/ONLYOFFICE/onlyoffice-alfresco/issues/18)
