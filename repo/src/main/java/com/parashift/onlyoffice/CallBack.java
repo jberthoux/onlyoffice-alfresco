@@ -144,6 +144,7 @@ public class CallBack extends AbstractWebScript {
             }
 
             if (username != null) {
+                AuthenticationUtil.clearCurrentSecurityContext();
                 AuthenticationUtil.setRunAsUser(username);
             } else {
                 throw new SecurityException("No user information");
