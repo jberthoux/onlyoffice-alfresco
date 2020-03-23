@@ -225,7 +225,7 @@ public class CallBack extends AbstractWebScript {
     }
 
     private void updateNode(NodeRef nodeRef, String url) throws Exception {
-        logger.debug("Retrieving URL:{}", url);
+        logger.debug("Retrieving URL:" + url);
         ContentData contentData = (ContentData) nodeService.getProperty(nodeRef, ContentModel.PROP_CONTENT);
         String mimeType = contentData.getMimetype();
 
