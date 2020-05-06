@@ -47,6 +47,10 @@
             <input class="value" id="forcesave" name="forcesave" type="checkbox" ${forcesave} />
             <label class="label" for="forcesave">${msg("onlyoffice-config.forcesave")}</label>
          </div>
+         <div class="control field">
+            <input class="value" id="webpreview" name="cert" type="checkbox" ${webpreview} />
+            <label class="label" for="webpreview">${msg("onlyoffice-config.webpreview")}</label>
+         </div>
       </@tsection>
 
       <br>
@@ -63,6 +67,7 @@
       var alfurl = document.getElementById("alfurl");
       var cert = document.getElementById("onlycert");
       var fs = document.getElementById("forcesave");
+      var webpreview = document.getElementById("webpreview");
       var jwts = document.getElementById("jwtsecret");
 
       var form = document.getElementById("docservcfg");
@@ -110,6 +115,7 @@
          obj.alfurl = alfurl.value.trim();
          obj.cert = cert.checked.toString();
          obj.forcesave = forcesave.checked.toString();
+         obj.webpreview = webpreview.checked.toString();
          obj.jwtsecret = jwts.value.trim();
 
          return obj;

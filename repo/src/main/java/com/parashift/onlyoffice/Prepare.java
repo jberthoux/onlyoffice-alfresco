@@ -120,31 +120,40 @@ public class Prepare extends AbstractWebScript {
 
             Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
 
+            String previewParam = request.getParameter("preview");
+            Boolean preview = ((String)configManager.getOrDefault("webpreview", "")).equals("true") && previewParam != null && previewParam.equals("true");
+
+            String docTitle = (String) properties.get(ContentModel.PROP_NAME);
+            String docExt = docTitle.substring(docTitle.lastIndexOf(".") + 1).trim().toLowerCase();
+
             response.setContentType("application/json; charset=utf-8");
             response.setContentEncoding("UTF-8");
-
-            String contentUrl = util.getContentUrl(nodeRef);
-            String key = util.getKey(nodeRef);
-            String callbackUrl = util.getCallbackUrl(nodeRef);
-            String username = AuthenticationUtil.getFullyAuthenticatedUser();
-            NodeRef person = personService.getPersonOrNull(username);
-            PersonInfo personInfo = null;
-            if (person != null) {
-                personInfo = personService.getPerson(person);
-            }
-
-            JSONObject responseJson = new JSONObject();
-            JSONObject documentObject = new JSONObject();
-            JSONObject editorConfigObject = new JSONObject();
-            JSONObject userObject = new JSONObject();
-            JSONObject permObject = new JSONObject();
-            JSONObject customizationObject = new JSONObject();
-
             try {
-                String docTitle = (String) properties.get(ContentModel.PROP_NAME);
-                String docExt = docTitle.substring(docTitle.lastIndexOf(".") + 1).trim().toLowerCase();
+                JSONObject responseJson = new JSONObject();
+                JSONObject documentObject = new JSONObject();
+                JSONObject editorConfigObject = new JSONObject();
+                JSONObject userObject = new JSONObject();
+                JSONObject permObject = new JSONObject();
+                JSONObject customizationObject = new JSONObject();
 
-                responseJson.put("type", "desktop");
+                if (getDocType(docExt) == null) {
+                    responseJson.put("error", "File type is not supported");
+                    response.setStatus(500);
+                    response.getWriter().write(responseJson.toString(3));
+                    return;
+                }
+
+                String contentUrl = util.getContentUrl(nodeRef);
+                String key = util.getKey(nodeRef);
+                String callbackUrl = util.getCallbackUrl(nodeRef);
+                String username = AuthenticationUtil.getFullyAuthenticatedUser();
+                NodeRef person = personService.getPersonOrNull(username);
+                PersonInfo personInfo = null;
+                if (person != null) {
+                    personInfo = personService.getPerson(person);
+                }
+
+                responseJson.put("type", preview ? "embedded" : "desktop");
                 responseJson.put("width", "100%");
                 responseJson.put("height", "100%");
                 responseJson.put("documentType", getDocType(docExt));
@@ -155,12 +164,14 @@ public class Prepare extends AbstractWebScript {
                 documentObject.put("fileType", docExt);
                 documentObject.put("key", key);
                 documentObject.put("permissions", permObject);
-                permObject.put("edit", true);
+                permObject.put("edit", !preview);
 
                 responseJson.put("editorConfig", editorConfigObject);
                 editorConfigObject.put("lang", mesService.getLocale().toLanguageTag());
-                editorConfigObject.put("mode", "edit");
-                editorConfigObject.put("callbackUrl", callbackUrl);
+                editorConfigObject.put("mode", preview ? "view" : "edit");
+                if (!preview) {
+                    editorConfigObject.put("callbackUrl", callbackUrl);
+                }
                 editorConfigObject.put("user", userObject);
                 userObject.put("id", username);
                 editorConfigObject.put("customization", customizationObject);

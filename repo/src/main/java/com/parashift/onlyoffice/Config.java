@@ -27,11 +27,16 @@ public class Config extends DeclarativeWebScript {
         model.put("docinnerurl", configManager.getOrDefault("innerurl", ""));
         model.put("alfurl", configManager.getOrDefault("alfurl", ""));
 
-        model.put("cert", configManager.getAsBoolean("cert") ? "checked=\"\"" : "");
-        model.put("forcesave", configManager.getAsBoolean("forcesave") ? "checked=\"\"" : "");
+        model.put("cert", getBoolAsAttribute("cert"));
+        model.put("forcesave", getBoolAsAttribute("forcesave"));
+        model.put("webpreview", getBoolAsAttribute("webpreview"));
 
         model.put("jwtsecret", configManager.getOrDefault("jwtsecret", ""));
         return model;
+    }
+
+    private String getBoolAsAttribute(String key) {
+        return configManager.getAsBoolean(key) ? "checked=\"\"" : "";
     }
 }
 

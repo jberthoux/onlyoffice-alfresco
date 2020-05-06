@@ -1,0 +1,18 @@
+<extension>
+    <modules>
+        <module>
+            <id>ONLYOFFICE Preview</id>
+            <version>1.0</version>
+            <auto-deploy>true</auto-deploy>
+            <customizations>
+                <customization>
+                    <targetPackageRoot>org.alfresco.components.preview</targetPackageRoot>
+                    <sourcePackageRoot>preview-config</sourcePackageRoot>
+                    <dependencies>
+                        <js>/res/components/preview/onlyoffice.js</js>
+                    </dependencies>
+                </customization>
+            </customizations>
+        </module>
+    </modules>
+</extension>
