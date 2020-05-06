@@ -131,6 +131,7 @@ public class Prepare extends AbstractWebScript {
             response.setContentEncoding("UTF-8");
             try {
                 JSONObject responseJson = new JSONObject();
+                JSONObject configJson = new JSONObject();
                 JSONObject documentObject = new JSONObject();
                 JSONObject editorConfigObject = new JSONObject();
                 JSONObject userObject = new JSONObject();
@@ -144,9 +145,10 @@ public class Prepare extends AbstractWebScript {
                     return;
                 }
 
-                if (preview) {
-                    responseJson.put("mime", mimetypeService.getMimetype(docExt));
-                }
+                responseJson.put("config", configJson);
+                responseJson.put("onlyofficeUrl", util.getEditorUrl());
+                responseJson.put("mime", mimetypeService.getMimetype(docExt));
+                responseJson.put("previewEnabled", preview);
 
                 String contentUrl = util.getContentUrl(nodeRef);
                 String key = util.getKey(nodeRef);
@@ -158,19 +160,19 @@ public class Prepare extends AbstractWebScript {
                     personInfo = personService.getPerson(person);
                 }
 
-                responseJson.put("type", preview ? "embedded" : "desktop");
-                responseJson.put("width", "100%");
-                responseJson.put("height", "100%");
-                responseJson.put("documentType", getDocType(docExt));
+                configJson.put("type", preview ? "embedded" : "desktop");
+                configJson.put("width", "100%");
+                configJson.put("height", "100%");
+                configJson.put("documentType", getDocType(docExt));
 
-                responseJson.put("document", documentObject);
+                configJson.put("document", documentObject);
                 documentObject.put("title", docTitle);
                 documentObject.put("url", contentUrl);
                 documentObject.put("fileType", docExt);
                 documentObject.put("key", key);
                 documentObject.put("permissions", permObject);
 
-                responseJson.put("editorConfig", editorConfigObject);
+                configJson.put("editorConfig", editorConfigObject);
                 editorConfigObject.put("lang", mesService.getLocale().toLanguageTag());
                 if (isReadOnly || preview) {
                     editorConfigObject.put("mode", "view");
@@ -196,10 +198,8 @@ public class Prepare extends AbstractWebScript {
                 }
 
                 if (jwtManager.jwtEnabled()) {
-                    responseJson.put("token", jwtManager.createToken(responseJson));
+                    configJson.put("token", jwtManager.createToken(configJson));
                 }
-
-                responseJson.put("onlyofficeUrl", util.getEditorUrl());
 
                 logger.debug("Sending JSON prepare object");
                 logger.debug(responseJson.toString(3));

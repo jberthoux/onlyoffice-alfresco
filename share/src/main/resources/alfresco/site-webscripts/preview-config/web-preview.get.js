@@ -9,20 +9,17 @@ if (model.widgets) {
         if (widget.id == "WebPreview") {
             pObj = eval('(' + remote.call("/parashift/onlyoffice/prepare?nodeRef=" + url.args.nodeRef + "&preview=true") + ')');
 
-            if (pObj.onlyofficeUrl && pObj.mime) {
+            if (pObj.previewEnabled && pObj.onlyofficeUrl && pObj.mime) {
                 model.onlyofficeUrl = pObj.onlyofficeUrl;
-                var mime = pObj.mime;
-                delete(pObj.onlyofficeUrl);
-                delete(pObj.mime);
 
                 widget.options.pluginConditions = jsonUtils.toJSONString([{
                     attributes: {
-                        mimeType: mime
+                        mimeType: pObj.mime
                     },
                     plugins: [{
                         name: "onlyoffice",
                         attributes: {
-                            config: pObj
+                            config: pObj.config
                         }
                     }]
                 }]);
