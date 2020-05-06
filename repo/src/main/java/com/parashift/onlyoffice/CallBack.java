@@ -118,8 +118,7 @@ public class CallBack extends AbstractWebScript {
                 }
             }
 
-            String[] keyParts = callBackJSon.getString("key").split("_");
-            NodeRef nodeRef = new NodeRef("workspace://SpacesStore/" + keyParts[0]);
+            NodeRef nodeRef = new NodeRef(request.getParameter("nodeRef"));
             String hash = (String) nodeService.getProperty(nodeRef, Util.EditingHashAspect);
             String queryHash = request.getParameter("cb_key");
 
@@ -177,9 +176,12 @@ public class CallBack extends AbstractWebScript {
         private JSONObject callBackJSon;
         private NodeRef nodeRef;
 
+        private Boolean forcesave;
+
         public ProccessRequestCallback(JSONObject json, NodeRef node) {
             callBackJSon = json;
             nodeRef = node;
+            forcesave = configManager.getAsBoolean("forcesave");
         }
 
         @Override
@@ -219,6 +221,16 @@ public class CallBack extends AbstractWebScript {
                     lockService.unlock(nodeRef);
                     logger.info("removing prop");
                     nodeService.removeProperty(nodeRef, Util.EditingHashAspect);
+                    break;
+                case 6:
+                    if (!forcesave) {
+                        logger.debug("Forcesave is disabled, ignoring forcesave request");
+                        return null;
+                    }
+
+                    logger.debug("Forcesave request (type: " + callBackJSon.getString("forcesavetype") + ")");
+                    updateNode(nodeRef, callBackJSon.getString("url"));
+                    logger.debug("Forcesave complete");
                     break;
             }
             return null;

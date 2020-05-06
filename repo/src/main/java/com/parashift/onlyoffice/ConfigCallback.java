@@ -72,6 +72,7 @@ public class ConfigCallback extends AbstractWebScript {
             configManager.set("innerurl", docInnerUrl);
             configManager.set("alfurl", alfUrl);
             configManager.set("cert", data.getString("cert"));
+            configManager.set("forcesave", data.getString("forcesave"));
             configManager.set("jwtsecret", jwtSecret);
 
             String alfrescoProto = (String) globalProp.getOrDefault("alfresco.protocol", "http");
