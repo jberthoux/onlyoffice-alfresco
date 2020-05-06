@@ -74,6 +74,7 @@ public class Prepare extends AbstractWebScript {
     public void execute(WebScriptRequest request, WebScriptResponse response) throws IOException {
         mesService.registerResourceBundle("alfresco/messages/prepare");
         if (request.getParameter("nodeRef") != null) {
+            boolean isReadOnly = request.getParameter("readonly") != null;
 
             String newFileMime = request.getParameter("new");
             NodeRef nodeRef = new NodeRef(request.getParameter("nodeRef"));
@@ -168,11 +169,16 @@ public class Prepare extends AbstractWebScript {
 
                 responseJson.put("editorConfig", editorConfigObject);
                 editorConfigObject.put("lang", mesService.getLocale().toLanguageTag());
-                editorConfigObject.put("mode", preview ? "view" : "edit");
-                if (!preview) {
+                if (isReadOnly || preview) {
+                    editorConfigObject.put("mode", "view");
+                } else {
+                    editorConfigObject.put("mode", "edit");
                     editorConfigObject.put("callbackUrl", callbackUrl);
+                    permObject.put("edit", true);
                 }
+
                 editorConfigObject.put("user", userObject);
+
                 userObject.put("id", username);
                 editorConfigObject.put("customization", customizationObject);
                 customizationObject.put("forcesave", configManager.getAsBoolean("forcesave"));
