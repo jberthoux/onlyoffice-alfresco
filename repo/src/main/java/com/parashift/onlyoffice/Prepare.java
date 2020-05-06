@@ -144,6 +144,10 @@ public class Prepare extends AbstractWebScript {
                     return;
                 }
 
+                if (preview) {
+                    responseJson.put("mime", mimetypeService.getMimetype(docExt));
+                }
+
                 String contentUrl = util.getContentUrl(nodeRef);
                 String key = util.getKey(nodeRef);
                 String callbackUrl = util.getCallbackUrl(nodeRef);
@@ -165,12 +169,12 @@ public class Prepare extends AbstractWebScript {
                 documentObject.put("fileType", docExt);
                 documentObject.put("key", key);
                 documentObject.put("permissions", permObject);
-                permObject.put("edit", !preview);
 
                 responseJson.put("editorConfig", editorConfigObject);
                 editorConfigObject.put("lang", mesService.getLocale().toLanguageTag());
                 if (isReadOnly || preview) {
                     editorConfigObject.put("mode", "view");
+                    permObject.put("edit", false);
                 } else {
                     editorConfigObject.put("mode", "edit");
                     editorConfigObject.put("callbackUrl", callbackUrl);
