@@ -11,7 +11,7 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.crypto.Mac;
 
 /*
-    Copyright (c) Ascensio System SIA 2019. All rights reserved.
+    Copyright (c) Ascensio System SIA 2020. All rights reserved.
     http://www.onlyoffice.com
 */
 @Service

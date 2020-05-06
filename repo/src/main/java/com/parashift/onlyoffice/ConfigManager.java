@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import java.util.Properties;
 
 /*
-    Copyright (c) Ascensio System SIA 2019. All rights reserved.
+    Copyright (c) Ascensio System SIA 2020. All rights reserved.
     http://www.onlyoffice.com
 */
 @Service
