@@ -103,10 +103,21 @@ public class Converter extends AbstractContentTransformer2 {
     }};
 
     public String GetModernMimetype(String mimetype) {
-        if (TransformableDict.containsKey(mimetype)) {
-            return TransformableDict.get(mimetype).iterator().next();
-        } else {
-            return null;
+        switch(mimetype){
+            case "application/vnd.oasis.opendocument.text":
+            case "application/msword":
+                return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+
+            case "application/vnd.oasis.opendocument.spreadsheet":
+            case "application/vnd.ms-excel":
+                return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+            case "application/vnd.oasis.opendocument.presentation":
+            case "application/vnd.ms-powerpoint":
+                return "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+
+            default:
+                return null;
         }
     }
 
