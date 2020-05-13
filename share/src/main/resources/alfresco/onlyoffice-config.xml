@@ -3,21 +3,14 @@
     <config evaluator="string-compare" condition="DocLibActions">
         <actions>
             <action id="document-onlyoffice-edit" type="link" label="actions.document.onlyoffice-edit">
-                <param name="href">onlyoffice-edit?nodeRef={node.nodeRef}&amp;new=</param>
+                <param name="href">onlyoffice-edit?nodeRef={node.nodeRef}</param>
                 <param name="target">_blank</param>
-                <evaluator>evaluator.doclib.action.onlyofficeEditMimetype</evaluator>
-                <evaluator>evaluator.doclib.action.allowOnlyofficeEdit</evaluator>
-                <permissions>
-                    <permission allow="true">Write</permission>
-                </permissions>
+                <evaluator>evaluator.doclib.action.displayEdit</evaluator>
             </action>
             <action id="document-onlyoffice-read" type="link" label="actions.document.onlyoffice-read">
-                <param name="href">onlyoffice-edit?readonly=1&amp;nodeRef={node.nodeRef}&amp;new=</param>
+                <param name="href">onlyoffice-edit?readonly=1&amp;nodeRef={node.nodeRef}</param>
                 <param name="target">_blank</param>
-                <evaluator>evaluator.doclib.action.onlyofficeEditMimetype</evaluator>
-                <permissions>
-                    <permission allow="false">Write</permission>
-                </permissions>
+                <evaluator>evaluator.doclib.action.displayRead</evaluator>
             </action>
         </actions>
         <actionGroups>
