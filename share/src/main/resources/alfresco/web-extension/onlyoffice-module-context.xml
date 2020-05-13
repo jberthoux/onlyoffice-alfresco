@@ -31,6 +31,34 @@
        <property name="negateOutput" value="true" />
     </bean>
 
+    <bean id="evaluator.doclib.action.displayEdit" parent="evaluator.doclib.action.chainedMatchAll">
+        <property name="evaluators">
+           <list>
+              <ref bean="evaluator.doclib.action.onlyofficeEditMimetype" />
+              <ref bean="evaluator.doclib.action.allowOnlyofficeEdit" />
+              <ref bean="evaluator.doclib.action.IsWritePermission" />
+           </list>
+        </property>
+     </bean>
+
+     <bean id="evaluator.doclib.action.readAvailable" parent="evaluator.doclib.action.chainedMatchAll">
+        <property name="evaluators">
+           <list>
+              <ref bean="evaluator.doclib.action.onlyofficeEditMimetype" />
+              <ref bean="evaluator.doclib.action.IsReadPermission" />
+           </list>
+        </property>
+     </bean>
+
+     <bean id="evaluator.doclib.action.displayRead" parent="evaluator.doclib.action.chainedMatchOne">
+        <property name="evaluators">
+           <list>
+              <ref bean="evaluator.doclib.action.onlyofficeConvertMimetype"/>
+              <ref bean="evaluator.doclib.action.readAvailable"/>
+           </list>
+        </property>
+     </bean>
+
     <bean id="evaluator.doclib.action.isOnlyEdit" parent="evaluator.doclib.action.propertyNotNull">
         <property name="property" value=":onlyoffice:editing-hash"/>
     </bean>
@@ -74,5 +102,9 @@
         </property>
     </bean>
 
+    <bean id="evaluator.doclib.action.IsWritePermission" class="com.onlyoffice.web.evaluator.IsWritePermission" />
+    <bean id="evaluator.doclib.action.IsReadPermission" parent="evaluator.doclib.action.IsWritePermission">
+        <property name="negateOutput" value="true" />
+    </bean>
 
 </beans>
