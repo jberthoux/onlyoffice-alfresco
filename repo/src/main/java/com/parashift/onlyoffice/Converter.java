@@ -61,39 +61,23 @@ public class Converter extends AbstractContentTransformer2 {
     private static Map<String, Set<String>> TransformableDict = new HashMap<String, Set<String>>() {{
         put("application/vnd.oasis.opendocument.text", new HashSet<String>() {{
             add("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
-            add("image/png");
         }});
         put("application/msword", new HashSet<String>() {{
             add("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
-            add("image/png");
         }});
 
         put("application/vnd.oasis.opendocument.spreadsheet", new HashSet<String>() {{
             add("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-            add("image/png");
         }});
         put("application/vnd.ms-excel", new HashSet<String>() {{
             add("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-            add("image/png");
         }});
 
         put("application/vnd.oasis.opendocument.presentation", new HashSet<String>() {{
             add("application/vnd.openxmlformats-officedocument.presentationml.presentation");
-            add("image/png");
         }});
         put("application/vnd.ms-powerpoint", new HashSet<String>() {{
             add("application/vnd.openxmlformats-officedocument.presentationml.presentation");
-            add("image/png");
-        }});
-
-        put("application/vnd.openxmlformats-officedocument.wordprocessingml.document", new HashSet<String>() {{
-            add("image/png");
-        }});
-        put("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", new HashSet<String>() {{
-            add("image/png");
-        }});
-        put("application/vnd.openxmlformats-officedocument.presentationml.presentation", new HashSet<String>() {{
-            add("image/png");
         }});
     }};
 
@@ -172,15 +156,6 @@ public class Converter extends AbstractContentTransformer2 {
             body.put("outputtype", outType);
             body.put("key", key);
             body.put("url", url);
-
-            if (outType.contains("png")) {
-                JSONObject thumb = new JSONObject();
-                thumb.put("aspect", 1);
-                thumb.put("first", true);
-                thumb.put("height", 100);
-                thumb.put("width", 100);
-                body.put("thumbnail", thumb);
-            }
 
             StringEntity requestEntity = new StringEntity(body.toString(), ContentType.APPLICATION_JSON);
             HttpPost request = new HttpPost(util.getEditorInnerUrl() + "ConvertService.ashx");
