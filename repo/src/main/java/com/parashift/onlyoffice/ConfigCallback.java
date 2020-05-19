@@ -26,7 +26,7 @@ import java.util.Date;
 import java.util.Properties;
 
 /*
-    Copyright (c) Ascensio System SIA 2019. All rights reserved.
+    Copyright (c) Ascensio System SIA 2020. All rights reserved.
     http://www.onlyoffice.com
 */
 @Component(value = "webscript.onlyoffice.onlyoffice-config.post")
@@ -72,6 +72,8 @@ public class ConfigCallback extends AbstractWebScript {
             configManager.set("innerurl", docInnerUrl);
             configManager.set("alfurl", alfUrl);
             configManager.set("cert", data.getString("cert"));
+            configManager.set("forcesave", data.getString("forcesave"));
+            configManager.set("webpreview", data.getString("webpreview"));
             configManager.set("jwtsecret", jwtSecret);
 
             String alfrescoProto = (String) globalProp.getOrDefault("alfresco.protocol", "http");

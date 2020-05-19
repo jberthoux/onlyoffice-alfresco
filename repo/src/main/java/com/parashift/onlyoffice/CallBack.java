@@ -43,7 +43,7 @@ import javax.net.ssl.X509TrustManager;
  * Created by cetra on 20/10/15.
  */
  /*
-    Copyright (c) Ascensio System SIA 2019. All rights reserved.
+    Copyright (c) Ascensio System SIA 2020. All rights reserved.
     http://www.onlyoffice.com
 */
 @Component(value = "webscript.onlyoffice.callback.post")
@@ -118,8 +118,7 @@ public class CallBack extends AbstractWebScript {
                 }
             }
 
-            String[] keyParts = callBackJSon.getString("key").split("_");
-            NodeRef nodeRef = new NodeRef("workspace://SpacesStore/" + keyParts[0]);
+            NodeRef nodeRef = new NodeRef(request.getParameter("nodeRef"));
             String hash = (String) nodeService.getProperty(nodeRef, Util.EditingHashAspect);
             String queryHash = request.getParameter("cb_key");
 
@@ -144,6 +143,7 @@ public class CallBack extends AbstractWebScript {
             }
 
             if (username != null) {
+                AuthenticationUtil.clearCurrentSecurityContext();
                 AuthenticationUtil.setRunAsUser(username);
             } else {
                 throw new SecurityException("No user information");
@@ -176,9 +176,12 @@ public class CallBack extends AbstractWebScript {
         private JSONObject callBackJSon;
         private NodeRef nodeRef;
 
+        private Boolean forcesave;
+
         public ProccessRequestCallback(JSONObject json, NodeRef node) {
             callBackJSon = json;
             nodeRef = node;
+            forcesave = configManager.getAsBoolean("forcesave");
         }
 
         @Override
@@ -219,13 +222,23 @@ public class CallBack extends AbstractWebScript {
                     logger.info("removing prop");
                     nodeService.removeProperty(nodeRef, Util.EditingHashAspect);
                     break;
+                case 6:
+                    if (!forcesave) {
+                        logger.debug("Forcesave is disabled, ignoring forcesave request");
+                        return null;
+                    }
+
+                    logger.debug("Forcesave request (type: " + callBackJSon.getString("forcesavetype") + ")");
+                    updateNode(nodeRef, callBackJSon.getString("url"));
+                    logger.debug("Forcesave complete");
+                    break;
             }
             return null;
         }
     }
 
     private void updateNode(NodeRef nodeRef, String url) throws Exception {
-        logger.debug("Retrieving URL:{}", url);
+        logger.debug("Retrieving URL:" + url);
         ContentData contentData = (ContentData) nodeService.getProperty(nodeRef, ContentModel.PROP_CONTENT);
         String mimeType = contentData.getMimetype();
 

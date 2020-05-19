@@ -8,6 +8,7 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.cmr.security.PersonService.PersonInfo;
+import org.alfresco.service.cmr.version.VersionService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.repo.i18n.MessageService;
@@ -34,7 +35,7 @@ import java.util.Map;
  * Sends Alfresco Share the necessaries to build up what information is needed for the OnlyOffice server
  */
  /*
-    Copyright (c) Ascensio System SIA 2019. All rights reserved.
+    Copyright (c) Ascensio System SIA 2020. All rights reserved.
     http://www.onlyoffice.com
 */
 @Component(value = "webscript.onlyoffice.prepare.get")
@@ -61,6 +62,9 @@ public class Prepare extends AbstractWebScript {
     ConfigManager configManager;
 
     @Autowired
+    VersionService versionService;
+
+    @Autowired
     JwtManager jwtManager;
 
     @Autowired
@@ -70,6 +74,7 @@ public class Prepare extends AbstractWebScript {
     public void execute(WebScriptRequest request, WebScriptResponse response) throws IOException {
         mesService.registerResourceBundle("alfresco/messages/prepare");
         if (request.getParameter("nodeRef") != null) {
+            boolean isReadOnly = request.getParameter("readonly") != null;
 
             String newFileMime = request.getParameter("new");
             NodeRef nodeRef = new NodeRef(request.getParameter("nodeRef"));
@@ -108,52 +113,81 @@ public class Prepare extends AbstractWebScript {
                 InputStream in = getClass().getResourceAsStream("/newdocs/" + tag + "/new." + ext);
 
                 writer.putContent(in);
+
+                Map<QName, Serializable> versionProps = new HashMap<>();
+                props.put(ContentModel.PROP_INITIAL_VERSION, true);
+                versionService.ensureVersioningEnabled(nodeRef, versionProps);
             }
 
             Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
 
+            String previewParam = request.getParameter("preview");
+            Boolean preview = ((String)configManager.getOrDefault("webpreview", "")).equals("true") && previewParam != null && previewParam.equals("true");
+
+            String docTitle = (String) properties.get(ContentModel.PROP_NAME);
+            String docExt = docTitle.substring(docTitle.lastIndexOf(".") + 1).trim().toLowerCase();
+
             response.setContentType("application/json; charset=utf-8");
             response.setContentEncoding("UTF-8");
-
-            String contentUrl = util.getContentUrl(nodeRef);
-            String key = util.getKey(nodeRef);
-            String callbackUrl = util.getCallbackUrl(nodeRef);
-            String username = AuthenticationUtil.getFullyAuthenticatedUser();
-            NodeRef person = personService.getPersonOrNull(username);
-            PersonInfo personInfo = null;
-            if (person != null) {
-                personInfo = personService.getPerson(person);
-            }
-
-            JSONObject responseJson = new JSONObject();
-            JSONObject documentObject = new JSONObject();
-            JSONObject editorConfigObject = new JSONObject();
-            JSONObject userObject = new JSONObject();
-            JSONObject permObject = new JSONObject();
-
             try {
-                String docTitle = (String) properties.get(ContentModel.PROP_NAME);
-                String docExt = docTitle.substring(docTitle.lastIndexOf(".") + 1).trim().toLowerCase();
+                JSONObject responseJson = new JSONObject();
+                JSONObject configJson = new JSONObject();
+                JSONObject documentObject = new JSONObject();
+                JSONObject editorConfigObject = new JSONObject();
+                JSONObject userObject = new JSONObject();
+                JSONObject permObject = new JSONObject();
+                JSONObject customizationObject = new JSONObject();
 
-                responseJson.put("type", "desktop");
-                responseJson.put("width", "100%");
-                responseJson.put("height", "100%");
-                responseJson.put("documentType", getDocType(docExt));
+                if (getDocType(docExt) == null) {
+                    responseJson.put("error", "File type is not supported");
+                    response.setStatus(500);
+                    response.getWriter().write(responseJson.toString(3));
+                    return;
+                }
 
-                responseJson.put("document", documentObject);
+                responseJson.put("config", configJson);
+                responseJson.put("onlyofficeUrl", util.getEditorUrl());
+                responseJson.put("mime", mimetypeService.getMimetype(docExt));
+                responseJson.put("previewEnabled", preview);
+
+                String contentUrl = util.getContentUrl(nodeRef);
+                String key = util.getKey(nodeRef);
+                String callbackUrl = util.getCallbackUrl(nodeRef);
+                String username = AuthenticationUtil.getFullyAuthenticatedUser();
+                NodeRef person = personService.getPersonOrNull(username);
+                PersonInfo personInfo = null;
+                if (person != null) {
+                    personInfo = personService.getPerson(person);
+                }
+
+                configJson.put("type", preview ? "embedded" : "desktop");
+                configJson.put("width", "100%");
+                configJson.put("height", "100%");
+                configJson.put("documentType", getDocType(docExt));
+
+                configJson.put("document", documentObject);
                 documentObject.put("title", docTitle);
                 documentObject.put("url", contentUrl);
                 documentObject.put("fileType", docExt);
                 documentObject.put("key", key);
                 documentObject.put("permissions", permObject);
-                permObject.put("edit", true);
 
-                responseJson.put("editorConfig", editorConfigObject);
+                configJson.put("editorConfig", editorConfigObject);
                 editorConfigObject.put("lang", mesService.getLocale().toLanguageTag());
-                editorConfigObject.put("mode", "edit");
-                editorConfigObject.put("callbackUrl", callbackUrl);
+                if (isReadOnly || preview) {
+                    editorConfigObject.put("mode", "view");
+                    permObject.put("edit", false);
+                } else {
+                    editorConfigObject.put("mode", "edit");
+                    editorConfigObject.put("callbackUrl", callbackUrl);
+                    permObject.put("edit", true);
+                }
+
                 editorConfigObject.put("user", userObject);
+
                 userObject.put("id", username);
+                editorConfigObject.put("customization", customizationObject);
+                customizationObject.put("forcesave", configManager.getAsBoolean("forcesave"));
 
                 if (personInfo == null) {
                     userObject.put("name", username);
@@ -164,10 +198,8 @@ public class Prepare extends AbstractWebScript {
                 }
 
                 if (jwtManager.jwtEnabled()) {
-                    responseJson.put("token", jwtManager.createToken(responseJson));
+                    configJson.put("token", jwtManager.createToken(configJson));
                 }
-
-                responseJson.put("onlyofficeUrl", util.getEditorUrl());
 
                 logger.debug("Sending JSON prepare object");
                 logger.debug(responseJson.toString(3));

@@ -154,6 +154,7 @@ The table below will help you make the right choice.
 | Tabbed interface                       | + | + |
 | White Label                            | - | - |
 | Integrated test example (node.js)     | - | + |
+| Mobile web editors                    | - | + |
 | **Plugins & Macros** | **Community Edition** | **Integration Edition** |
 | Plugins                           | + | + |
 | Macros                            | + | + |
@@ -173,6 +174,7 @@ The table below will help you make the right choice.
 | Table of contents               | + | + |
 | Navigation panel                | + | + |
 | Comparing Documents             | - | +* |
+| Comparing Documents             | - | + |
 | **Spreadsheet Editor features** | **Community Edition** | **Integration Edition** |
 | Font and paragraph formatting   | + | + |
 | Object insertion                | + | + |

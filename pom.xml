@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.onlyoffice.alfresco</groupId>
     <artifactId>onlyoffice-integration</artifactId>
-    <version>4.0.2</version>
+    <version>4.1.0</version>
     <name>ONLYOFFICE Alfresco Integration</name>
     <description>This Module integrates Alfresco Share with ONLYOFFICE</description>
     <packaging>pom</packaging>
@@ -116,7 +116,6 @@
                     the layout of your AMP. The end result is that Maven will produce both a JAR file and an AMP with your
                     module.
                 -->
-                <!--
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-assembly-plugin</artifactId>
@@ -142,7 +141,6 @@
                         </dependency>
                     </dependencies>
                 </plugin>
-                -->
 
                 <!-- Filter resources in any sub-project with this config -->
                 <plugin>

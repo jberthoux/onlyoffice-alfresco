@@ -1,5 +1,20 @@
 # Change Log
 
+## 4.1.0
+## Added
+- [Force saving](https://api.onlyoffice.com/editors/save#forcesave) for documents. Can be toggled on/off in settings [#23](https://github.com/ONLYOFFICE/onlyoffice-alfresco/issues/23)
+- Preview of the documents on `Document Details` page. Can be toggled on/off in settings [#24](https://github.com/ONLYOFFICE/onlyoffice-alfresco/issues/24)
+- Read button is now available for all supported documents that cannot be edited [#26](https://github.com/ONLYOFFICE/onlyoffice-alfresco/pull/26)
+- `AMP` generation along with `JAR` files [#32](https://github.com/ONLYOFFICE/onlyoffice-alfresco/issues/32)
+
+## Changed
+- `docId` is now randomly generated for each editing session
+
+## Fixed
+- File versioning tag was not added on document creation
+- Convertation cannot be invoked if user has no write access to file
+- Fixed an issue when document was saved under a different user than the one that edits a file
+
 ## 4.0.2
 ## Added
  - Ukrainian translations for `Create ...` menu [#22](https://github.com/ONLYOFFICE/onlyoffice-alfresco/pull/22)

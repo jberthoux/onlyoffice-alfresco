@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import java.util.Properties;
 
 /*
-    Copyright (c) Ascensio System SIA 2019. All rights reserved.
+    Copyright (c) Ascensio System SIA 2020. All rights reserved.
     http://www.onlyoffice.com
 */
 @Service
@@ -45,6 +45,17 @@ public class ConfigManager {
         }
 
         return value;
+    }
+
+    public Boolean getAsBoolean(String key) {
+        String formedKey = formKey(key);
+        Object value = attributeService.getAttribute(formedKey);
+
+        if (value == null) {
+            value = globalProp.getOrDefault(formedKey, "");
+        }
+
+        return (value != null && ((String)value).equals("true")) ? true : false;
     }
 
     private String formKey(String key) {

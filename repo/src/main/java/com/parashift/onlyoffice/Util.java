@@ -1,26 +1,20 @@
 package com.parashift.onlyoffice;
 
-import org.alfresco.model.ContentModel;
 import org.alfresco.repo.admin.SysAdminParams;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.AuthenticationService;
-import org.alfresco.service.cmr.version.Version;
-import org.alfresco.service.cmr.version.VersionService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.util.UrlUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.Serializable;
 import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
 
 /*
-   Copyright (c) Ascensio System SIA 2019. All rights reserved.
+   Copyright (c) Ascensio System SIA 2020. All rights reserved.
    http://www.onlyoffice.com
 */
 
@@ -39,27 +33,11 @@ public class Util {
     NodeService nodeService;
 
     @Autowired
-    VersionService versionService;
-
-    @Autowired
     ConfigManager configManager;
 
     public static final QName EditingHashAspect = QName.createQName("onlyoffice:editing-hash");
 
     public String getKey(NodeRef nodeRef) {
-        Map<QName, Serializable> props = new HashMap<>();
-        props.put(ContentModel.PROP_INITIAL_VERSION, true);
-        versionService.ensureVersioningEnabled(nodeRef, props);
-
-        Version v = versionService.getCurrentVersion(nodeRef);
-        return nodeRef.getId() + "_" + v.getVersionLabel();
-    }
-
-    public String getContentUrl(NodeRef nodeRef) {
-        return  getAlfrescoUrl() + "s/api/node/content/workspace/SpacesStore/" + nodeRef.getId() + "?alf_ticket=" + authenticationService.getCurrentTicket();
-    }
-
-    public String getCallbackUrl(NodeRef nodeRef) {
         String hash = null;
         hash = (String) nodeService.getProperty(nodeRef, EditingHashAspect);
 
@@ -68,7 +46,15 @@ public class Util {
             nodeService.setProperty(nodeRef, EditingHashAspect, hash);
         }
 
-        return getAlfrescoUrl() + "s/parashift/onlyoffice/callback?nodeRef=" + nodeRef.toString() + "&cb_key=" + hash;
+        return hash;
+    }
+
+    public String getContentUrl(NodeRef nodeRef) {
+        return  getAlfrescoUrl() + "s/api/node/content/workspace/SpacesStore/" + nodeRef.getId() + "?alf_ticket=" + authenticationService.getCurrentTicket();
+    }
+
+    public String getCallbackUrl(NodeRef nodeRef) {
+        return getAlfrescoUrl() + "s/parashift/onlyoffice/callback?nodeRef=" + nodeRef.toString() + "&cb_key=" + getKey(nodeRef);
     }
 
     public String getConversionUrl(String key) {

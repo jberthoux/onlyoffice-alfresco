@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /*
-    Copyright (c) Ascensio System SIA 2019. All rights reserved.
+    Copyright (c) Ascensio System SIA 2020. All rights reserved.
     http://www.onlyoffice.com
 */
 @Component(value = "webscript.onlyoffice.onlyoffice-config.get")
@@ -27,11 +27,16 @@ public class Config extends DeclarativeWebScript {
         model.put("docinnerurl", configManager.getOrDefault("innerurl", ""));
         model.put("alfurl", configManager.getOrDefault("alfurl", ""));
 
-        String cert = (String) configManager.getOrDefault("cert", "no");
-        model.put("cert", cert.equals("true") ? "checked=\"\"" : "");
+        model.put("cert", getBoolAsAttribute("cert"));
+        model.put("forcesave", getBoolAsAttribute("forcesave"));
+        model.put("webpreview", getBoolAsAttribute("webpreview"));
 
         model.put("jwtsecret", configManager.getOrDefault("jwtsecret", ""));
         return model;
+    }
+
+    private String getBoolAsAttribute(String key) {
+        return configManager.getAsBoolean(key) ? "checked=\"\"" : "";
     }
 }
 
