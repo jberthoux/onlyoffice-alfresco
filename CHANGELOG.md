@@ -1,5 +1,10 @@
 # Change Log
 
+## 4.1.1
+## Fixed
+- Disallow editing when user has no write permissions [#35](https://github.com/ONLYOFFICE/onlyoffice-alfresco/issues/35)
+- disallow editing non OOXML files by removing readonly param
+
 ## 4.1.0
 ## Added
 - [Force saving](https://api.onlyoffice.com/editors/save#forcesave) for documents. Can be toggled on/off in settings [#23](https://github.com/ONLYOFFICE/onlyoffice-alfresco/issues/23)

@@ -6,6 +6,8 @@ import org.alfresco.service.cmr.repository.ContentWriter;
 import org.alfresco.service.cmr.repository.MimetypeService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.cmr.security.AccessStatus;
+import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.cmr.security.PersonService.PersonInfo;
 import org.alfresco.service.cmr.version.VersionService;
@@ -28,7 +30,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by cetra on 20/10/15.
@@ -63,6 +67,9 @@ public class Prepare extends AbstractWebScript {
 
     @Autowired
     VersionService versionService;
+
+    @Autowired
+    PermissionService permissionService;
 
     @Autowired
     JwtManager jwtManager;
@@ -145,10 +152,14 @@ public class Prepare extends AbstractWebScript {
                     return;
                 }
 
+                String mimeType = mimetypeService.getMimetype(docExt);
+
                 responseJson.put("config", configJson);
                 responseJson.put("onlyofficeUrl", util.getEditorUrl());
-                responseJson.put("mime", mimetypeService.getMimetype(docExt));
+                responseJson.put("mime", mimeType);
                 responseJson.put("previewEnabled", preview);
+
+                boolean canWrite = isEditable(mimeType) && permissionService.hasPermission(nodeRef, PermissionService.WRITE) == AccessStatus.ALLOWED;
 
                 String contentUrl = util.getContentUrl(nodeRef);
                 String key = util.getKey(nodeRef);
@@ -174,7 +185,7 @@ public class Prepare extends AbstractWebScript {
 
                 configJson.put("editorConfig", editorConfigObject);
                 editorConfigObject.put("lang", mesService.getLocale().toLanguageTag());
-                if (isReadOnly || preview) {
+                if (isReadOnly || preview || !canWrite) {
                     editorConfigObject.put("mode", "view");
                     permObject.put("edit", false);
                 } else {
@@ -211,6 +222,18 @@ public class Prepare extends AbstractWebScript {
                 throw new WebScriptException("Unable to create JWT token: " + ex.getMessage());
             }
         }
+    }
+
+    private static Set<String> EditableSet = new HashSet<String>() {{
+        add("text/plain");
+        add("text/csv");
+        add("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+        add("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        add("application/vnd.openxmlformats-officedocument.presentationml.presentation");
+    }};
+
+    private boolean isEditable(String mime) {
+        return EditableSet.contains(mime);
     }
 
     private String getDocType(String ext) {
