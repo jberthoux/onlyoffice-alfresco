@@ -6,6 +6,8 @@ import org.alfresco.service.cmr.repository.ContentWriter;
 import org.alfresco.service.cmr.repository.MimetypeService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.cmr.security.AccessStatus;
+import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.cmr.security.PersonService.PersonInfo;
 import org.alfresco.service.cmr.version.VersionService;
@@ -63,6 +65,9 @@ public class Prepare extends AbstractWebScript {
 
     @Autowired
     VersionService versionService;
+
+    @Autowired
+    PermissionService permissionService;
 
     @Autowired
     JwtManager jwtManager;
@@ -174,7 +179,7 @@ public class Prepare extends AbstractWebScript {
 
                 configJson.put("editorConfig", editorConfigObject);
                 editorConfigObject.put("lang", mesService.getLocale().toLanguageTag());
-                if (isReadOnly || preview) {
+                if (isReadOnly || preview || permissionService.hasPermission(nodeRef, PermissionService.WRITE) == AccessStatus.DENIED) {
                     editorConfigObject.put("mode", "view");
                     permObject.put("edit", false);
                 } else {
