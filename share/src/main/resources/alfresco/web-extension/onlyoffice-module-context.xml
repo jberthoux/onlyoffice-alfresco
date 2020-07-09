@@ -21,14 +21,8 @@
         </property>
     </bean>
 
-    <bean id="evaluator.doclib.action.notLocked" parent="evaluator.doclib.action.chainedMatchOne">
-       <property name="evaluators">
-          <list>
-             <ref bean="evaluator.doclib.metadata.isLocked" />
-             <ref bean="evaluator.doclib.action.isWorkingCopy" />
-          </list>
-       </property>
-       <property name="negateOutput" value="true" />
+    <bean id="evaluator.doclib.action.notLocked" parent="evaluator.doclib.metadata.isLocked">
+        <property name="negateOutput" value="true" />
     </bean>
 
     <bean id="evaluator.doclib.action.displayEdit" parent="evaluator.doclib.action.chainedMatchAll">
@@ -37,6 +31,18 @@
               <ref bean="evaluator.doclib.action.onlyofficeEditMimetype" />
               <ref bean="evaluator.doclib.action.allowOnlyofficeEdit" />
               <ref bean="evaluator.doclib.action.IsWritePermission" />
+              <ref bean="evaluator.doclib.action.isNotWorkingCopy" />
+           </list>
+        </property>
+     </bean>
+
+     <bean id="evaluator.doclib.action.displayJoinEdit" parent="evaluator.doclib.action.chainedMatchAll">
+        <property name="evaluators">
+           <list>
+              <ref bean="evaluator.doclib.action.onlyofficeEditMimetype" />
+              <ref bean="evaluator.doclib.action.allowOnlyofficeEdit" />
+              <ref bean="evaluator.doclib.action.IsWritePermission" />
+              <ref bean="evaluator.doclib.action.isWorkingCopy" />
            </list>
         </property>
      </bean>
