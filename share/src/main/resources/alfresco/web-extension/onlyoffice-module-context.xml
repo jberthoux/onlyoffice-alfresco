@@ -29,9 +29,9 @@
         <property name="evaluators">
            <list>
               <ref bean="evaluator.doclib.action.onlyofficeEditMimetype" />
-              <ref bean="evaluator.doclib.action.allowOnlyofficeEdit" />
               <ref bean="evaluator.doclib.action.IsWritePermission" />
               <ref bean="evaluator.doclib.action.isNotWorkingCopy" />
+              <ref bean="evaluator.doclib.action.notLocked" />
            </list>
         </property>
      </bean>
@@ -40,9 +40,8 @@
         <property name="evaluators">
            <list>
               <ref bean="evaluator.doclib.action.onlyofficeEditMimetype" />
-              <ref bean="evaluator.doclib.action.allowOnlyofficeEdit" />
+              <ref bean="evaluator.doclib.action.isOnlyEdit" />
               <ref bean="evaluator.doclib.action.IsWritePermission" />
-              <ref bean="evaluator.doclib.action.isWorkingCopy" />
            </list>
         </property>
      </bean>
@@ -65,19 +64,6 @@
            </list>
         </property>
      </bean>
-
-    <bean id="evaluator.doclib.action.isOnlyEdit" parent="evaluator.doclib.action.propertyNotNull">
-        <property name="property" value=":onlyoffice:editing-hash"/>
-    </bean>
-
-    <bean id="evaluator.doclib.action.allowOnlyofficeEdit" parent="evaluator.doclib.action.chainedMatchOne">
-        <property name="evaluators">
-            <list>
-                <ref bean="evaluator.doclib.action.notLocked" />
-                <ref bean="evaluator.doclib.action.isOnlyEdit" />
-            </list>
-        </property>
-    </bean>
 
     <bean id="evaluator.doclib.action.onlyofficeConvertMimetype" parent="evaluator.doclib.action.isMimetype">
         <property name="mimetypes">
@@ -120,6 +106,28 @@
         </property>
     </bean>
 
+    <bean id="evaluator.doclib.action.hasOfflineLockBanner" parent="evaluator.doclib.action.chainedMatchAll">
+        <property name="evaluators">
+            <list>
+                <ref bean="evaluator.doclib.action.isNotOnlyEdit" />
+                <ref bean="evaluator.doclib.metadata.hasLockBanner" />
+            </list>
+        </property>
+    </bean>
+
+    <bean id="evaluator.doclib.action.hasOnlyofficeLockBanner" parent="evaluator.doclib.action.chainedMatchAll">
+        <property name="evaluators">
+            <list>
+                <ref bean="evaluator.doclib.action.isOnlyEdit" />
+                <ref bean="evaluator.doclib.metadata.hasLockBanner" />
+            </list>
+        </property>
+    </bean>
+
+    <bean id="evaluator.doclib.action.isOnlyEdit" class="com.onlyoffice.web.evaluator.IsOnlyEditEvaluator" />
+    <bean id="evaluator.doclib.action.isNotOnlyEdit" parent="evaluator.doclib.action.isOnlyEdit">
+        <property name="negateOutput" value="true" />
+    </bean>
     <bean id="evaluator.doclib.action.IsWritePermission" class="com.onlyoffice.web.evaluator.IsWritePermission" />
     <bean id="evaluator.doclib.action.IsReadPermission" parent="evaluator.doclib.action.IsWritePermission">
         <property name="negateOutput" value="true" />
