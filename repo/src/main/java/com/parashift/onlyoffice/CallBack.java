@@ -118,7 +118,10 @@ public class CallBack extends AbstractWebScript {
             }
 
             NodeRef nodeRef = new NodeRef(request.getParameter("nodeRef"));
-            String hash = (String) nodeService.getProperty(nodeRef, Util.EditingHashAspect);
+            String hash = null;
+            if (cociService.isCheckedOut(nodeRef)) {
+                hash = (String) nodeService.getProperty(cociService.getWorkingCopy(nodeRef), Util.EditingHashAspect);
+            }
             String queryHash = request.getParameter("cb_key");
 
             if (hash == null || queryHash == null || !hash.equals(queryHash)) {
@@ -190,17 +193,9 @@ public class CallBack extends AbstractWebScript {
                 case 0:
                     logger.error("ONLYOFFICE has reported that no doc with the specified key can be found");
                     cociService.cancelCheckout(cociService.getWorkingCopy(nodeRef));
-                    logger.info("removing prop");
-                    nodeService.removeProperty(nodeRef, Util.EditingHashAspect);
                     break;
                 case 1:
-                    if (!cociService.isCheckedOut(nodeRef)) {
-                        logger.debug("Document open for editing, locking document");
-                        behaviourFilter.disableBehaviour(nodeRef);
-                        cociService.checkout(nodeRef);
-                    } else {
-                        logger.debug("Document already locked, another user has entered/exited");
-                    }
+                    logger.debug("User has entered/exited ONLYOFFICE");
                     break;
                 case 2:
                     logger.debug("Document Updated, changing content");
@@ -208,18 +203,15 @@ public class CallBack extends AbstractWebScript {
                     cociService.checkin(cociService.getWorkingCopy(nodeRef), null, null);
                     logger.info("removing prop");
                     nodeService.removeProperty(nodeRef, Util.EditingHashAspect);
+                    nodeService.removeProperty(nodeRef, Util.EditingKeyAspect);
                     break;
                 case 3:
                     logger.error("ONLYOFFICE has reported that saving the document has failed");
                     cociService.cancelCheckout(cociService.getWorkingCopy(nodeRef));
-                    logger.info("removing prop");
-                    nodeService.removeProperty(nodeRef, Util.EditingHashAspect);
                     break;
                 case 4:
                     logger.debug("No document updates, unlocking node");
                     cociService.cancelCheckout(cociService.getWorkingCopy(nodeRef));
-                    logger.info("removing prop");
-                    nodeService.removeProperty(nodeRef, Util.EditingHashAspect);
                     break;
                 case 6:
                     if (!forcesave) {
