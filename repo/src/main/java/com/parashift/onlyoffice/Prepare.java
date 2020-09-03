@@ -145,6 +145,13 @@ public class Prepare extends AbstractWebScript {
                 JSONObject permObject = new JSONObject();
                 JSONObject customizationObject = new JSONObject();
 
+                if (permissionService.hasPermission(nodeRef, PermissionService.READ) != AccessStatus.ALLOWED) {
+                    responseJson.put("error", "User have no read access");
+                    response.setStatus(403);
+                    response.getWriter().write(responseJson.toString(3));
+                    return;
+                }
+
                 if (getDocType(docExt) == null) {
                     responseJson.put("error", "File type is not supported");
                     response.setStatus(500);
