@@ -7,6 +7,11 @@
                 <param name="target">_blank</param>
                 <evaluator>evaluator.doclib.action.displayEdit</evaluator>
             </action>
+            <action id="document-onlyoffice-join-edit" type="link" label="actions.document.onlyoffice-edit">
+                <param name="href">onlyoffice-edit?nodeRef={workingCopy.sourceNodeRef}</param>
+                <param name="target">_blank</param>
+                <evaluator>evaluator.doclib.action.displayJoinEdit</evaluator>
+            </action>
             <action id="document-onlyoffice-read" type="link" label="actions.document.onlyoffice-read">
                 <param name="href">onlyoffice-edit?readonly=1&amp;nodeRef={node.nodeRef}</param>
                 <param name="target">_blank</param>
@@ -16,10 +21,12 @@
         <actionGroups>
             <actionGroup id="document-browse">
                 <action index="90" id="document-onlyoffice-edit" />
+                <action index="90" id="document-onlyoffice-join-edit" />
                 <action index="91" id="document-onlyoffice-read" />
             </actionGroup>
             <actionGroup id="document-details">
                 <action index="90" id="document-onlyoffice-edit" />
+                <action index="90" id="document-onlyoffice-join-edit" />
                 <action index="91" id="document-onlyoffice-read" />
             </actionGroup>
         </actionGroups>
@@ -70,9 +77,20 @@
         </actionGroups>
     </config>
 
+    <config evaluator="string-compare" condition="DocumentLibrary">
+        <metadata-templates>
+            <template id="isWorkingCopy">
+                <evaluator>evaluator.doclib.metadata.isWorkingCopy</evaluator>
+                <banner index="10" id="lockBanner" evaluator="evaluator.doclib.action.hasOfflineLockBanner">{lockBanner}</banner>
+                <banner index="11" id="onlyofficeLocked" evaluator="evaluator.doclib.action.hasOnlyofficeLockBanner">{onlyofficeLocked}</banner>
+             </template>
+        </metadata-templates>
+    </config>
+
     <config evaluator="string-compare" condition="DocLibCustom">
         <dependencies>
             <js src="components/documentlibrary/onlyoffice-doclib-actions.js" />
+            <js src="components/documentlibrary/onlyoffice-doclib-lock-banner.js" />
         </dependencies>
     </config>
 </alfresco-config>

@@ -4,9 +4,7 @@ import org.alfresco.model.ContentModel;
 import org.alfresco.repo.policy.BehaviourFilter;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.transaction.RetryingTransactionHelper.RetryingTransactionCallback;
-import org.alfresco.service.cmr.lock.LockService;
-import org.alfresco.service.cmr.lock.LockStatus;
-import org.alfresco.service.cmr.lock.LockType;
+import org.alfresco.service.cmr.coci.CheckOutCheckInService;
 import org.alfresco.service.cmr.repository.ContentData;
 import org.alfresco.service.cmr.repository.ContentService;
 import org.alfresco.service.cmr.repository.MimetypeService;
@@ -50,7 +48,8 @@ import javax.net.ssl.X509TrustManager;
 public class CallBack extends AbstractWebScript {
 
     @Autowired
-    LockService lockService;
+    @Qualifier("checkOutCheckInService")
+    CheckOutCheckInService cociService;
 
     @Autowired
     @Qualifier("policyBehaviourFilter")
@@ -119,7 +118,10 @@ public class CallBack extends AbstractWebScript {
             }
 
             NodeRef nodeRef = new NodeRef(request.getParameter("nodeRef"));
-            String hash = (String) nodeService.getProperty(nodeRef, Util.EditingHashAspect);
+            String hash = null;
+            if (cociService.isCheckedOut(nodeRef)) {
+                hash = (String) nodeService.getProperty(cociService.getWorkingCopy(nodeRef), Util.EditingHashAspect);
+            }
             String queryHash = request.getParameter("cb_key");
 
             if (hash == null || queryHash == null || !hash.equals(queryHash)) {
@@ -190,37 +192,26 @@ public class CallBack extends AbstractWebScript {
             switch(callBackJSon.getInt("status")) {
                 case 0:
                     logger.error("ONLYOFFICE has reported that no doc with the specified key can be found");
-                    lockService.unlock(nodeRef);
-                    logger.info("removing prop");
-                    nodeService.removeProperty(nodeRef, Util.EditingHashAspect);
+                    cociService.cancelCheckout(cociService.getWorkingCopy(nodeRef));
                     break;
                 case 1:
-                    if(lockService.getLockStatus(nodeRef).equals(LockStatus.NO_LOCK)) {
-                        logger.debug("Document open for editing, locking document");
-                        behaviourFilter.disableBehaviour(nodeRef);
-                        lockService.lock(nodeRef, LockType.WRITE_LOCK);
-                    } else {
-                        logger.debug("Document already locked, another user has entered/exited");
-                    }
+                    logger.debug("User has entered/exited ONLYOFFICE");
                     break;
                 case 2:
                     logger.debug("Document Updated, changing content");
-                    lockService.unlock(nodeRef);
+                    updateNode(cociService.getWorkingCopy(nodeRef), callBackJSon.getString("url"));
+                    cociService.checkin(cociService.getWorkingCopy(nodeRef), null, null);
                     logger.info("removing prop");
                     nodeService.removeProperty(nodeRef, Util.EditingHashAspect);
-                    updateNode(nodeRef, callBackJSon.getString("url"));
+                    nodeService.removeProperty(nodeRef, Util.EditingKeyAspect);
                     break;
                 case 3:
                     logger.error("ONLYOFFICE has reported that saving the document has failed");
-                    lockService.unlock(nodeRef);
-                    logger.info("removing prop");
-                    nodeService.removeProperty(nodeRef, Util.EditingHashAspect);
+                    cociService.cancelCheckout(cociService.getWorkingCopy(nodeRef));
                     break;
                 case 4:
                     logger.debug("No document updates, unlocking node");
-                    lockService.unlock(nodeRef);
-                    logger.info("removing prop");
-                    nodeService.removeProperty(nodeRef, Util.EditingHashAspect);
+                    cociService.cancelCheckout(cociService.getWorkingCopy(nodeRef));
                     break;
                 case 6:
                     if (!forcesave) {
@@ -229,7 +220,8 @@ public class CallBack extends AbstractWebScript {
                     }
 
                     logger.debug("Forcesave request (type: " + callBackJSon.getString("forcesavetype") + ")");
-                    updateNode(nodeRef, callBackJSon.getString("url"));
+                    updateNode(cociService.getWorkingCopy(nodeRef), callBackJSon.getString("url"));
+                    cociService.checkin(cociService.getWorkingCopy(nodeRef), null, null, true);
                     logger.debug("Forcesave complete");
                     break;
             }

@@ -1,6 +1,7 @@
 package com.parashift.onlyoffice;
 
 import org.alfresco.model.ContentModel;
+import org.alfresco.service.cmr.coci.CheckOutCheckInService;
 import org.alfresco.service.cmr.repository.ContentService;
 import org.alfresco.service.cmr.repository.ContentWriter;
 import org.alfresco.service.cmr.repository.MimetypeService;
@@ -20,6 +21,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.extensions.webscripts.AbstractWebScript;
 import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
@@ -46,6 +48,10 @@ import java.util.Set;
 public class Prepare extends AbstractWebScript {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    @Qualifier("checkOutCheckInService")
+    CheckOutCheckInService cociService;
 
     @Autowired
     NodeService nodeService;
@@ -170,7 +176,6 @@ public class Prepare extends AbstractWebScript {
 
                 String contentUrl = util.getContentUrl(nodeRef);
                 String key = util.getKey(nodeRef);
-                String callbackUrl = util.getCallbackUrl(nodeRef);
                 String username = AuthenticationUtil.getFullyAuthenticatedUser();
                 NodeRef person = personService.getPersonOrNull(username);
                 PersonInfo personInfo = null;
@@ -196,9 +201,15 @@ public class Prepare extends AbstractWebScript {
                     editorConfigObject.put("mode", "view");
                     permObject.put("edit", false);
                 } else {
+                    if (!cociService.isCheckedOut(nodeRef)) {
+                        NodeRef copyRef = cociService.checkout(nodeRef);
+                        nodeService.setProperty(copyRef, Util.EditingKeyAspect, key);
+                        nodeService.setProperty(copyRef, Util.EditingHashAspect, util.generateHash());
+                    }
+
                     editorConfigObject.put("mode", "edit");
-                    editorConfigObject.put("callbackUrl", callbackUrl);
                     permObject.put("edit", true);
+                    editorConfigObject.put("callbackUrl", util.getCallbackUrl(nodeRef));
                 }
 
                 editorConfigObject.put("user", userObject);

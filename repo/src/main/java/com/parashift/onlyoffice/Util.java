@@ -1,12 +1,16 @@
 package com.parashift.onlyoffice;
 
 import org.alfresco.repo.admin.SysAdminParams;
+import org.alfresco.service.cmr.coci.CheckOutCheckInService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.AuthenticationService;
+import org.alfresco.service.cmr.version.Version;
+import org.alfresco.service.cmr.version.VersionService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.util.UrlUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
@@ -24,7 +28,14 @@ public class Util {
     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
 
     @Autowired
+    @Qualifier("checkOutCheckInService")
+    CheckOutCheckInService cociService;
+
+    @Autowired
     AuthenticationService authenticationService;
+
+    @Autowired
+    VersionService versionService;
 
     @Autowired
     SysAdminParams sysAdminParams;
@@ -35,17 +46,28 @@ public class Util {
     @Autowired
     ConfigManager configManager;
 
+    public static final QName EditingKeyAspect = QName.createQName("onlyoffice:editing-key");
     public static final QName EditingHashAspect = QName.createQName("onlyoffice:editing-hash");
 
     public String getKey(NodeRef nodeRef) {
-        String hash = null;
-        hash = (String) nodeService.getProperty(nodeRef, EditingHashAspect);
-
-        if (hash == null) {
-            hash = getHash();
-            nodeService.setProperty(nodeRef, EditingHashAspect, hash);
+        String key = null;
+        if (cociService.isCheckedOut(nodeRef)) {
+            key = (String) nodeService.getProperty(cociService.getWorkingCopy(nodeRef), EditingKeyAspect);
         }
 
+        if (key == null) {
+            Version v = versionService.getCurrentVersion(nodeRef);
+            key = nodeRef.getId() + "_" + v.getVersionLabel();
+        }
+
+        return key;
+    }
+
+    public String getHash(NodeRef nodeRef) {
+        String hash = null;
+        if (cociService.isCheckedOut(nodeRef)) {
+            hash = (String) nodeService.getProperty(cociService.getWorkingCopy(nodeRef), EditingHashAspect);
+        }
         return hash;
     }
 
@@ -54,7 +76,7 @@ public class Util {
     }
 
     public String getCallbackUrl(NodeRef nodeRef) {
-        return getAlfrescoUrl() + "s/parashift/onlyoffice/callback?nodeRef=" + nodeRef.toString() + "&cb_key=" + getKey(nodeRef);
+        return getAlfrescoUrl() + "s/parashift/onlyoffice/callback?nodeRef=" + nodeRef.toString() + "&cb_key=" + getHash(nodeRef);
     }
 
     public String getConversionUrl(String key) {
@@ -78,6 +100,13 @@ public class Util {
         }
     }
 
+    public String generateHash() {
+        SecureRandom secureRandom = new SecureRandom();
+        byte[] token = new byte[32];
+        secureRandom.nextBytes(token);
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(token);
+    }
+
     private String getAlfrescoUrl() {
         String alfUrl = (String) configManager.getOrDefault("alfurl", "");
         if (alfUrl.isEmpty()) {
@@ -85,12 +114,5 @@ public class Util {
         } else {
             return alfUrl + "alfresco/";
         }
-    }
-
-    private String getHash() {
-        SecureRandom secureRandom = new SecureRandom();
-        byte[] token = new byte[32];
-        secureRandom.nextBytes(token);
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(token);
     }
 }
