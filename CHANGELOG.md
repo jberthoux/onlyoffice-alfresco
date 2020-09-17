@@ -1,5 +1,22 @@
 # Change Log
 
+## 4.2.0
+## Fixed
+- Document will not be marked as modified after opening and closing editors without changes
+- Contributors will now be able to create new documents [#54](https://github.com/ONLYOFFICE/onlyoffice-alfresco/issues/54)
+- People without read access can't view files even if they have a link [#52](https://github.com/ONLYOFFICE/onlyoffice-alfresco/issues/52)
+- Fixed an issue when opening Document Details page would block the document when web preview option is disabled  [#56](https://github.com/ONLYOFFICE/onlyoffice-alfresco/issues/56)
+- Fixed an issue when file couldn't be opened for editing right afrer conversion
+
+## Added
+- On Document Library page banner will show on documents that are currently opened in editors
+- JSON view for settings page
+- RTF files can now be converted
+
+## Changed
+- Relative Document Server address can now be used in configuration. This may be useful when Document Server is located behind same reverse-proxy as Alfresco [#39](https://github.com/ONLYOFFICE/onlyoffice-alfresco/issues/39)
+- Changed the way locking mechanism works [#51](https://github.com/ONLYOFFICE/onlyoffice-alfresco/issues/51)
+
 ## 4.1.1
 ## Fixed
 - Disallow editing when user has no write permissions [#35](https://github.com/ONLYOFFICE/onlyoffice-alfresco/issues/35)

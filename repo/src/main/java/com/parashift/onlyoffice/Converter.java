@@ -79,6 +79,16 @@ public class Converter extends AbstractContentTransformer2 {
         put("application/vnd.ms-powerpoint", new HashSet<String>() {{
             add("application/vnd.openxmlformats-officedocument.presentationml.presentation");
         }});
+
+        put("application/rtf", new HashSet<String>() {{
+            add("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+        }});
+        put("application/x-rtf", new HashSet<String>() {{
+            add("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+        }});
+        put("text/richtext", new HashSet<String>() {{
+            add("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+        }});
     }};
 
     private static Set<String> ConvertBackList = new HashSet<String>() {{
@@ -99,6 +109,12 @@ public class Converter extends AbstractContentTransformer2 {
             case "application/vnd.oasis.opendocument.presentation":
             case "application/vnd.ms-powerpoint":
                 return "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+
+
+            case "application/rtf":
+            case "application/x-rtf":
+            case "text/richtext":
+                return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 
             default:
                 return null;

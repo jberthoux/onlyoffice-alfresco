@@ -1,6 +1,7 @@
 package com.parashift.onlyoffice;
 
 import org.alfresco.model.ContentModel;
+import org.alfresco.service.cmr.coci.CheckOutCheckInService;
 import org.alfresco.service.cmr.repository.ContentService;
 import org.alfresco.service.cmr.repository.ContentWriter;
 import org.alfresco.service.cmr.repository.MimetypeService;
@@ -20,6 +21,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.extensions.webscripts.AbstractWebScript;
 import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
@@ -46,6 +48,10 @@ import java.util.Set;
 public class Prepare extends AbstractWebScript {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    @Qualifier("checkOutCheckInService")
+    CheckOutCheckInService cociService;
 
     @Autowired
     NodeService nodeService;
@@ -121,15 +127,13 @@ public class Prepare extends AbstractWebScript {
 
                 writer.putContent(in);
 
-                Map<QName, Serializable> versionProps = new HashMap<>();
-                props.put(ContentModel.PROP_INITIAL_VERSION, true);
-                versionService.ensureVersioningEnabled(nodeRef, versionProps);
+                util.ensureVersioningEnabled(nodeRef);
             }
 
             Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
 
             String previewParam = request.getParameter("preview");
-            Boolean preview = ((String)configManager.getOrDefault("webpreview", "")).equals("true") && previewParam != null && previewParam.equals("true");
+            Boolean preview = previewParam != null && previewParam.equals("true");
 
             String docTitle = (String) properties.get(ContentModel.PROP_NAME);
             String docExt = docTitle.substring(docTitle.lastIndexOf(".") + 1).trim().toLowerCase();
@@ -145,6 +149,13 @@ public class Prepare extends AbstractWebScript {
                 JSONObject permObject = new JSONObject();
                 JSONObject customizationObject = new JSONObject();
 
+                if (permissionService.hasPermission(nodeRef, PermissionService.READ) != AccessStatus.ALLOWED) {
+                    responseJson.put("error", "User have no read access");
+                    response.setStatus(403);
+                    response.getWriter().write(responseJson.toString(3));
+                    return;
+                }
+
                 if (getDocType(docExt) == null) {
                     responseJson.put("error", "File type is not supported");
                     response.setStatus(500);
@@ -157,13 +168,21 @@ public class Prepare extends AbstractWebScript {
                 responseJson.put("config", configJson);
                 responseJson.put("onlyofficeUrl", util.getEditorUrl());
                 responseJson.put("mime", mimeType);
-                responseJson.put("previewEnabled", preview);
+
+                if (preview) {
+                    if (((String)configManager.getOrDefault("webpreview", "")).equals("true")) {
+                        responseJson.put("previewEnabled", true);
+                    } else {
+                        responseJson.put("previewEnabled", false);
+                        response.getWriter().write(responseJson.toString(3));
+                        return;
+                    }
+                }
 
                 boolean canWrite = isEditable(mimeType) && permissionService.hasPermission(nodeRef, PermissionService.WRITE) == AccessStatus.ALLOWED;
 
                 String contentUrl = util.getContentUrl(nodeRef);
                 String key = util.getKey(nodeRef);
-                String callbackUrl = util.getCallbackUrl(nodeRef);
                 String username = AuthenticationUtil.getFullyAuthenticatedUser();
                 NodeRef person = personService.getPersonOrNull(username);
                 PersonInfo personInfo = null;
@@ -189,9 +208,15 @@ public class Prepare extends AbstractWebScript {
                     editorConfigObject.put("mode", "view");
                     permObject.put("edit", false);
                 } else {
+                    if (!cociService.isCheckedOut(nodeRef)) {
+                        NodeRef copyRef = cociService.checkout(nodeRef);
+                        nodeService.setProperty(copyRef, Util.EditingKeyAspect, key);
+                        nodeService.setProperty(copyRef, Util.EditingHashAspect, util.generateHash());
+                    }
+
                     editorConfigObject.put("mode", "edit");
-                    editorConfigObject.put("callbackUrl", callbackUrl);
                     permObject.put("edit", true);
+                    editorConfigObject.put("callbackUrl", util.getCallbackUrl(nodeRef));
                 }
 
                 editorConfigObject.put("user", userObject);
