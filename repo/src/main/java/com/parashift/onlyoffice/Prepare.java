@@ -135,7 +135,7 @@ public class Prepare extends AbstractWebScript {
             Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
 
             String previewParam = request.getParameter("preview");
-            Boolean preview = ((String)configManager.getOrDefault("webpreview", "")).equals("true") && previewParam != null && previewParam.equals("true");
+            Boolean preview = previewParam != null && previewParam.equals("true");
 
             String docTitle = (String) properties.get(ContentModel.PROP_NAME);
             String docExt = docTitle.substring(docTitle.lastIndexOf(".") + 1).trim().toLowerCase();
@@ -170,7 +170,16 @@ public class Prepare extends AbstractWebScript {
                 responseJson.put("config", configJson);
                 responseJson.put("onlyofficeUrl", util.getEditorUrl());
                 responseJson.put("mime", mimeType);
-                responseJson.put("previewEnabled", preview);
+
+                if (preview) {
+                    if (((String)configManager.getOrDefault("webpreview", "")).equals("true")) {
+                        responseJson.put("previewEnabled", true);
+                    } else {
+                        responseJson.put("previewEnabled", false);
+                        response.getWriter().write(responseJson.toString(3));
+                        return;
+                    }
+                }
 
                 boolean canWrite = isEditable(mimeType) && permissionService.hasPermission(nodeRef, PermissionService.WRITE) == AccessStatus.ALLOWED;
 
