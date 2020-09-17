@@ -93,6 +93,8 @@ public class ConvertAction extends ActionExecuterAbstractBase {
                 node = this.nodeService.createNode(parentRef, ContentModel.ASSOC_CONTAINS,
                     QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, newName), ContentModel.TYPE_CONTENT, props)
                     .getChildRef();
+
+                util.ensureVersioningEnabled(node);
             } else {
                 versionService.ensureVersioningEnabled(node, null);
                 logger.debug("Checking out node");

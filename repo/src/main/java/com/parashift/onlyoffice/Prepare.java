@@ -127,9 +127,7 @@ public class Prepare extends AbstractWebScript {
 
                 writer.putContent(in);
 
-                Map<QName, Serializable> versionProps = new HashMap<>();
-                props.put(ContentModel.PROP_INITIAL_VERSION, true);
-                versionService.ensureVersioningEnabled(nodeRef, versionProps);
+                util.ensureVersioningEnabled(nodeRef);
             }
 
             Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);

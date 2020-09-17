@@ -1,5 +1,6 @@
 package com.parashift.onlyoffice;
 
+import org.alfresco.model.ContentModel;
 import org.alfresco.repo.admin.SysAdminParams;
 import org.alfresco.service.cmr.coci.CheckOutCheckInService;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -13,9 +14,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.io.Serializable;
 import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 
 /*
    Copyright (c) Ascensio System SIA 2020. All rights reserved.
@@ -57,6 +61,10 @@ public class Util {
 
         if (key == null) {
             Version v = versionService.getCurrentVersion(nodeRef);
+            if (v == null) {
+                ensureVersioningEnabled(nodeRef);
+                v = versionService.getCurrentVersion(nodeRef);
+            }
             key = nodeRef.getId() + "_" + v.getVersionLabel();
         }
 
@@ -69,6 +77,12 @@ public class Util {
             hash = (String) nodeService.getProperty(cociService.getWorkingCopy(nodeRef), EditingHashAspect);
         }
         return hash;
+    }
+
+    public void ensureVersioningEnabled(NodeRef nodeRef) {
+        Map<QName, Serializable> versionProps = new HashMap<>();
+        versionProps.put(ContentModel.PROP_INITIAL_VERSION, true);
+        versionService.ensureVersioningEnabled(nodeRef, versionProps);
     }
 
     public String getContentUrl(NodeRef nodeRef) {
