@@ -88,6 +88,9 @@
                 <value>application/rtf</value>
                 <value>application/x-rtf</value>
                 <value>text/richtext</value>
+                <value>application/vnd.ms-excel</value>
+                <value>application/vnd.ms-powerpoint</value>
+                <value>application/msword</value>
             </list>
         </property>
     </bean>

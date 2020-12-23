@@ -1,5 +1,14 @@
 # Change Log
 
+
+## 4.2.1
+## Fixed
+- Download button in document preview now works properly
+- Changed document preview styles
+
+## Added
+- Brazilian Portuguese translation
+
 ## 4.2.0
 ## Fixed
 - Document will not be marked as modified after opening and closing editors without changes
