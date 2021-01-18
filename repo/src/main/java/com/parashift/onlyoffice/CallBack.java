@@ -188,30 +188,36 @@ public class CallBack extends AbstractWebScript {
 
         @Override
         public Object execute() throws Throwable {
+            NodeRef wc = cociService.getWorkingCopy(nodeRef);
+            String lockOwner = (String)nodeService.getProperty(wc, ContentModel.PROP_WORKING_COPY_OWNER);
+
             //Status codes from here: https://api.onlyoffice.com/editors/editor
             switch(callBackJSon.getInt("status")) {
                 case 0:
                     logger.error("ONLYOFFICE has reported that no doc with the specified key can be found");
-                    cociService.cancelCheckout(cociService.getWorkingCopy(nodeRef));
+                    cociService.cancelCheckout(wc);
                     break;
                 case 1:
                     logger.debug("User has entered/exited ONLYOFFICE");
                     break;
                 case 2:
                     logger.debug("Document Updated, changing content");
-                    updateNode(cociService.getWorkingCopy(nodeRef), callBackJSon.getString("url"));
-                    cociService.checkin(cociService.getWorkingCopy(nodeRef), null, null);
+                    updateNode(wc, callBackJSon.getString("url"));
+
                     logger.info("removing prop");
-                    nodeService.removeProperty(nodeRef, Util.EditingHashAspect);
-                    nodeService.removeProperty(nodeRef, Util.EditingKeyAspect);
+                    nodeService.removeProperty(wc, Util.EditingHashAspect);
+                    nodeService.removeProperty(wc, Util.EditingKeyAspect);
+
+                    AuthenticationUtil.setRunAsUser(lockOwner);
+                    cociService.checkin(wc, null, null);
                     break;
                 case 3:
                     logger.error("ONLYOFFICE has reported that saving the document has failed");
-                    cociService.cancelCheckout(cociService.getWorkingCopy(nodeRef));
+                    cociService.cancelCheckout(wc);
                     break;
                 case 4:
                     logger.debug("No document updates, unlocking node");
-                    cociService.cancelCheckout(cociService.getWorkingCopy(nodeRef));
+                    cociService.cancelCheckout(wc);
                     break;
                 case 6:
                     if (!forcesave) {
@@ -220,8 +226,9 @@ public class CallBack extends AbstractWebScript {
                     }
 
                     logger.debug("Forcesave request (type: " + callBackJSon.getString("forcesavetype") + ")");
-                    updateNode(cociService.getWorkingCopy(nodeRef), callBackJSon.getString("url"));
-                    cociService.checkin(cociService.getWorkingCopy(nodeRef), null, null, true);
+                    updateNode(wc, callBackJSon.getString("url"));
+                    AuthenticationUtil.setRunAsUser(lockOwner);
+                    cociService.checkin(wc, null, null, true);
                     logger.debug("Forcesave complete");
                     break;
             }
