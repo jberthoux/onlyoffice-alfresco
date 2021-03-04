@@ -179,6 +179,8 @@ public class Prepare extends AbstractWebScript {
                     }
                 }
 
+                EditableSet.addAll(configManager.getEditableSet());
+
                 boolean canWrite = isEditable(mimeType) && permissionService.hasPermission(nodeRef, PermissionService.WRITE) == AccessStatus.ALLOWED;
 
                 String contentUrl = util.getContentUrl(nodeRef);
@@ -228,7 +230,7 @@ public class Prepare extends AbstractWebScript {
                     embeddedObject.put("saveUrl", contentUrl);
                     editorConfigObject.put("embedded", embeddedObject);
                 }
-                customizationObject.put("forcesave", configManager.getAsBoolean("forcesave"));
+                customizationObject.put("forcesave", configManager.getAsBoolean("forcesave", "false"));
 
                 if (personInfo == null) {
                     userObject.put("name", username);
@@ -255,8 +257,6 @@ public class Prepare extends AbstractWebScript {
     }
 
     private static Set<String> EditableSet = new HashSet<String>() {{
-        add("text/plain");
-        add("text/csv");
         add("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
         add("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         add("application/vnd.openxmlformats-officedocument.presentationml.presentation");

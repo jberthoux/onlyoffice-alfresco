@@ -92,8 +92,14 @@ public class Converter extends AbstractContentTransformer2 {
     }};
 
     private static Set<String> ConvertBackList = new HashSet<String>() {{
+        add("application/vnd.oasis.opendocument.text");
+        add("application/vnd.oasis.opendocument.spreadsheet");
+        add("application/vnd.oasis.opendocument.presentation");
         add("text/plain");
         add("text/csv");
+        add("application/rtf");
+        add("application/x-rtf");
+        add("text/richtext");
     }};
 
     public String GetModernMimetype(String mimetype) {
