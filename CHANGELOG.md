@@ -1,5 +1,8 @@
 # Change Log
 
+## 4.3.0
+## Added
+- opening for editing not OOXML
 
 ## 4.2.1
 ## Fixed
