@@ -155,7 +155,7 @@ public class CallBack extends AbstractWebScript {
             }
             Boolean reqNew = transactionService.isReadOnly();
             transactionService.getRetryingTransactionHelper()
-                .doInTransaction(new ProccessRequestCallback(callBackJSon, nodeRef), reqNew, reqNew);
+                .doInTransaction(new ProccessRequestCallback(callBackJSon, nodeRef, username), reqNew, reqNew);
             AuthenticationUtil.clearCurrentSecurityContext();
 
         } catch (SecurityException ex) {
@@ -180,12 +180,14 @@ public class CallBack extends AbstractWebScript {
 
         private JSONObject callBackJSon;
         private NodeRef nodeRef;
+        private String user;
 
         private Boolean forcesave;
 
-        public ProccessRequestCallback(JSONObject json, NodeRef node) {
+        public ProccessRequestCallback(JSONObject json, NodeRef node, String username) {
             callBackJSon = json;
             nodeRef = node;
+            user = username;
             forcesave = configManager.getAsBoolean("forcesave", "fasle");
         }
 
@@ -213,6 +215,10 @@ public class CallBack extends AbstractWebScript {
 
                     AuthenticationUtil.setRunAsUser(lockOwner);
                     cociService.checkin(wc, null, null);
+
+                    AuthenticationUtil.setRunAsUser(user);
+                    nodeService.removeProperty(nodeRef, Util.EditingHashAspect);
+                    nodeService.removeProperty(nodeRef, Util.EditingKeyAspect);
                     break;
                 case 3:
                     logger.error("ONLYOFFICE has reported that saving the document has failed");
