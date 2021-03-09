@@ -254,7 +254,7 @@ public class CallBack extends AbstractWebScript {
             try {
                 logger.debug("Should convert back");
                 String downloadExt = util.getFileExtension(url).replace(".", "");
-                url = converterService.convert(nodeRef.getId(), downloadExt, mimetypeService.getExtension(mimeType), url);
+                url = converterService.convert(util.getKey(nodeRef), downloadExt, mimetypeService.getExtension(mimeType), url);
             } catch (Exception e) {
                 throw new Exception("Error while converting document back to original format: " + e.getMessage(), e);
             }
