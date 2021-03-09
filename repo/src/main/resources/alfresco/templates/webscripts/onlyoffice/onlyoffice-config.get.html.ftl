@@ -39,37 +39,38 @@
                <input class="value" id="alfurl" name="alfurl" size="35" placeholder="http://alfresco/" title="${msg('onlyoffice-config.alf-url-tooltip')}" pattern="http(s)?://.*" value="${alfurl}" />
             </span>
          </div>
-         <div class="control field section">
-            <label class="label">${msg("onlyoffice-config.file-type")}</label>
-            <div style="padding-top: 4px">
-                <input class="value" id="csv" name="csv" type="checkbox" ${formatCSV} />
-                <label class="label" style="margin-right: 21px" for="csv">csv</label>
-                <input class="value" id="odp" name="odp" type="checkbox" ${formatODP} />
-                <label class="label" style="margin-right: 21px" for="odp">odp</label>
-                <input class="value" id="ods" name="ods" type="checkbox" ${formatODS} />
-                <label class="label" style="margin-right: 21px" for="ods">ods</label>
-                <input class="value" id="odt" name="odt" type="checkbox" ${formatODT} />
-                <label class="label" style="margin-right: 21px" for="odt">odt</label>
-                <input class="value" id="rtf" name="rtf" type="checkbox" ${formatRTF} />
-                <label class="label" style="margin-right: 21px" for="rtf">rtf</label>
-                <input class="value" id="txt" name="txt" type="checkbox" ${formatTXT} />
-                <label class="label" style="margin-right: 21px" for="txt">txt</label>
-            </div>
-         </div>
-         <div class="control field">
-            <input class="value" id="onlycert" name="cert" type="checkbox" ${cert} />
-            <label class="label" for="onlycert">${msg("onlyoffice-config.ignore-ssl-cert")}</label>
-         </div>
-         <div class="control field">
-            <input class="value" id="forcesave" name="forcesave" type="checkbox" ${forcesave} />
-            <label class="label" for="forcesave">${msg("onlyoffice-config.forcesave")}</label>
-         </div>
-         <div class="control field">
-            <input class="value" id="webpreview" name="cert" type="checkbox" ${webpreview} />
-            <label class="label" for="webpreview">${msg("onlyoffice-config.webpreview")}</label>
-         </div>
       </@tsection>
 
+      <@section label=msg("onlyoffice-config.common-section") />
+      <div class="control field">
+         <input class="value" id="onlycert" name="cert" type="checkbox" ${cert} />
+         <label class="label" for="onlycert">${msg("onlyoffice-config.ignore-ssl-cert")}</label>
+      </div>
+      <div class="control field">
+         <input class="value" id="forcesave" name="forcesave" type="checkbox" ${forcesave} />
+         <label class="label" for="forcesave">${msg("onlyoffice-config.forcesave")}</label>
+      </div>
+      <div class="control field">
+         <input class="value" id="webpreview" name="cert" type="checkbox" ${webpreview} />
+         <label class="label" for="webpreview">${msg("onlyoffice-config.webpreview")}</label>
+      </div>
+      <div class="control field section">
+          <label class="label">${msg("onlyoffice-config.file-type")}</label>
+          <div style="padding-top: 4px">
+              <input class="value" id="csv" name="csv" type="checkbox" ${formatCSV} />
+              <label class="label" style="margin-right: 21px" for="csv">csv</label>
+              <input class="value" id="odp" name="odp" type="checkbox" ${formatODP} />
+              <label class="label" style="margin-right: 21px" for="odp">odp</label>
+              <input class="value" id="ods" name="ods" type="checkbox" ${formatODS} />
+              <label class="label" style="margin-right: 21px" for="ods">ods</label>
+              <input class="value" id="odt" name="odt" type="checkbox" ${formatODT} />
+              <label class="label" style="margin-right: 21px" for="odt">odt</label>
+              <input class="value" id="rtf" name="rtf" type="checkbox" ${formatRTF} />
+              <label class="label" style="margin-right: 21px" for="rtf">rtf</label>
+              <input class="value" id="txt" name="txt" type="checkbox" ${formatTXT} />
+              <label class="label" style="margin-right: 21px" for="txt">txt</label>
+          </div>
+      </div>
       <br>
       <input id="postonlycfg" type="button" value="${msg('onlyoffice-config.save-btn')}"/>
    </form>
