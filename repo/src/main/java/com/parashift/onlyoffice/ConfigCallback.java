@@ -68,6 +68,8 @@ public class ConfigCallback extends AbstractWebScript {
             docInnerUrl = AppendSlash(docInnerUrl);
             alfUrl = AppendSlash(alfUrl);
 
+            JSONObject formats = (JSONObject) data.get("formats");
+
             configManager.set("url", docUrl);
             configManager.set("innerurl", docInnerUrl);
             configManager.set("alfurl", alfUrl);
@@ -75,6 +77,13 @@ public class ConfigCallback extends AbstractWebScript {
             configManager.set("forcesave", data.getString("forcesave"));
             configManager.set("webpreview", data.getString("webpreview"));
             configManager.set("jwtsecret", jwtSecret);
+
+            configManager.set("formatODT", formats.getString("odt"));
+            configManager.set("formatODS", formats.getString("ods"));
+            configManager.set("formatODP", formats.getString("odp"));
+            configManager.set("formatCSV", formats.getString("csv"));
+            configManager.set("formatTXT", formats.getString("txt"));
+            configManager.set("formatRTF", formats.getString("rtf"));
 
             String alfrescoProto = (String) globalProp.getOrDefault("alfresco.protocol", "http");
 

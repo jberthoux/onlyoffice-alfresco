@@ -129,4 +129,21 @@ public class Util {
             return alfUrl + "alfresco/";
         }
     }
+
+    public String getFileName(String url)
+    {
+        if (url == null) return "";
+
+        String fileName = url.substring(url.lastIndexOf('/') + 1, url.length());
+        fileName = fileName.split("\\?")[0];
+        return fileName;
+    }
+
+    public String getFileExtension(String url)
+    {
+        String fileName = getFileName(url);
+        if (fileName == null) return null;
+        String fileExt = fileName.substring(fileName.lastIndexOf("."));
+        return fileExt.toLowerCase();
+    }
 }

@@ -8,17 +8,16 @@
     http://www.springframework.org/schema/context
     http://www.springframework.org/schema/context/spring-context-2.5.xsd">
 
+    <bean id="slingshot.scriptprocessor.EditableMimetypesQuery" class="com.onlyoffice.web.scripts.EditableMimetypesQuery" >
+        <property name="remote" ref="webframework.webscripts.scriptremote" />
+    </bean>
 
-    <bean id="evaluator.doclib.action.onlyofficeEditMimetype" parent="evaluator.doclib.action.isMimetype">
-        <property name="mimetypes">
-            <list>
-                <value>application/vnd.openxmlformats-officedocument.wordprocessingml.document</value>
-                <value>application/vnd.openxmlformats-officedocument.spreadsheetml.sheet</value>
-                <value>application/vnd.openxmlformats-officedocument.presentationml.presentation</value>
-                <value>text/plain</value>
-                <value>text/csv</value>
-            </list>
-        </property>
+    <bean id="evaluator.doclib.action.onlyofficeEditMimetype" class="com.onlyoffice.web.evaluator.IsEditableMimetype" >
+        <property name="editableMimetypes" ref="slingshot.scriptprocessor.EditableMimetypesQuery" />
+    </bean>
+
+    <bean id="evaluator.doclib.action.onlyofficeViewMimetype" class="com.onlyoffice.web.evaluator.IsViewMimetype">
+        <property name="editableMimetypes" ref="slingshot.scriptprocessor.EditableMimetypesQuery" />
     </bean>
 
     <bean id="evaluator.doclib.action.notLocked" parent="evaluator.doclib.metadata.isLocked">
@@ -58,7 +57,6 @@
      <bean id="evaluator.doclib.action.displayRead" parent="evaluator.doclib.action.chainedMatchOne">
         <property name="evaluators">
            <list>
-              <ref bean="evaluator.doclib.action.onlyofficeConvertMimetype"/>
               <ref bean="evaluator.doclib.action.onlyofficeViewMimetype"/>
               <ref bean="evaluator.doclib.action.readAvailable"/>
            </list>
@@ -77,20 +75,6 @@
                 <value>application/rtf</value>
                 <value>application/x-rtf</value>
                 <value>text/richtext</value>
-            </list>
-        </property>
-    </bean>
-
-    <bean id="evaluator.doclib.action.onlyofficeViewMimetype" parent="evaluator.doclib.action.isMimetype">
-        <property name="mimetypes">
-            <list>
-                <value>application/pdf</value>
-                <value>application/rtf</value>
-                <value>application/x-rtf</value>
-                <value>text/richtext</value>
-                <value>application/vnd.ms-excel</value>
-                <value>application/vnd.ms-powerpoint</value>
-                <value>application/msword</value>
             </list>
         </property>
     </bean>

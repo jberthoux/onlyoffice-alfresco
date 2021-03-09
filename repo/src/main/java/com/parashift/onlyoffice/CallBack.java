@@ -76,6 +76,9 @@ public class CallBack extends AbstractWebScript {
     @Autowired
     TransactionService transactionService;
 
+    @Autowired
+    Util util;
+
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
@@ -183,7 +186,7 @@ public class CallBack extends AbstractWebScript {
         public ProccessRequestCallback(JSONObject json, NodeRef node) {
             callBackJSon = json;
             nodeRef = node;
-            forcesave = configManager.getAsBoolean("forcesave");
+            forcesave = configManager.getAsBoolean("forcesave", "fasle");
         }
 
         @Override
@@ -244,7 +247,8 @@ public class CallBack extends AbstractWebScript {
         if (converterService.shouldConvertBack(mimeType)) {
             try {
                 logger.debug("Should convert back");
-                url = converterService.convert(nodeRef.getId(), "docx", mimetypeService.getExtension(mimeType), url);
+                String downloadExt = util.getFileExtension(url).replace(".", "");
+                url = converterService.convert(nodeRef.getId(), downloadExt, mimetypeService.getExtension(mimeType), url);
             } catch (Exception e) {
                 throw new Exception("Error while converting document back to original format: " + e.getMessage(), e);
             }
