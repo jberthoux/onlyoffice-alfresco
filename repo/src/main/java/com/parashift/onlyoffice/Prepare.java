@@ -179,8 +179,6 @@ public class Prepare extends AbstractWebScript {
                     }
                 }
 
-                EditableSet.addAll(configManager.getEditableSet());
-
                 boolean canWrite = isEditable(mimeType) && permissionService.hasPermission(nodeRef, PermissionService.WRITE) == AccessStatus.ALLOWED;
 
                 String contentUrl = util.getContentUrl(nodeRef);
@@ -263,7 +261,7 @@ public class Prepare extends AbstractWebScript {
     }};
 
     private boolean isEditable(String mime) {
-        return EditableSet.contains(mime);
+        return EditableSet.contains(mime) || configManager.getEditableSet().contains(mime);
     }
 
     private String getDocType(String ext) {
