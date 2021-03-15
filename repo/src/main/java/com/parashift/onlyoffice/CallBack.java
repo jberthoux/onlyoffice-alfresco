@@ -41,7 +41,7 @@ import javax.net.ssl.X509TrustManager;
  * Created by cetra on 20/10/15.
  */
  /*
-    Copyright (c) Ascensio System SIA 2020. All rights reserved.
+    Copyright (c) Ascensio System SIA 2021. All rights reserved.
     http://www.onlyoffice.com
 */
 @Component(value = "webscript.onlyoffice.callback.post")

@@ -1,3 +1,8 @@
+/*
+    Copyright (c) Ascensio System SIA 2021. All rights reserved.
+    http://www.onlyoffice.com
+*/
+
 Alfresco.WebPreview.prototype.Plugins.onlyoffice = function(wp, attributes) {
     this.wp = wp;
     this.attributes = YAHOO.lang.merge(Alfresco.util.deepCopy(this.attributes), attributes);

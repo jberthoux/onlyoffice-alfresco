@@ -41,7 +41,7 @@ import java.util.Set;
  * Sends Alfresco Share the necessaries to build up what information is needed for the OnlyOffice server
  */
  /*
-    Copyright (c) Ascensio System SIA 2020. All rights reserved.
+    Copyright (c) Ascensio System SIA 2021. All rights reserved.
     http://www.onlyoffice.com
 */
 @Component(value = "webscript.onlyoffice.prepare.get")
