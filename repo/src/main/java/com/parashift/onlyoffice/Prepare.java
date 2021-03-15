@@ -121,9 +121,10 @@ public class Prepare extends AbstractWebScript {
                 writer.setMimetype(newFileMime);
 
                 String tag = mesService.getLocale().toLanguageTag().substring(0, 2);
-                if ("de en es fr it ru".indexOf(tag) == -1) tag = "en";
+                String pathLocale = Util.PathLocale.get(tag);
+                if (pathLocale == null) pathLocale = Util.PathLocale.get("default");
 
-                InputStream in = getClass().getResourceAsStream("/newdocs/" + tag + "/new." + ext);
+                InputStream in = getClass().getResourceAsStream("/newdocs/" + pathLocale + "/new." + ext);
 
                 writer.putContent(in);
 

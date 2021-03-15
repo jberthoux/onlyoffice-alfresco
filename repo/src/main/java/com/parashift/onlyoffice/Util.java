@@ -53,6 +53,17 @@ public class Util {
     public static final QName EditingKeyAspect = QName.createQName("onlyoffice:editing-key");
     public static final QName EditingHashAspect = QName.createQName("onlyoffice:editing-hash");
 
+    public static final Map<String, String> PathLocale = new HashMap<String, String>(){{
+        put("default", "en-US");
+        put("de", "de-DE");
+        put("es", "es-ES");
+        put("fr", "fr-FR");
+        put("it", "it-IT");
+        put("pt", "pt-PT");
+        put("ru", "ru-RU");
+        put("uk", "uk-UA");
+    }};
+
     public String getKey(NodeRef nodeRef) {
         String key = null;
         if (cociService.isCheckedOut(nodeRef)) {
