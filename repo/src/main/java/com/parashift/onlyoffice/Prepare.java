@@ -120,9 +120,13 @@ public class Prepare extends AbstractWebScript {
                 ContentWriter writer = contentService.getWriter(nodeRef, ContentModel.PROP_CONTENT, true);
                 writer.setMimetype(newFileMime);
 
-                String tag = mesService.getLocale().toLanguageTag().substring(0, 2);
-                String pathLocale = Util.PathLocale.get(tag);
-                if (pathLocale == null) pathLocale = Util.PathLocale.get("default");
+                String pathLocale = Util.PathLocale.get(mesService.getLocale().toLanguageTag());
+
+                if (pathLocale == null) {
+                    pathLocale = Util.PathLocale.get(mesService.getLocale().getLanguage());
+
+                    if (pathLocale == null) pathLocale = Util.PathLocale.get("en");
+                }
 
                 InputStream in = getClass().getResourceAsStream("/newdocs/" + pathLocale + "/new." + ext);
 
