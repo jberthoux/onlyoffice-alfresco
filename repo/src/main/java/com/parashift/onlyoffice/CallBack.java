@@ -155,7 +155,7 @@ public class CallBack extends AbstractWebScript {
             }
             Boolean reqNew = transactionService.isReadOnly();
             transactionService.getRetryingTransactionHelper()
-                .doInTransaction(new ProccessRequestCallback(callBackJSon, nodeRef, username), reqNew, reqNew);
+                .doInTransaction(new ProccessRequestCallback(callBackJSon, nodeRef), reqNew, reqNew);
             AuthenticationUtil.clearCurrentSecurityContext();
 
         } catch (SecurityException ex) {
@@ -180,14 +180,12 @@ public class CallBack extends AbstractWebScript {
 
         private JSONObject callBackJSon;
         private NodeRef nodeRef;
-        private String user;
 
         private Boolean forcesave;
 
-        public ProccessRequestCallback(JSONObject json, NodeRef node, String username) {
+        public ProccessRequestCallback(JSONObject json, NodeRef node) {
             callBackJSon = json;
             nodeRef = node;
-            user = username;
             forcesave = configManager.getAsBoolean("forcesave", "fasle");
         }
 
@@ -200,6 +198,7 @@ public class CallBack extends AbstractWebScript {
             switch(callBackJSon.getInt("status")) {
                 case 0:
                     logger.error("ONLYOFFICE has reported that no doc with the specified key can be found");
+                    AuthenticationUtil.setRunAsUser(AuthenticationUtil.getSystemUserName());
                     cociService.cancelCheckout(wc);
                     break;
                 case 1:
@@ -213,19 +212,17 @@ public class CallBack extends AbstractWebScript {
                     nodeService.removeProperty(wc, Util.EditingHashAspect);
                     nodeService.removeProperty(wc, Util.EditingKeyAspect);
 
-                    AuthenticationUtil.setRunAsUser(lockOwner);
+                    AuthenticationUtil.setRunAsUser(AuthenticationUtil.getSystemUserName());
                     cociService.checkin(wc, null, null);
-
-                    AuthenticationUtil.setRunAsUser(user);
-                    nodeService.removeProperty(nodeRef, Util.EditingHashAspect);
-                    nodeService.removeProperty(nodeRef, Util.EditingKeyAspect);
                     break;
                 case 3:
                     logger.error("ONLYOFFICE has reported that saving the document has failed");
+                    AuthenticationUtil.setRunAsUser(AuthenticationUtil.getSystemUserName());
                     cociService.cancelCheckout(wc);
                     break;
                 case 4:
                     logger.debug("No document updates, unlocking node");
+                    AuthenticationUtil.setRunAsUser(AuthenticationUtil.getSystemUserName());
                     cociService.cancelCheckout(wc);
                     break;
                 case 6:
@@ -236,8 +233,21 @@ public class CallBack extends AbstractWebScript {
 
                     logger.debug("Forcesave request (type: " + callBackJSon.getString("forcesavetype") + ")");
                     updateNode(wc, callBackJSon.getString("url"));
-                    AuthenticationUtil.setRunAsUser(lockOwner);
+
+                    String hash = (String) nodeService.getProperty(wc, Util.EditingHashAspect);
+                    String key = (String) nodeService.getProperty(wc, Util.EditingKeyAspect);
+
+                    nodeService.removeProperty(wc, Util.EditingHashAspect);
+                    nodeService.removeProperty(wc, Util.EditingKeyAspect);
+
+                    AuthenticationUtil.setRunAsUser(AuthenticationUtil.getSystemUserName());
                     cociService.checkin(wc, null, null, true);
+
+                    AuthenticationUtil.clearCurrentSecurityContext();
+                    AuthenticationUtil.setRunAsUser(lockOwner);
+
+                    nodeService.setProperty(wc, Util.EditingHashAspect, hash);
+                    nodeService.setProperty(wc, Util.EditingKeyAspect, key);
                     logger.debug("Forcesave complete");
                     break;
             }
