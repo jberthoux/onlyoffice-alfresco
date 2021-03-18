@@ -41,7 +41,7 @@ import javax.net.ssl.X509TrustManager;
  * Created by cetra on 20/10/15.
  */
  /*
-    Copyright (c) Ascensio System SIA 2020. All rights reserved.
+    Copyright (c) Ascensio System SIA 2021. All rights reserved.
     http://www.onlyoffice.com
 */
 @Component(value = "webscript.onlyoffice.callback.post")
@@ -75,6 +75,9 @@ public class CallBack extends AbstractWebScript {
 
     @Autowired
     TransactionService transactionService;
+
+    @Autowired
+    Util util;
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -183,35 +186,44 @@ public class CallBack extends AbstractWebScript {
         public ProccessRequestCallback(JSONObject json, NodeRef node) {
             callBackJSon = json;
             nodeRef = node;
-            forcesave = configManager.getAsBoolean("forcesave");
+            forcesave = configManager.getAsBoolean("forcesave", "fasle");
         }
 
         @Override
         public Object execute() throws Throwable {
+            NodeRef wc = cociService.getWorkingCopy(nodeRef);
+            String lockOwner = (String)nodeService.getProperty(wc, ContentModel.PROP_WORKING_COPY_OWNER);
+
             //Status codes from here: https://api.onlyoffice.com/editors/editor
             switch(callBackJSon.getInt("status")) {
                 case 0:
                     logger.error("ONLYOFFICE has reported that no doc with the specified key can be found");
-                    cociService.cancelCheckout(cociService.getWorkingCopy(nodeRef));
+                    AuthenticationUtil.setRunAsUser(AuthenticationUtil.getSystemUserName());
+                    cociService.cancelCheckout(wc);
                     break;
                 case 1:
                     logger.debug("User has entered/exited ONLYOFFICE");
                     break;
                 case 2:
                     logger.debug("Document Updated, changing content");
-                    updateNode(cociService.getWorkingCopy(nodeRef), callBackJSon.getString("url"));
-                    cociService.checkin(cociService.getWorkingCopy(nodeRef), null, null);
+                    updateNode(wc, callBackJSon.getString("url"));
+
                     logger.info("removing prop");
-                    nodeService.removeProperty(nodeRef, Util.EditingHashAspect);
-                    nodeService.removeProperty(nodeRef, Util.EditingKeyAspect);
+                    nodeService.removeProperty(wc, Util.EditingHashAspect);
+                    nodeService.removeProperty(wc, Util.EditingKeyAspect);
+
+                    AuthenticationUtil.setRunAsUser(AuthenticationUtil.getSystemUserName());
+                    cociService.checkin(wc, null, null);
                     break;
                 case 3:
                     logger.error("ONLYOFFICE has reported that saving the document has failed");
-                    cociService.cancelCheckout(cociService.getWorkingCopy(nodeRef));
+                    AuthenticationUtil.setRunAsUser(AuthenticationUtil.getSystemUserName());
+                    cociService.cancelCheckout(wc);
                     break;
                 case 4:
                     logger.debug("No document updates, unlocking node");
-                    cociService.cancelCheckout(cociService.getWorkingCopy(nodeRef));
+                    AuthenticationUtil.setRunAsUser(AuthenticationUtil.getSystemUserName());
+                    cociService.cancelCheckout(wc);
                     break;
                 case 6:
                     if (!forcesave) {
@@ -220,8 +232,22 @@ public class CallBack extends AbstractWebScript {
                     }
 
                     logger.debug("Forcesave request (type: " + callBackJSon.getString("forcesavetype") + ")");
-                    updateNode(cociService.getWorkingCopy(nodeRef), callBackJSon.getString("url"));
-                    cociService.checkin(cociService.getWorkingCopy(nodeRef), null, null, true);
+                    updateNode(wc, callBackJSon.getString("url"));
+
+                    String hash = (String) nodeService.getProperty(wc, Util.EditingHashAspect);
+                    String key = (String) nodeService.getProperty(wc, Util.EditingKeyAspect);
+
+                    nodeService.removeProperty(wc, Util.EditingHashAspect);
+                    nodeService.removeProperty(wc, Util.EditingKeyAspect);
+
+                    AuthenticationUtil.setRunAsUser(AuthenticationUtil.getSystemUserName());
+                    cociService.checkin(wc, null, null, true);
+
+                    AuthenticationUtil.clearCurrentSecurityContext();
+                    AuthenticationUtil.setRunAsUser(lockOwner);
+
+                    nodeService.setProperty(wc, Util.EditingHashAspect, hash);
+                    nodeService.setProperty(wc, Util.EditingKeyAspect, key);
                     logger.debug("Forcesave complete");
                     break;
             }
@@ -237,7 +263,8 @@ public class CallBack extends AbstractWebScript {
         if (converterService.shouldConvertBack(mimeType)) {
             try {
                 logger.debug("Should convert back");
-                url = converterService.convert(nodeRef.getId(), "docx", mimetypeService.getExtension(mimeType), url);
+                String downloadExt = util.getFileExtension(url).replace(".", "");
+                url = converterService.convert(util.getKey(nodeRef), downloadExt, mimetypeService.getExtension(mimeType), url);
             } catch (Exception e) {
                 throw new Exception("Error while converting document back to original format: " + e.getMessage(), e);
             }

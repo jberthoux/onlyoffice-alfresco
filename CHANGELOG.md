@@ -1,5 +1,12 @@
 # Change Log
 
+## 4.3.0
+## Added
+- Opening not OOXML file formats for editing
+- Empty file templates added in multiple new languages
+
+## Fixed
+- Fixed an issue where the file could not be saved by a user with permissions Collaborator
 
 ## 4.2.1
 ## Fixed

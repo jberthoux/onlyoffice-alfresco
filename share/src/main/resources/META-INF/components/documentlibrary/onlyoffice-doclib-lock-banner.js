@@ -1,3 +1,8 @@
+/*
+    Copyright (c) Ascensio System SIA 2021. All rights reserved.
+    http://www.onlyoffice.com
+*/
+
 (function() {
     if (Alfresco.DocumentList) {
         YAHOO.Bubbling.fire("registerRenderer", {

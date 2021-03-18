@@ -41,7 +41,7 @@ import java.util.Set;
  * Sends Alfresco Share the necessaries to build up what information is needed for the OnlyOffice server
  */
  /*
-    Copyright (c) Ascensio System SIA 2020. All rights reserved.
+    Copyright (c) Ascensio System SIA 2021. All rights reserved.
     http://www.onlyoffice.com
 */
 @Component(value = "webscript.onlyoffice.prepare.get")
@@ -120,10 +120,15 @@ public class Prepare extends AbstractWebScript {
                 ContentWriter writer = contentService.getWriter(nodeRef, ContentModel.PROP_CONTENT, true);
                 writer.setMimetype(newFileMime);
 
-                String tag = mesService.getLocale().toLanguageTag().substring(0, 2);
-                if ("de en es fr it ru".indexOf(tag) == -1) tag = "en";
+                String pathLocale = Util.PathLocale.get(mesService.getLocale().toLanguageTag());
 
-                InputStream in = getClass().getResourceAsStream("/newdocs/" + tag + "/new." + ext);
+                if (pathLocale == null) {
+                    pathLocale = Util.PathLocale.get(mesService.getLocale().getLanguage());
+
+                    if (pathLocale == null) pathLocale = Util.PathLocale.get("en");
+                }
+
+                InputStream in = getClass().getResourceAsStream("/newdocs/" + pathLocale + "/new." + ext);
 
                 writer.putContent(in);
 
@@ -228,7 +233,7 @@ public class Prepare extends AbstractWebScript {
                     embeddedObject.put("saveUrl", contentUrl);
                     editorConfigObject.put("embedded", embeddedObject);
                 }
-                customizationObject.put("forcesave", configManager.getAsBoolean("forcesave"));
+                customizationObject.put("forcesave", configManager.getAsBoolean("forcesave", "false"));
 
                 if (personInfo == null) {
                     userObject.put("name", username);
@@ -255,15 +260,13 @@ public class Prepare extends AbstractWebScript {
     }
 
     private static Set<String> EditableSet = new HashSet<String>() {{
-        add("text/plain");
-        add("text/csv");
         add("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
         add("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         add("application/vnd.openxmlformats-officedocument.presentationml.presentation");
     }};
 
     private boolean isEditable(String mime) {
-        return EditableSet.contains(mime);
+        return EditableSet.contains(mime) || configManager.getEditableSet().contains(mime);
     }
 
     private String getDocType(String ext) {

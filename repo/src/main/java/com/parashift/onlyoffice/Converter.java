@@ -33,7 +33,7 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSession;
 
 /*
-    Copyright (c) Ascensio System SIA 2020. All rights reserved.
+    Copyright (c) Ascensio System SIA 2021. All rights reserved.
     http://www.onlyoffice.com
 */
 
@@ -92,8 +92,14 @@ public class Converter extends AbstractContentTransformer2 {
     }};
 
     private static Set<String> ConvertBackList = new HashSet<String>() {{
+        add("application/vnd.oasis.opendocument.text");
+        add("application/vnd.oasis.opendocument.spreadsheet");
+        add("application/vnd.oasis.opendocument.presentation");
         add("text/plain");
         add("text/csv");
+        add("application/rtf");
+        add("application/x-rtf");
+        add("text/richtext");
     }};
 
     public String GetModernMimetype(String mimetype) {

@@ -10,7 +10,7 @@
     <parent>
         <groupId>com.onlyoffice.alfresco</groupId>
         <artifactId>onlyoffice-integration</artifactId>
-        <version>4.2.1</version>
+        <version>4.3.0</version>
     </parent>
 
     <properties>
@@ -29,6 +29,13 @@
         <dependency>
             <groupId>org.alfresco.surf</groupId>
             <artifactId>spring-surf-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.1.0</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

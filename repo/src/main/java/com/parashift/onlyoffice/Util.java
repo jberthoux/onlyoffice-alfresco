@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /*
-   Copyright (c) Ascensio System SIA 2020. All rights reserved.
+   Copyright (c) Ascensio System SIA 2021. All rights reserved.
    http://www.onlyoffice.com
 */
 
@@ -52,6 +52,32 @@ public class Util {
 
     public static final QName EditingKeyAspect = QName.createQName("onlyoffice:editing-key");
     public static final QName EditingHashAspect = QName.createQName("onlyoffice:editing-hash");
+
+    public static final Map<String, String> PathLocale = new HashMap<String, String>(){{
+        put("az", "az-Latn-AZ");
+        put("bg", "bg-BG");
+        put("cs", "cs-CZ");
+        put("de", "de-DE");
+        put("el", "el-GR");
+        put("en-GB", "en-GB");
+        put("en", "en-US");
+        put("es", "es-ES");
+        put("fr", "fr-FR");
+        put("it", "it-IT");
+        put("ja", "ja-JP");
+        put("ko", "ko-KR");
+        put("lv", "lv-LV");
+        put("nl", "nl-NL");
+        put("pl", "pl-PL");
+        put("pt-BR", "pt-BR");
+        put("pt", "pt-PT");
+        put("ru", "ru-RU");
+        put("sk", "sk-SK");
+        put("sv", "sv-SE");
+        put("uk", "uk-UA");
+        put("vi", "vi-VN");
+        put("zh", "zh-CN");
+    }};
 
     public String getKey(NodeRef nodeRef) {
         String key = null;
@@ -128,5 +154,22 @@ public class Util {
         } else {
             return alfUrl + "alfresco/";
         }
+    }
+
+    public String getFileName(String url)
+    {
+        if (url == null) return "";
+
+        String fileName = url.substring(url.lastIndexOf('/') + 1, url.length());
+        fileName = fileName.split("\\?")[0];
+        return fileName;
+    }
+
+    public String getFileExtension(String url)
+    {
+        String fileName = getFileName(url);
+        if (fileName == null) return null;
+        String fileExt = fileName.substring(fileName.lastIndexOf("."));
+        return fileExt.toLowerCase();
     }
 }
