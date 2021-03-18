@@ -2,7 +2,10 @@
 
 ## 4.3.0
 ## Added
-- opening for editing not OOXML
+- Opening for editing not OOXML
+
+## Fixed
+- Fixed an issue where the file could not be saved by a user with permissions Collaborator
 
 ## 4.2.1
 ## Fixed
