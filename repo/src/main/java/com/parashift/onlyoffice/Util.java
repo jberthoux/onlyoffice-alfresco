@@ -112,7 +112,7 @@ public class Util {
     }
 
     public String getContentUrl(NodeRef nodeRef) {
-        return  getAlfrescoUrl() + "s/api/node/content/workspace/SpacesStore/" + nodeRef.getId() + "?alf_ticket=" + authenticationService.getCurrentTicket();
+        return  getAlfrescoUrl() + "s/parashift/onlyoffice/download?nodeRef=" + nodeRef.toString() + "&alf_ticket=" + authenticationService.getCurrentTicket();
     }
 
     public String getCallbackUrl(NodeRef nodeRef) {
