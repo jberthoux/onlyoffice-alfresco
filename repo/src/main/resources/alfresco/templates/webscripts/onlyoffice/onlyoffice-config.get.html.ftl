@@ -80,12 +80,12 @@
               <td>
                   <div class="control field" style="margin-left: 20px;">
                       <input class="value" id="onlyofficeDemo" name="onlyofficeDemo" type="checkbox" ${demo} <#if !demoAvailable> disabled="disabled" </#if>/>
-                      <label class="label" for="onlyofficeDemo">Connect to demo ONLYOFFICE Document Server</label>
+                      <label class="label" for="onlyofficeDemo">${msg("onlyoffice-config.demo-connect")}</label>
                       </br>
                       <#if demoAvailable>
-                          <div class="description">This is a public test server, please do not use it for private sensitive data. The server will be available during a 30-day period.</div>
+                          <div class="description">${msg("onlyoffice-config.trial")}</div>
                       <#else>
-                          <div class="description">The 30-day test period is over, you can no longer connect to demo ONLYOFFICE Document Server.</div>
+                          <div class="description">${msg("onlyoffice-config.trial-is-over")}</div>
                       </#if>
                   </div>
               </td>
