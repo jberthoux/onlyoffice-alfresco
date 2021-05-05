@@ -72,7 +72,25 @@
           </div>
       </div>
       <br>
-      <input id="postonlycfg" type="button" value="${msg('onlyoffice-config.save-btn')}"/>
+      <table>
+          <tr style="vertical-align: top;">
+              <td>
+                  <input id="postonlycfg" type="button" value="${msg('onlyoffice-config.save-btn')}"/>
+              </td>
+              <td>
+                  <div class="control field" style="margin-left: 20px;">
+                      <input class="value" id="onlyofficeDemo" name="onlyofficeDemo" type="checkbox" ${demo} <#if !demoAvailable> disabled="disabled" </#if>/>
+                      <label class="label" for="onlyofficeDemo">Connect to demo ONLYOFFICE Document Server</label>
+                      </br>
+                      <#if demoAvailable>
+                          <div class="description">This is a public test server, please do not use it for private sensitive data. The server will be available during a 30-day period.</div>
+                      <#else>
+                          <div class="description">The 30-day test period is over, you can no longer connect to demo ONLYOFFICE Document Server.</div>
+                      </#if>
+                  </div>
+              </td>
+          </tr>
+      </table>
    </form>
    <br>
    <span data-saved="${msg('onlyoffice-config.saved')}" data-error="${msg('onlyoffice-config.error')}" data-mixedcontent="${msg('onlyoffice-config.mixedcontent')}" data-jsonparse="${msg('onlyoffice-config.jsonparse')}" data-docservunreachable="${msg('onlyoffice-config.docservunreachable')}" data-docservcommand="${msg('onlyoffice-config.docservcommand')}" data-docservconvert="${msg('onlyoffice-config.docservconvert')}" data-jwterror="${msg('onlyoffice-config.jwterror')}" data-statuscode="${msg('onlyoffice-config.statuscode')}" id="onlyresponse" class="message hidden"></span>
@@ -87,6 +105,7 @@
       var fs = document.getElementById("forcesave");
       var webpreview = document.getElementById("webpreview");
       var jwts = document.getElementById("jwtsecret");
+      var demo = document.getElementById("onlyofficeDemo");
       var odt = document.getElementById("odt");
       var ods = document.getElementById("ods");
       var odp = document.getElementById("odp");
@@ -141,6 +160,7 @@
          obj.forcesave = forcesave.checked.toString();
          obj.webpreview = webpreview.checked.toString();
          obj.jwtsecret = jwts.value.trim();
+         obj.demo = demo.checked.toString();
          obj.formats = {
             odt: odt.checked.toString(),
             ods: ods.checked.toString(),
@@ -184,6 +204,17 @@
          btn.disabled = true;
          doPost(obj);
       };
+
+      var demoToggle = function () {
+          if (!demo.disabled) {
+               url.disabled = demo.checked;
+               jwts.disabled = demo.checked;
+               innerurl.disabled = demo.checked;
+          }
+      };
+
+      demo.onclick = demoToggle;
+      demoToggle();
    })();
 //]]></script>
 </@page>

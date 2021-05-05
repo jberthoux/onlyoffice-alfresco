@@ -22,6 +22,13 @@ public class Config extends DeclarativeWebScript {
 
     @Override
     protected Map<String, Object> executeImpl(WebScriptRequest req, Status status, Cache cache) {
+
+        //for testing
+        String date = req.getParameter("date");
+        if (date != null) {
+            configManager.set("demoStart", date);
+        }
+
         Map<String, Object> model = new HashMap<String, Object>();
         model.put("docurl", configManager.getOrDefault("url", "http://127.0.0.1/"));
         model.put("docinnerurl", configManager.getOrDefault("innerurl", ""));
@@ -32,6 +39,11 @@ public class Config extends DeclarativeWebScript {
         model.put("webpreview", getBoolAsAttribute("webpreview", "false"));
 
         model.put("jwtsecret", configManager.getOrDefault("jwtsecret", ""));
+        model.put("demo", getBoolAsAttribute("demo", "false"));
+        model.put("demoAvailable", configManager.demoAvailable(true));
+
+        //for testing
+        model.put("demoStart", configManager.getOrDefault("demoStart", ""));
 
         model.put("formatODT", getBoolAsAttribute("formatODT", "false"));
         model.put("formatODS", getBoolAsAttribute("formatODS", "false"));
