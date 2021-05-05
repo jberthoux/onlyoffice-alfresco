@@ -173,6 +173,7 @@ public class Prepare extends AbstractWebScript {
                 responseJson.put("config", configJson);
                 responseJson.put("onlyofficeUrl", util.getEditorUrl());
                 responseJson.put("mime", mimeType);
+                responseJson.put("demo", configManager.demoActive());
 
                 if (preview) {
                     if (((String)configManager.getOrDefault("webpreview", "")).equals("true")) {
