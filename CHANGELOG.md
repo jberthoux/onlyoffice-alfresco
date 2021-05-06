@@ -1,5 +1,8 @@
 # Change Log
 
+## Added
+- connection to the demo server
+
 ## 4.3.0
 ## Added
 - Opening not OOXML file formats for editing

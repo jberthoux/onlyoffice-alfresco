@@ -97,8 +97,8 @@ public class CallBack extends AbstractWebScript {
                 Boolean inBody = true;
 
                 if (token == null || token == "") {
-                    String jwth = (String) configManager.getOrDefault("jwtheader", "");
-                    String header = (String) request.getHeader(jwth.isEmpty() ? "Authorization" : jwth);
+                    String jwth = jwtManager.getJwtHeader();
+                    String header = request.getHeader(jwth);
                     token = (header != null && header.startsWith("Bearer ")) ? header.substring(7) : header;
                     inBody = false;
                 }
