@@ -112,15 +112,11 @@ public class Util {
     }
 
     public String getContentUrl(NodeRef nodeRef) {
-        return  getAlfrescoUrl() + "s/api/node/content/workspace/SpacesStore/" + nodeRef.getId() + "?alf_ticket=" + authenticationService.getCurrentTicket();
+        return  getAlfrescoUrl() + "s/parashift/onlyoffice/download?nodeRef=" + nodeRef.toString() + "&alf_ticket=" + authenticationService.getCurrentTicket();
     }
 
     public String getCallbackUrl(NodeRef nodeRef) {
         return getAlfrescoUrl() + "s/parashift/onlyoffice/callback?nodeRef=" + nodeRef.toString() + "&cb_key=" + getHash(nodeRef);
-    }
-
-    public String getConversionUrl(String key) {
-        return getAlfrescoUrl() + "s/parashift/onlyoffice/converter?key=" + key + "&alf_ticket=" + authenticationService.getCurrentTicket();
     }
 
     public String getTestConversionUrl() {
