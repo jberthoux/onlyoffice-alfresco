@@ -2,7 +2,6 @@ package com.parashift.onlyoffice;
 
 import org.alfresco.repo.content.transform.AbstractContentTransformer2;
 import org.alfresco.service.cmr.repository.*;
-import org.springframework.extensions.surf.util.Pair;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpException;
@@ -55,8 +54,6 @@ public class Converter extends AbstractContentTransformer2 {
 
     @Autowired
     Util util;
-
-    private static Map<String, Pair<String, ContentReader>> OnGoingConversions = new HashMap<String, Pair<String, ContentReader>>();
 
     private static Map<String, Set<String>> TransformableDict = new HashMap<String, Set<String>>() {{
         put("application/vnd.oasis.opendocument.text", new HashSet<String>() {{
@@ -127,13 +124,6 @@ public class Converter extends AbstractContentTransformer2 {
         }
     }
 
-    public Pair<String, ContentReader> GetConversion(String key) {
-        if (OnGoingConversions.containsKey(key)) {
-            return OnGoingConversions.get(key);
-        } else {
-            return null;
-        }
-    }    
 
     @Override
     public boolean isTransformableMimetype(String sourceMimetype, String targetMimetype, TransformationOptions options) {
@@ -152,20 +142,14 @@ public class Converter extends AbstractContentTransformer2 {
         String srcType = mimetypeService.getExtension(srcMime);
         String outType = mimetypeService.getExtension(writer.getMimetype());
         String key = util.getKey(ref) + "." + srcType;
-
         logger.info("Received conversion request from " + srcType + " to " + outType);
 
         try {
-            OnGoingConversions.put(key, new Pair<String, ContentReader>(srcMime, reader));
-            String url = convert(key, srcType, outType, util.getConversionUrl(key));
+            String url = convert(key, srcType, outType, util.getContentUrl(ref));
             saveFromUrl(url, writer);
         } catch (Exception ex) {
             logger.info("Conversion failed: " + ex.getMessage());
             throw ex;
-        } finally {
-            if (OnGoingConversions.containsKey(key)) {
-                OnGoingConversions.remove(key);
-            }
         }
     }
 

@@ -119,10 +119,6 @@ public class Util {
         return getAlfrescoUrl() + "s/parashift/onlyoffice/callback?nodeRef=" + nodeRef.toString() + "&cb_key=" + getHash(nodeRef);
     }
 
-    public String getConversionUrl(String key) {
-        return getAlfrescoUrl() + "s/parashift/onlyoffice/converter?key=" + key + "&alf_ticket=" + authenticationService.getCurrentTicket();
-    }
-
     public String getTestConversionUrl() {
         return getAlfrescoUrl() + "s/parashift/onlyoffice/convertertest?alf_ticket=" + authenticationService.getCurrentTicket();
     }

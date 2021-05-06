@@ -115,13 +115,30 @@ public class ConvertAction extends ActionExecuterAbstractBase {
                     checkOutCheckInService.checkin(chkout, versionProperties);
                 }
             } catch (Exception ex) {
-                logger.debug("Couldn't transform: " + ex.getMessage());
-                if (shouldDelete) {
+                if (!writer.isClosed()) {
+                    try {
+                        writer.getContentOutputStream().close();
+                    } catch (Exception e) {
+                        logger.error("Error close stream", e);
+                    }
+                }
+
+                if (nodeService.exists(node) && shouldDelete) {
                     logger.debug("Deleting created node");
                     nodeService.deleteNode(node);
                 }
+
+                throw ex;
             } finally {
-                if (checkOutCheckInService.isCheckedOut(node)) {
+                if (!reader.isClosed()) {
+                    try {
+                        reader.getContentInputStream().close();
+                    } catch (Exception e) {
+                        logger.error("Error close stream", e);
+                    }
+                }
+
+                if (nodeService.exists(node) && checkOutCheckInService.isCheckedOut(node)) {
                     logger.debug("Finally: cancelCheckout()");
                     checkOutCheckInService.cancelCheckout(node);
                 }
