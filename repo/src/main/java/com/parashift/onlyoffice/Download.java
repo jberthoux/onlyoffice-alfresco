@@ -37,16 +37,13 @@ public class Download extends AbstractWebScript {
     @Autowired
     JwtManager jwtManager;
 
-    @Autowired
-    ConfigManager configManager;
-
     @Override
     public void execute(WebScriptRequest request, WebScriptResponse response) throws IOException {
         if (request.getParameter("nodeRef") != null) {
 
             if (jwtManager.jwtEnabled()) {
-                String jwth = (String) configManager.getOrDefault("jwtheader", "");
-                String header = request.getHeader(jwth.isEmpty() ? "Authorization" : jwth);
+                String jwth = jwtManager.getJwtHeader();
+                String header = request.getHeader(jwth);
                 String token = (header != null && header.startsWith("Bearer ")) ? header.substring(7) : header;
 
                 if (token == null || token == "") {
