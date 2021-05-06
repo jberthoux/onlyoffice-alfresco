@@ -21,7 +21,7 @@ public class JwtManager {
     ConfigManager configManager;
 
     public Boolean jwtEnabled() {
-        return configManager.get("jwtsecret") != null && !((String)configManager.get("jwtsecret")).isEmpty();
+        return configManager.demoActive() || configManager.get("jwtsecret") != null && !((String)configManager.get("jwtsecret")).isEmpty();
     }
 
     public String createToken(JSONObject payload) throws Exception {
@@ -63,13 +63,18 @@ public class JwtManager {
     }
 
     private Mac getHasher() throws Exception {
-        String jwts = (String) configManager.get("jwtsecret");
+        String jwts = configManager.demoActive() ? configManager.getDemo("secret") : (String) configManager.get("jwtsecret");
 
         Mac sha256 = Mac.getInstance("HmacSHA256");
         SecretKeySpec secret_key = new SecretKeySpec(jwts.getBytes("UTF-8"), "HmacSHA256");
         sha256.init(secret_key);
 
         return sha256;
+    }
+
+    public String getJwtHeader(){
+        String header = configManager.demoActive() ? configManager.getDemo("header") : (String) configManager.getOrDefault("jwtheader", "");
+        return header == null || header.isEmpty() ? "Authorization" : header;
     }
 }
 

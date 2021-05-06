@@ -128,12 +128,12 @@ public class Util {
     }
 
     public String getEditorUrl() {
-        return (String) configManager.getOrDefault("url", "http://127.0.0.1/");
+        return configManager.demoActive() ? configManager.getDemo("url") : (String) configManager.getOrDefault("url", "http://127.0.0.1/");
     }
 
     public String getEditorInnerUrl() {
         String url = (String) configManager.getOrDefault("innerurl", "");
-        if (url.isEmpty()) {
+        if (url.isEmpty() || configManager.demoActive()) {
             return getEditorUrl();
         } else {
             return url;

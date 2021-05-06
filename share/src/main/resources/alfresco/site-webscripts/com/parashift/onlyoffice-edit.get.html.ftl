@@ -21,8 +21,21 @@
         <div id="placeholder"></div>
     </div>
     <script>
+
+    var onAppReady = function (event) {
+        if (${demo?c}) {
+             docEditor.showMessage("${msg("alfresco.document.onlyoffice.action.edit.msg.demo")}");
+        }
+    };
+
     var config = ${config};
-    new DocsAPI.DocEditor("placeholder", config);
+
+    config.events = {
+        "onAppReady": onAppReady
+    };
+
+    var docEditor = new DocsAPI.DocEditor("placeholder", config);
+
     </script>
 </body>
 </html>

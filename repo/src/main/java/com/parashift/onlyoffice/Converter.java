@@ -190,7 +190,7 @@ public class Converter extends AbstractContentTransformer2 {
                 payloadBody.put("payload", body);
                 String headerToken = jwtManager.createToken(body);
                 body.put("token", token);
-                request.setHeader((String) configManager.getOrDefault("jwtheader", "Authorization"), "Bearer " + headerToken);
+                request.setHeader(jwtManager.getJwtHeader(), "Bearer " + headerToken);
             }
 
             logger.debug("Sending POST to Docserver: " + body.toString());
