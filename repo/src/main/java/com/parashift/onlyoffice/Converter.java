@@ -68,14 +68,28 @@ public class Converter {
             case "application/rtf":
             case "application/x-rtf":
             case "text/richtext":
+            case "application/vnd.ms-word.document.macroenabled.12":
+            case "application/vnd.openxmlformats-officedocument.wordprocessingml.template":
+            case "text/html":
+            case "application/vnd.oasis.opendocument.text-template":
                 return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 
             case "application/vnd.oasis.opendocument.spreadsheet":
             case "application/vnd.ms-excel":
+            case "application/vnd.oasis.opendocument.spreadsheet-template":
+            case "application/vnd.ms-excel.sheet.macroenabled.12":
+            case "application/vnd.ms-excel.template.macroenabled.12":
+            case "application/vnd.openxmlformats-officedocument.spreadsheetml.template":
                 return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
             case "application/vnd.oasis.opendocument.presentation":
             case "application/vnd.ms-powerpoint":
+            case "application/vnd.oasis.opendocument.presentation-template":
+            case "application/vnd.ms-powerpoint.template.macroenabled.12":
+            case "application/vnd.ms-powerpoint.slideshow.macroenabled.12":
+            case "application/vnd.ms-powerpoint.presentation.macroenabled.12":
+            case "application/vnd.openxmlformats-officedocument.presentationml.template":
+            case "application/vnd.openxmlformats-officedocument.presentationml.slideshow":
                 return "application/vnd.openxmlformats-officedocument.presentationml.presentation";
 
             default:
