@@ -26,6 +26,7 @@ import org.alfresco.service.namespace.QName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.extensions.webscripts.WebScriptException;
 
 /*
     Copyright (c) Ascensio System SIA 2021. All rights reserved.
@@ -65,7 +66,10 @@ public class ConvertAction extends ActionExecuterAbstractBase {
             String mime = reader.getMimetype();
 
             String targetMimeParam = converterService.GetModernMimetype(mime);
-            if (targetMimeParam == null) return;
+            if (targetMimeParam == null) {
+                logger.debug("Files of " + mime + " MIME-type cannot be converted");
+                return;
+            }
             String newName = nodeName.substring(0, nodeName.lastIndexOf('.') + 1)
                     + mimetypeService.getExtension(targetMimeParam);
     
@@ -128,7 +132,7 @@ public class ConvertAction extends ActionExecuterAbstractBase {
                     nodeService.deleteNode(node);
                 }
 
-                throw ex;
+                throw new WebScriptException("Conversion failed", ex);
             } finally {
                 if (!reader.isClosed()) {
                     try {
