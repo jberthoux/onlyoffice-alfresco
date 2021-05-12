@@ -5,6 +5,7 @@
 
 ## Changed
 - deleting thumbnail generation
+- improving JWT validation
 
 ## 4.3.0
 ## Added
