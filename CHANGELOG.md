@@ -3,6 +3,9 @@
 ## Added
 - connection to the demo server
 
+## Changed
+- deleting thumbnail generation
+
 ## 4.3.0
 ## Added
 - Opening not OOXML file formats for editing
