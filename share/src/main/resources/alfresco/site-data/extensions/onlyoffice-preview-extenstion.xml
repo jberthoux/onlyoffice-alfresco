@@ -4,6 +4,7 @@
             <id>ONLYOFFICE Preview</id>
             <version>1.0</version>
             <auto-deploy>true</auto-deploy>
+            <evaluator type="onlyoffice.preview.evaluator"></evaluator>
             <customizations>
                 <customization>
                     <targetPackageRoot>org.alfresco.components.preview</targetPackageRoot>

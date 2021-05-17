@@ -161,7 +161,7 @@ public class Prepare extends AbstractWebScript {
                     return;
                 }
 
-                if (getDocType(docExt) == null) {
+                if (configManager.getDocType(docExt) == null) {
                     responseJson.put("error", "File type is not supported");
                     response.setStatus(500);
                     response.getWriter().write(responseJson.toString(3));
@@ -172,7 +172,6 @@ public class Prepare extends AbstractWebScript {
 
                 responseJson.put("config", configJson);
                 responseJson.put("onlyofficeUrl", util.getEditorUrl());
-                responseJson.put("mime", mimeType);
                 responseJson.put("demo", configManager.demoActive());
 
                 if (preview) {
@@ -199,7 +198,7 @@ public class Prepare extends AbstractWebScript {
                 configJson.put("type", preview ? "embedded" : "desktop");
                 configJson.put("width", "100%");
                 configJson.put("height", "100%");
-                configJson.put("documentType", getDocType(docExt));
+                configJson.put("documentType", configManager.getDocType(docExt));
 
                 configJson.put("document", documentObject);
                 documentObject.put("title", docTitle);
@@ -268,12 +267,5 @@ public class Prepare extends AbstractWebScript {
 
     private boolean isEditable(String mime) {
         return EditableSet.contains(mime) || configManager.getEditableSet().contains(mime);
-    }
-
-    private String getDocType(String ext) {
-        if (".doc.docx.docm.dot.dotx.dotm.odt.fodt.ott.rtf.txt.html.htm.mht.pdf.djvu.fb2.epub.xps".indexOf(ext) != -1) return "text";
-        if (".xls.xlsx.xlsm.xlt.xltx.xltm.ods.fods.ots.csv".indexOf(ext) != -1) return "spreadsheet";
-        if (".pps.ppsx.ppsm.ppt.pptx.pptm.pot.potx.potm.odp.fodp.otp".indexOf(ext) != -1) return "presentation";
-        return null;
     }
 }
