@@ -2,10 +2,7 @@ package com.parashift.onlyoffice;
 
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.permissions.AccessDeniedException;
-import org.alfresco.service.cmr.repository.ContentReader;
-import org.alfresco.service.cmr.repository.ContentService;
-import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.cmr.repository.*;
 import org.alfresco.service.cmr.security.AccessStatus;
 import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.namespace.QName;
@@ -37,10 +34,12 @@ public class Download extends AbstractWebScript {
     @Autowired
     JwtManager jwtManager;
 
+    @Autowired
+    MimetypeService mimetypeService;
+
     @Override
     public void execute(WebScriptRequest request, WebScriptResponse response) throws IOException {
         if (request.getParameter("nodeRef") != null) {
-
             if (jwtManager.jwtEnabled()) {
                 String jwth = jwtManager.getJwtHeader();
                 String header = request.getHeader(jwth);
@@ -64,11 +63,27 @@ public class Download extends AbstractWebScript {
             ContentReader reader = contentService.getReader(nodeRef, ContentModel.PROP_CONTENT);
             Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
 
-            response.setHeader("Content-Length", String.valueOf(reader.getSize()));
-            response.setHeader("Content-Type", reader.getMimetype());
-            response.setHeader("Content-Disposition", "attachment; filename*=UTF-8\'\'" + URLEncoder.encode((String) properties.get(ContentModel.PROP_NAME)));
+            String name = (String) properties.get(ContentModel.PROP_NAME);
+            String docExt = name.substring(name.lastIndexOf(".") + 1).trim().toLowerCase();
 
-            reader.getContent(response.getOutputStream());
+            response.setHeader("Content-Length", String.valueOf(reader.getSize()));
+            response.setHeader("Content-Type", mimetypeService.getMimetype(docExt));
+            response.setHeader("Content-Disposition", "attachment; filename*=UTF-8\'\'" + URLEncoder.encode(name));
+
+            Writer writer = response.getWriter();
+            BufferedInputStream inputStream = null;
+            try {
+                InputStream fileInputStream = reader.getContentInputStream();
+                inputStream = new BufferedInputStream(fileInputStream);
+                int readBytes = 0;
+                while ((readBytes = inputStream.read()) != -1) {
+                    writer.write(readBytes);
+                }
+            } catch (Exception e) {
+                throw e;
+            } finally {
+                inputStream.close();
+            }
         } else {
             throw new WebScriptException(Status.STATUS_BAD_REQUEST, "Could not find required 'nodeRef' parameter");
         }
