@@ -2,6 +2,7 @@
 
 ## Added
 - connection to the demo server
+- support alfresco multi tenancy [#83](https://github.com/ONLYOFFICE/onlyoffice-alfresco/issues/83)
 
 ##Removed
 - code that supports "legacy transforms"
