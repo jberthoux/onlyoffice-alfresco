@@ -12,8 +12,6 @@
 
     <!--Change the address on installed ONLYOFFICE™ Online Editors-->
     <script id="scriptApi" type="text/javascript" src="${onlyofficeUrl}OfficeWeb/apps/api/documents/api.js"></script>
-
-    <script type="text/javascript" src="${url.context}/res/components/onlyoffice/onlyoffice.js"></script>
 </head>
 
 <body>
