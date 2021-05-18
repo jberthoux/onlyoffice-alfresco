@@ -3,6 +3,7 @@ package com.parashift.onlyoffice;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.policy.BehaviourFilter;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
+import org.alfresco.repo.tenant.TenantContextHolder;
 import org.alfresco.repo.transaction.RetryingTransactionHelper.RetryingTransactionCallback;
 import org.alfresco.service.cmr.coci.CheckOutCheckInService;
 import org.alfresco.service.cmr.repository.ContentData;
@@ -120,17 +121,6 @@ public class CallBack extends AbstractWebScript {
                 }
             }
 
-            NodeRef nodeRef = new NodeRef(request.getParameter("nodeRef"));
-            String hash = null;
-            if (cociService.isCheckedOut(nodeRef)) {
-                hash = (String) nodeService.getProperty(cociService.getWorkingCopy(nodeRef), Util.EditingHashAspect);
-            }
-            String queryHash = request.getParameter("cb_key");
-
-            if (hash == null || queryHash == null || !hash.equals(queryHash)) {
-                throw new SecurityException("Security hash verification failed");
-            }
-
             String username = null;
 
             if (callBackJSon.has("users")) {
@@ -149,10 +139,23 @@ public class CallBack extends AbstractWebScript {
 
             if (username != null) {
                 AuthenticationUtil.clearCurrentSecurityContext();
+                TenantContextHolder.setTenantDomain(AuthenticationUtil.getUserTenant(username).getSecond());
                 AuthenticationUtil.setRunAsUser(username);
             } else {
                 throw new SecurityException("No user information");
             }
+
+            NodeRef nodeRef = new NodeRef(request.getParameter("nodeRef"));
+            String hash = null;
+            if (cociService.isCheckedOut(nodeRef)) {
+                hash = (String) nodeService.getProperty(cociService.getWorkingCopy(nodeRef), Util.EditingHashAspect);
+            }
+            String queryHash = request.getParameter("cb_key");
+
+            if (hash == null || queryHash == null || !hash.equals(queryHash)) {
+                throw new SecurityException("Security hash verification failed");
+            }
+
             Boolean reqNew = transactionService.isReadOnly();
             transactionService.getRetryingTransactionHelper()
                 .doInTransaction(new ProccessRequestCallback(callBackJSon, nodeRef), reqNew, reqNew);
@@ -244,6 +247,7 @@ public class CallBack extends AbstractWebScript {
                     cociService.checkin(wc, null, null, true);
 
                     AuthenticationUtil.clearCurrentSecurityContext();
+                    TenantContextHolder.setTenantDomain(AuthenticationUtil.getUserTenant(lockOwner).getSecond());
                     AuthenticationUtil.setRunAsUser(lockOwner);
 
                     nodeService.setProperty(wc, Util.EditingHashAspect, hash);
