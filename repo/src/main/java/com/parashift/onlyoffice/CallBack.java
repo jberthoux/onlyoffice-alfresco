@@ -231,7 +231,7 @@ public class CallBack extends AbstractWebScript {
                         return null;
                     }
 
-                    logger.debug("Forcesave request (type: " + callBackJSon.getString("forcesavetype") + ")");
+                    logger.debug("Forcesave request (type: " + callBackJSon.getInt("forcesavetype") + ")");
                     updateNode(wc, callBackJSon.getString("url"));
 
                     String hash = (String) nodeService.getProperty(wc, Util.EditingHashAspect);
