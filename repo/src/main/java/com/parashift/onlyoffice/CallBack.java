@@ -168,7 +168,7 @@ public class CallBack extends AbstractWebScript {
 
         if (error != null) {
             response.setStatus(code);
-            logger.error(ExceptionUtils.getFullStackTrace(error));
+            logger.error("Error execution script Callback", error);
 
             response.getWriter().write("{\"error\":1, \"message\":\"" + error.getMessage() + "\"}");
         } else {
