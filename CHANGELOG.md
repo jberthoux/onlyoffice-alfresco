@@ -3,8 +3,10 @@
 ## Added
 - connection to the demo server
 
+##Removed
+- code that supports "legacy transforms"
+
 ## Changed
-- deleting thumbnail generation
 - improving JWT validation
 
 ## 4.3.0
