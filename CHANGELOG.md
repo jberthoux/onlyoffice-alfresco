@@ -7,6 +7,9 @@
 - deleting thumbnail generation
 - improving JWT validation
 
+## Fixed
+- an issue when the Alfresco search functionality breaks if ONLYOFFICE preview is active [#63](https://github.com/ONLYOFFICE/onlyoffice-alfresco/issues/63)
+
 ## 4.3.0
 ## Added
 - Opening not OOXML file formats for editing
