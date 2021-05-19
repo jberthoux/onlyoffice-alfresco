@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.net.ssl.HostnameVerifier;
@@ -62,39 +63,21 @@ public class Converter {
     }};
 
     public String GetModernMimetype(String mimetype) {
-        switch(mimetype){
-            case "application/vnd.oasis.opendocument.text":
-            case "application/msword":
-            case "application/rtf":
-            case "application/x-rtf":
-            case "text/richtext":
-            case "application/vnd.ms-word.document.macroenabled.12":
-            case "application/vnd.openxmlformats-officedocument.wordprocessingml.template":
-            case "text/html":
-            case "application/vnd.oasis.opendocument.text-template":
-                return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+        List<String> mimeConvertToWord = configManager.getListDefaultProperty("docservice.mime.convert.word");
+        List<String> mimeConvertToCell = configManager.getListDefaultProperty("docservice.mime.convert.cell");
+        List<String> mimeConvertToSlide = configManager.getListDefaultProperty("docservice.mime.convert.slide");
 
-            case "application/vnd.oasis.opendocument.spreadsheet":
-            case "application/vnd.ms-excel":
-            case "application/vnd.oasis.opendocument.spreadsheet-template":
-            case "application/vnd.ms-excel.sheet.macroenabled.12":
-            case "application/vnd.ms-excel.template.macroenabled.12":
-            case "application/vnd.openxmlformats-officedocument.spreadsheetml.template":
-                return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-
-            case "application/vnd.oasis.opendocument.presentation":
-            case "application/vnd.ms-powerpoint":
-            case "application/vnd.oasis.opendocument.presentation-template":
-            case "application/vnd.ms-powerpoint.template.macroenabled.12":
-            case "application/vnd.ms-powerpoint.slideshow.macroenabled.12":
-            case "application/vnd.ms-powerpoint.presentation.macroenabled.12":
-            case "application/vnd.openxmlformats-officedocument.presentationml.template":
-            case "application/vnd.openxmlformats-officedocument.presentationml.slideshow":
-                return "application/vnd.openxmlformats-officedocument.presentationml.presentation";
-
-            default:
-                return null;
+        if (mimeConvertToWord.contains(mimetype)) {
+            return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
         }
+        if (mimeConvertToCell.contains(mimetype)) {
+            return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+        }
+        if (mimeConvertToSlide.contains(mimetype)) {
+            return "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+        }
+
+        return null;
     }
 
     public boolean shouldConvertBack(String mimeType) {
