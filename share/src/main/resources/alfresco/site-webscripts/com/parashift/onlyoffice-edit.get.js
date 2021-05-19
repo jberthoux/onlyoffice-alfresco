@@ -5,6 +5,7 @@
 
 var query = "?nodeRef=" + url.args.nodeRef;
 if (url.args.readonly) query += "&readonly=1";
+if (url.args.preview) query += "&preview=true";
 if (url.args.new) query += "&new=" + url.args.new;
 
 pObj = eval('(' + remote.call("/parashift/onlyoffice/prepare" + query) + ')');

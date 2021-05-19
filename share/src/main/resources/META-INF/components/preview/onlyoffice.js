@@ -17,9 +17,6 @@ Alfresco.WebPreview.prototype.Plugins.onlyoffice.prototype = {
     },
 
     display: function() {
-        var el = document.getElementById(this.wp.id);
-        new DocsAPI.DocEditor(this.wp.id + "-body", this.attributes.config);
-        el.style.width = "100%";
-        el.style.height = "75vh";
+        return "<iframe id='embeddedView' src='onlyoffice-edit?preview=true&nodeRef=" + this.attributes.nodeRef + "' style='height: 75vh; width: 100%;' frameborder='0' scrolling='no' allowtransparency></iframe>";
     }
 };
