@@ -185,7 +185,7 @@ public class Prepare extends AbstractWebScript {
                     }
                 }
 
-                boolean canWrite = isEditable(mimeType) && permissionService.hasPermission(nodeRef, PermissionService.WRITE) == AccessStatus.ALLOWED;
+                boolean canWrite = util.isEditable(mimeType) && permissionService.hasPermission(nodeRef, PermissionService.WRITE) == AccessStatus.ALLOWED;
 
                 String contentUrl = util.getContentUrl(nodeRef);
                 String key = util.getKey(nodeRef);
@@ -258,15 +258,5 @@ public class Prepare extends AbstractWebScript {
                 throw new WebScriptException("Unable to create JWT token: " + ex.getMessage());
             }
         }
-    }
-
-    private static Set<String> EditableSet = new HashSet<String>() {{
-        add("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
-        add("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        add("application/vnd.openxmlformats-officedocument.presentationml.presentation");
-    }};
-
-    private boolean isEditable(String mime) {
-        return EditableSet.contains(mime) || configManager.getEditableSet().contains(mime);
     }
 }

@@ -69,7 +69,7 @@ public class ConfigManager {
         return (value != null && ((String)value).equals("true")) ? true : false;
     }
 
-    public Set<String> getEditableSet() {
+    public Set<String> getCustomizableEditableSet() {
         Set<String> editableSet = new HashSet<>();
         if (getAsBoolean("formatODT", "false")){
             editableSet.add("application/vnd.oasis.opendocument.text");

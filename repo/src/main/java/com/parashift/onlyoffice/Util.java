@@ -178,4 +178,10 @@ public class Util {
 
         return null;
     }
+
+    public boolean isEditable(String mime) {
+        List<String> defaultEditableMimeTypes = configManager.getListDefaultProperty("docservice.mime.edit");
+        Set<String> customizableEditableMimeTypes = configManager.getCustomizableEditableSet();
+        return defaultEditableMimeTypes.contains(mime) || customizableEditableMimeTypes.contains(mime);
+    }
 }
