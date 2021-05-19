@@ -27,6 +27,9 @@ public class Preview extends AbstractWebScript {
     @Autowired
     NodeService nodeService;
 
+    @Autowired
+    Util util;
+
     @Override
     public void execute(WebScriptRequest request, WebScriptResponse response) throws IOException {
         if (request.getParameter("nodeRef") != null) {
@@ -36,7 +39,7 @@ public class Preview extends AbstractWebScript {
             String docTitle = (String) properties.get(ContentModel.PROP_NAME);
             String docExt = docTitle.substring(docTitle.lastIndexOf(".") + 1).trim().toLowerCase();
 
-            Boolean supportedType = configManager.getDocType(docExt) != null;
+            Boolean supportedType = util.getDocType(docExt) != null;
             Boolean preview = configManager.getAsBoolean("webpreview", "false");
 
             JSONObject responseJson = new JSONObject();

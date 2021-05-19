@@ -17,9 +17,7 @@ import org.springframework.stereotype.Service;
 import java.io.Serializable;
 import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /*
    Copyright (c) Ascensio System SIA 2021. All rights reserved.
@@ -167,5 +165,17 @@ public class Util {
         if (fileName == null) return null;
         String fileExt = fileName.substring(fileName.lastIndexOf("."));
         return fileExt.toLowerCase();
+    }
+
+    public String getDocType(String ext) {
+        List<String> wordFormats = configManager.getListDefaultProperty("docservice.type.word");
+        List<String> cellFormats = configManager.getListDefaultProperty("docservice.type.cell");
+        List<String> slideFormats = configManager.getListDefaultProperty("docservice.type.slide");
+
+        if (wordFormats.contains(ext)) return "text";
+        if (cellFormats.contains(ext)) return "spreadsheet";
+        if (slideFormats.contains(ext)) return "presentation";
+
+        return null;
     }
 }

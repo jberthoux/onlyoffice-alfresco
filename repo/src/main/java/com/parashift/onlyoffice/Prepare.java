@@ -142,6 +142,7 @@ public class Prepare extends AbstractWebScript {
 
             String docTitle = (String) properties.get(ContentModel.PROP_NAME);
             String docExt = docTitle.substring(docTitle.lastIndexOf(".") + 1).trim().toLowerCase();
+            String documentType = util.getDocType(docExt);
 
             response.setContentType("application/json; charset=utf-8");
             response.setContentEncoding("UTF-8");
@@ -161,7 +162,7 @@ public class Prepare extends AbstractWebScript {
                     return;
                 }
 
-                if (configManager.getDocType(docExt) == null) {
+                if (documentType == null) {
                     responseJson.put("error", "File type is not supported");
                     response.setStatus(500);
                     response.getWriter().write(responseJson.toString(3));
@@ -198,7 +199,7 @@ public class Prepare extends AbstractWebScript {
                 configJson.put("type", preview ? "embedded" : "desktop");
                 configJson.put("width", "100%");
                 configJson.put("height", "100%");
-                configJson.put("documentType", configManager.getDocType(docExt));
+                configJson.put("documentType", documentType);
 
                 configJson.put("document", documentObject);
                 documentObject.put("title", docTitle);
