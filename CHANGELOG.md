@@ -3,14 +3,10 @@
 ## Added
 - connection to the demo server
 
-##Removed
-- code that supports "legacy transforms"
-
 ## Changed
+- deleting thumbnail generation code
 - improving JWT validation
-
-## Fixed
-- an issue when the Alfresco search functionality breaks if ONLYOFFICE preview is active [#63](https://github.com/ONLYOFFICE/onlyoffice-alfresco/issues/63)
+- fixed search on the preview page [#63](https://github.com/ONLYOFFICE/onlyoffice-alfresco/issues/63)
 
 ## 4.3.0
 ## Added
