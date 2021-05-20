@@ -1,6 +1,0 @@
-<webscript>
-    <shortname>ONLYOFFICE Preview URL</shortname>
-    <description>Sends information to Share about preview</description>
-    <url>/parashift/onlyoffice/preview</url>
-    <authentication>user</authentication>
-</webscript>
