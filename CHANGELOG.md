@@ -2,6 +2,7 @@
 
 ## Added
 - connection to the demo server
+-  conversion for macro-enabled document and document template
 
 ## Changed
 - deleting thumbnail generation
