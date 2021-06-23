@@ -23,7 +23,7 @@ public class EditableMimetypes extends AbstractWebScript {
     public void execute(WebScriptRequest request, WebScriptResponse response) throws IOException {
         JSONObject responseJson = new JSONObject();
         try {
-            Set<String> editableMimetypes = configManager.getEditableSet();
+            Set<String> editableMimetypes = configManager.getCustomizableEditableSet();
             responseJson.put("mimetypes", editableMimetypes);
 
             response.setContentType("application/json; charset=utf-8");
