@@ -84,12 +84,16 @@ public class Util {
         }
 
         if (key == null) {
-            Version v = versionService.getCurrentVersion(nodeRef);
-            if (v == null) {
+            Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
+            String version = (String) properties.get(ContentModel.PROP_VERSION_LABEL);
+
+            if (version == null || version.isEmpty()) {
                 ensureVersioningEnabled(nodeRef);
-                v = versionService.getCurrentVersion(nodeRef);
+                Version v = versionService.getCurrentVersion(nodeRef);
+                key = nodeRef.getId() + "_" + v.getVersionLabel();
+            } else {
+                key = nodeRef.getId() + "_" + version;
             }
-            key = nodeRef.getId() + "_" + v.getVersionLabel();
         }
 
         return key;
