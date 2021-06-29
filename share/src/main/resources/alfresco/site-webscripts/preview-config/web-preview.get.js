@@ -6,18 +6,29 @@
 if (model.widgets) {
     for (var i = 0; i < model.widgets.length; i++) {
         var widget = model.widgets[i];
-        if (widget.id == "WebPreview" && url.args.nodeRef) {
-            widget.options.pluginConditions = jsonUtils.toJSONString([{
-                attributes: {
-                    mimeType: widget.options.mimeType
-                },
-                plugins: [{
-                    name: "onlyoffice",
+        if (widget.id == "WebPreview") {
+            pObj = null;
+
+            if (model.dependencyGroup == "document-details") {
+                pObj = eval('(' + remote.call("/parashift/onlyoffice/prepare?nodeRef=" + model.nodeRef + "&preview=true") + ')');
+            }
+            if (model.dependencyGroup == "web-preview") {
+                pObj = eval('(' + remote.call("/parashift/onlyoffice/prepare-quick-share?sharedId=" + model.nodeRef ) + ')');
+            }
+
+            if (pObj && pObj.previewEnabled && pObj.onlyofficeUrl && pObj.mime) {
+                model.onlyofficeUrl = pObj.onlyofficeUrl;
+                model.configOnlyoffice = JSON.stringify(pObj.config);
+
+                widget.options.pluginConditions = jsonUtils.toJSONString([{
                     attributes: {
-                        nodeRef: url.args.nodeRef
-                    }
-                }]
-            }]);
+                        mimeType: pObj.mime
+                    },
+                    plugins: [{
+                        name: "onlyoffice"
+                    }]
+                }]);
+            }
         }
     }
 }
