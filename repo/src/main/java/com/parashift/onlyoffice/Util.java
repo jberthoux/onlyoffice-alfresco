@@ -5,11 +5,13 @@ import org.alfresco.repo.admin.SysAdminParams;
 import org.alfresco.service.cmr.coci.CheckOutCheckInService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.cmr.repository.StoreRef;
 import org.alfresco.service.cmr.security.AuthenticationService;
 import org.alfresco.service.cmr.version.Version;
 import org.alfresco.service.cmr.version.VersionService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.util.UrlUtil;
+import org.springframework.extensions.surf.util.URLEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -136,6 +138,34 @@ public class Util {
         } else {
             return url;
         }
+    }
+
+    public String getEmbeddedSaveUrl(String sharedId, String docTitle) {
+        StringBuilder embeddedSaveUrl = new StringBuilder(8);
+        embeddedSaveUrl.append(UrlUtil.getShareUrl(sysAdminParams));
+        embeddedSaveUrl.append("/proxy/alfresco-noauth/api/internal/shared/node/");
+        embeddedSaveUrl.append(sharedId);
+        embeddedSaveUrl.append("/content/");
+        embeddedSaveUrl.append(URLEncoder.encodeUriComponent(docTitle));
+        embeddedSaveUrl.append("?c=force");
+        embeddedSaveUrl.append("&noCache=" + new Date().getTime());
+        embeddedSaveUrl.append("&a=true");
+
+        return embeddedSaveUrl.toString();
+    }
+
+    public String getEmbeddedSaveUrl(NodeRef nodeRef, String docTitle) {
+        StringBuilder embeddedSaveUrl = new StringBuilder(7);
+        StoreRef storeRef = nodeRef.getStoreRef();
+        embeddedSaveUrl.append(UrlUtil.getShareUrl(sysAdminParams));
+        embeddedSaveUrl.append("/proxy/alfresco/slingshot/node/content");
+        embeddedSaveUrl.append("/" + storeRef.getProtocol());
+        embeddedSaveUrl.append("/" + storeRef.getIdentifier());
+        embeddedSaveUrl.append("/" + nodeRef.getId());
+        embeddedSaveUrl.append("/" + URLEncoder.encodeUriComponent(docTitle));
+        embeddedSaveUrl.append("?a=true");
+
+        return embeddedSaveUrl.toString();
     }
 
     public String generateHash() {

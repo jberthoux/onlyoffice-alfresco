@@ -158,7 +158,8 @@ public class Prepare extends AbstractWebScript {
 
                 String username = AuthenticationUtil.getFullyAuthenticatedUser();
 
-                JSONObject configJson = utilDocConfig.getConfigJson(nodeRef, username, documentType, docTitle, docExt, preview, isReadOnly);
+                JSONObject configJson = utilDocConfig.getConfigJson(nodeRef, null, username, documentType, docTitle,
+                        docExt, preview, isReadOnly);
                 responseJson.put("config", configJson);
                 responseJson.put("onlyofficeUrl", util.getEditorUrl());
                 responseJson.put("mime", mimetypeService.getMimetype(docExt));

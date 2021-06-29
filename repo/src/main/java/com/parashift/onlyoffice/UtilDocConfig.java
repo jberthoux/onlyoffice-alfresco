@@ -50,8 +50,8 @@ public class UtilDocConfig {
     @Autowired
     Util util;
 
-    public JSONObject getConfigJson (NodeRef nodeRef, String username, String documentType, String
-            docTitle, String docExt, Boolean preview, Boolean isReadOnly) throws Exception {
+    public JSONObject getConfigJson (NodeRef nodeRef, String sharedId, String username, String documentType,
+            String docTitle, String docExt, Boolean preview, Boolean isReadOnly) throws Exception {
         JSONObject configJson = new JSONObject();
 
         configJson.put("type", preview ? "embedded" : "desktop");
@@ -96,7 +96,12 @@ public class UtilDocConfig {
         if (preview) {
             JSONObject embeddedObject = new JSONObject();
             editorConfigObject.put("embedded", embeddedObject);
-            embeddedObject.put("saveUrl", documentObject.getString("url"));
+            if (sharedId != null) {
+                embeddedObject.put("saveUrl", util.getEmbeddedSaveUrl(sharedId, docTitle));
+            } else {
+                embeddedObject.put("saveUrl", util.getEmbeddedSaveUrl(nodeRef, docTitle));
+            }
+
         }
 
         JSONObject customizationObject = new JSONObject();
