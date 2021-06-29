@@ -1,0 +1,6 @@
+<webscript>
+    <shortname>ONLYOFFICE Prepare Quick Share URL</shortname>
+    <description>Sends information to Share to prepare the ONLYOFFICE Embbedit Page</description>
+    <url>/parashift/onlyoffice/prepare-quick-share</url>
+    <authentication>none</authentication>
+</webscript>

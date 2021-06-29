@@ -136,8 +136,4 @@
     <bean id="evaluator.doclib.action.IsReadPermission" parent="evaluator.doclib.action.IsWritePermission">
         <property name="negateOutput" value="true" />
     </bean>
-
-    <bean id="onlyoffice.preview.evaluator" class="com.onlyoffice.web.evaluator.IsPreview">
-        <property name="remote" ref="webframework.webscripts.scriptremote" />
-    </bean>
 </beans>
