@@ -54,6 +54,10 @@
          <input class="value" id="webpreview" name="cert" type="checkbox" ${webpreview} />
          <label class="label" for="webpreview">${msg("onlyoffice-config.webpreview")}</label>
       </div>
+      <div class="control field">
+         <input class="value" id="convertOriginal" name="convertOriginal" type="checkbox" ${convertOriginal} />
+         <label class="label" for="convertOriginal">${msg("onlyoffice-config.convert-original")}</label>
+      </div>
       <div class="control field section">
           <label class="label">${msg("onlyoffice-config.file-type")}</label>
           <div style="padding-top: 4px">
@@ -104,6 +108,7 @@
       var cert = document.getElementById("onlycert");
       var fs = document.getElementById("forcesave");
       var webpreview = document.getElementById("webpreview");
+      var convertOriginal = document.getElementById("convertOriginal");
       var jwts = document.getElementById("jwtsecret");
       var demo = document.getElementById("onlyofficeDemo");
       var odt = document.getElementById("odt");
@@ -159,6 +164,7 @@
          obj.cert = cert.checked.toString();
          obj.forcesave = forcesave.checked.toString();
          obj.webpreview = webpreview.checked.toString();
+         obj.convertOriginal = convertOriginal.checked.toString();
          obj.jwtsecret = jwts.value.trim();
          obj.demo = demo.checked.toString();
          obj.formats = {
