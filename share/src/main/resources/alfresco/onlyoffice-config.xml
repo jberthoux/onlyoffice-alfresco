@@ -64,7 +64,7 @@
                 <param name="successMessage">alfresco.document.onlyoffice.action.convert.msg.success</param>
                 <param name="failureMessage">alfresco.document.onlyoffice.action.convert.msg.failure</param>
                 <evaluator>evaluator.doclib.action.onlyofficeConvertMimetype</evaluator>
-                <evaluator>evaluator.doclib.action.IsWritePermission</evaluator>
+                <evaluator>evaluator.doclib.action.IsConvertPermission</evaluator>
             </action>
         </actions>
         <actionGroups>

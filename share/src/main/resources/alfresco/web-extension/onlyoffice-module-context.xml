@@ -133,6 +133,7 @@
         <property name="negateOutput" value="true" />
     </bean>
     <bean id="evaluator.doclib.action.IsWritePermission" class="com.onlyoffice.web.evaluator.IsWritePermission" />
+    <bean id="evaluator.doclib.action.IsConvertPermission" class="com.onlyoffice.web.evaluator.IsConvertPermission" />
     <bean id="evaluator.doclib.action.IsReadPermission" parent="evaluator.doclib.action.IsWritePermission">
         <property name="negateOutput" value="true" />
     </bean>
