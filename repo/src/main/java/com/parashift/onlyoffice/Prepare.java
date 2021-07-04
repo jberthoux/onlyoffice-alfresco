@@ -80,19 +80,9 @@ public class Prepare extends AbstractWebScript {
                 logger.debug("Creating new node");
 
                 String ext = mimetypeService.getExtension(newFileMime);
-
                 String baseName = mesService.getMessage("onlyoffice.newdoc-filename-" + ext);
-                String newName = baseName + "." + ext;
 
-                NodeRef node = nodeService.getChildByName(nodeRef, ContentModel.ASSOC_CONTAINS, newName);
-                if (node != null) {
-                    Integer i = 0;
-                    do {
-                        i++;
-                        newName = baseName + " (" +  Integer.toString(i) + ")." + ext;
-                        node = nodeService.getChildByName(nodeRef, ContentModel.ASSOC_CONTAINS, newName);
-                    } while (node != null);
-                }
+                String newName = util.getCorrectName(nodeRef, baseName, ext);
 
                 Map<QName, Serializable> props = new HashMap<QName, Serializable>(1);
                 props.put(ContentModel.PROP_NAME, newName);
