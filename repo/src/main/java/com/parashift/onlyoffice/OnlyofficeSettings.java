@@ -13,8 +13,8 @@ import java.util.Set;
     Copyright (c) Ascensio System SIA 2021. All rights reserved.
     http://www.onlyoffice.com
 */
-@Component(value = "webscript.onlyoffice.editablemimetypes.get")
-public class EditableMimetypes extends AbstractWebScript {
+@Component(value = "webscript.onlyoffice.onlyoffice-settings.get")
+public class OnlyofficeSettings extends AbstractWebScript {
 
     @Autowired
     ConfigManager configManager;
@@ -24,7 +24,8 @@ public class EditableMimetypes extends AbstractWebScript {
         JSONObject responseJson = new JSONObject();
         try {
             Set<String> editableMimetypes = configManager.getCustomizableEditableSet();
-            responseJson.put("mimetypes", editableMimetypes);
+            responseJson.put("editableMimetypes", editableMimetypes);
+            responseJson.put("convertOriginal", configManager.getAsBoolean("convertOriginal", "false"));
 
             response.setContentType("application/json; charset=utf-8");
             response.setContentEncoding("UTF-8");

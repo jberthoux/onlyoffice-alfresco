@@ -5,7 +5,7 @@
 
 package com.onlyoffice.web.evaluator;
 
-import com.onlyoffice.web.scripts.EditableMimetypesQuery;
+import com.onlyoffice.web.scripts.OnlyofficeSettingsQuery;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.web.evaluator.BaseEvaluator;
 import org.json.simple.JSONObject;
@@ -13,7 +13,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class IsViewMimetype extends BaseEvaluator {
-    private EditableMimetypesQuery editableMimetypes;
+    private OnlyofficeSettingsQuery onlyofficeSettings;
 
     private static Set<String> baseViewMimetypes = new HashSet<String>() {{
         add("application/pdf");
@@ -30,8 +30,8 @@ public class IsViewMimetype extends BaseEvaluator {
         add("text/plain");
     }};
 
-    public void setEditableMimetypes(EditableMimetypesQuery editableMimetypes) {
-        this.editableMimetypes = editableMimetypes;
+    public void setOnlyofficeSettings(OnlyofficeSettingsQuery onlyofficeSettings) {
+        this.onlyofficeSettings = onlyofficeSettings;
     }
 
     @Override
@@ -49,7 +49,7 @@ public class IsViewMimetype extends BaseEvaluator {
 
                 Set<String> viewMimetypes = new HashSet<String>();
                 viewMimetypes.addAll(baseViewMimetypes);
-                viewMimetypes.removeAll(editableMimetypes.requestMimetypesFromRepo());
+                viewMimetypes.removeAll(onlyofficeSettings.getEditableMimetypes());
                 if (mimetype == null || !viewMimetypes.contains(mimetype))
                 {
                     return false;
