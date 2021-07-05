@@ -78,45 +78,48 @@ public class Prepare extends AbstractWebScript {
 
             if (newFileMime != null && !newFileMime.isEmpty()) {
                 logger.debug("Creating new node");
+                if (permissionService.hasPermission(nodeRef, PermissionService.CREATE_CHILDREN) == AccessStatus.ALLOWED) {
+                    String ext = mimetypeService.getExtension(newFileMime);
 
-                String ext = mimetypeService.getExtension(newFileMime);
+                    String baseName = mesService.getMessage("onlyoffice.newdoc-filename-" + ext);
+                    String newName = baseName + "." + ext;
 
-                String baseName = mesService.getMessage("onlyoffice.newdoc-filename-" + ext);
-                String newName = baseName + "." + ext;
+                    NodeRef node = nodeService.getChildByName(nodeRef, ContentModel.ASSOC_CONTAINS, newName);
+                    if (node != null) {
+                        Integer i = 0;
+                        do {
+                            i++;
+                            newName = baseName + " (" + Integer.toString(i) + ")." + ext;
+                            node = nodeService.getChildByName(nodeRef, ContentModel.ASSOC_CONTAINS, newName);
+                        } while (node != null);
+                    }
 
-                NodeRef node = nodeService.getChildByName(nodeRef, ContentModel.ASSOC_CONTAINS, newName);
-                if (node != null) {
-                    Integer i = 0;
-                    do {
-                        i++;
-                        newName = baseName + " (" +  Integer.toString(i) + ")." + ext;
-                        node = nodeService.getChildByName(nodeRef, ContentModel.ASSOC_CONTAINS, newName);
-                    } while (node != null);
+                    Map<QName, Serializable> props = new HashMap<QName, Serializable>(1);
+                    props.put(ContentModel.PROP_NAME, newName);
+
+                    nodeRef = this.nodeService.createNode(nodeRef, ContentModel.ASSOC_CONTAINS,
+                            QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, newName), ContentModel.TYPE_CONTENT, props)
+                            .getChildRef();
+
+                    ContentWriter writer = contentService.getWriter(nodeRef, ContentModel.PROP_CONTENT, true);
+                    writer.setMimetype(newFileMime);
+
+                    String pathLocale = Util.PathLocale.get(mesService.getLocale().toLanguageTag());
+
+                    if (pathLocale == null) {
+                        pathLocale = Util.PathLocale.get(mesService.getLocale().getLanguage());
+
+                        if (pathLocale == null) pathLocale = Util.PathLocale.get("en");
+                    }
+
+                    InputStream in = getClass().getResourceAsStream("/newdocs/" + pathLocale + "/new." + ext);
+
+                    writer.putContent(in);
+
+                    util.ensureVersioningEnabled(nodeRef);
+                } else {
+                    throw new SecurityException("User don't have the permissions to create child node");
                 }
-
-                Map<QName, Serializable> props = new HashMap<QName, Serializable>(1);
-                props.put(ContentModel.PROP_NAME, newName);
-
-                nodeRef = this.nodeService.createNode(nodeRef, ContentModel.ASSOC_CONTAINS,
-                    QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, newName), ContentModel.TYPE_CONTENT, props)
-                    .getChildRef();
-
-                ContentWriter writer = contentService.getWriter(nodeRef, ContentModel.PROP_CONTENT, true);
-                writer.setMimetype(newFileMime);
-
-                String pathLocale = Util.PathLocale.get(mesService.getLocale().toLanguageTag());
-
-                if (pathLocale == null) {
-                    pathLocale = Util.PathLocale.get(mesService.getLocale().getLanguage());
-
-                    if (pathLocale == null) pathLocale = Util.PathLocale.get("en");
-                }
-
-                InputStream in = getClass().getResourceAsStream("/newdocs/" + pathLocale + "/new." + ext);
-
-                writer.putContent(in);
-
-                util.ensureVersioningEnabled(nodeRef);
             }
 
             response.setContentType("application/json; charset=utf-8");
