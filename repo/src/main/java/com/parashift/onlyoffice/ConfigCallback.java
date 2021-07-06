@@ -80,6 +80,7 @@ public class ConfigCallback extends AbstractWebScript {
             configManager.set("cert", data.getString("cert"));
             configManager.set("forcesave", data.getString("forcesave"));
             configManager.set("webpreview", data.getString("webpreview"));
+            configManager.set("convertOriginal", data.getString("convertOriginal"));
 
             JSONObject formats = (JSONObject) data.get("formats");
             configManager.set("formatODT", formats.getString("odt"));

@@ -193,6 +193,19 @@ public class Util {
         return fileName;
     }
 
+    public String getCorrectName(NodeRef nodeFolder, String title, String ext) {
+        String name = title + "." + ext;
+        NodeRef node = nodeService.getChildByName(nodeFolder, ContentModel.ASSOC_CONTAINS, name);
+
+        Integer i = 0;
+        while (node != null) {
+            i++;
+            name = title + " (" + i + ")." + ext;
+            node = nodeService.getChildByName(nodeFolder, ContentModel.ASSOC_CONTAINS, name);
+        }
+        return name;
+    }
+
     public String getFileExtension(String url)
     {
         String fileName = getFileName(url);

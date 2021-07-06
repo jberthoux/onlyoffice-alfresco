@@ -5,6 +5,7 @@
 - support alfresco multi tenancy [#83](https://github.com/ONLYOFFICE/onlyoffice-alfresco/issues/83)
 - conversion for macro-enabled document and document template
 - preview for shared files [#62](https://github.com/ONLYOFFICE/onlyoffice-alfresco/issues/62)
+- file conversion setting [#25](https://github.com/ONLYOFFICE/onlyoffice-alfresco/issues/25)
 
 ## Changed
 - deleting thumbnail generation code

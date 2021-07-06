@@ -5,7 +5,7 @@
 
 package com.onlyoffice.web.evaluator;
 
-import com.onlyoffice.web.scripts.EditableMimetypesQuery;
+import com.onlyoffice.web.scripts.OnlyofficeSettingsQuery;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.web.evaluator.BaseEvaluator;
 import org.json.simple.JSONObject;
@@ -13,7 +13,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class IsEditableMimetype extends BaseEvaluator {
-    private EditableMimetypesQuery editableMimetypes;
+    private OnlyofficeSettingsQuery onlyofficeSettings;
 
     private static Set<String> baseMimetypes = new HashSet<String>() {{
         add("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
@@ -21,8 +21,8 @@ public class IsEditableMimetype extends BaseEvaluator {
         add("application/vnd.openxmlformats-officedocument.presentationml.presentation");
     }};
 
-    public void setEditableMimetypes(EditableMimetypesQuery editableMimetypes) {
-        this.editableMimetypes = editableMimetypes;
+    public void setOnlyofficeSettings(OnlyofficeSettingsQuery onlyofficeSettings) {
+        this.onlyofficeSettings = onlyofficeSettings;
     }
 
     @Override
@@ -40,7 +40,7 @@ public class IsEditableMimetype extends BaseEvaluator {
                 String mimetype = (String)node.get("mimetype");
                 if (mimetype == null || !baseMimetypes.contains(mimetype))
                 {
-                    if (!editableMimetypes.requestMimetypesFromRepo().contains(mimetype)) {
+                    if (!onlyofficeSettings.getEditableMimetypes().contains(mimetype)) {
                         return false;
                     }
                 }

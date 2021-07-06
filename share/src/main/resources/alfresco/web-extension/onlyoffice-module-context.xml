@@ -8,16 +8,16 @@
     http://www.springframework.org/schema/context
     http://www.springframework.org/schema/context/spring-context-2.5.xsd">
 
-    <bean id="slingshot.scriptprocessor.EditableMimetypesQuery" class="com.onlyoffice.web.scripts.EditableMimetypesQuery" >
+    <bean id="slingshot.scriptprocessor.OnlyofficeSettingsQuery" class="com.onlyoffice.web.scripts.OnlyofficeSettingsQuery" >
         <property name="remote" ref="webframework.webscripts.scriptremote" />
     </bean>
 
     <bean id="evaluator.doclib.action.onlyofficeEditMimetype" class="com.onlyoffice.web.evaluator.IsEditableMimetype" >
-        <property name="editableMimetypes" ref="slingshot.scriptprocessor.EditableMimetypesQuery" />
+        <property name="onlyofficeSettings" ref="slingshot.scriptprocessor.OnlyofficeSettingsQuery" />
     </bean>
 
     <bean id="evaluator.doclib.action.onlyofficeViewMimetype" class="com.onlyoffice.web.evaluator.IsViewMimetype">
-        <property name="editableMimetypes" ref="slingshot.scriptprocessor.EditableMimetypesQuery" />
+        <property name="onlyofficeSettings" ref="slingshot.scriptprocessor.OnlyofficeSettingsQuery" />
     </bean>
 
     <bean id="evaluator.doclib.action.notLocked" parent="evaluator.doclib.metadata.isLocked">
@@ -133,6 +133,9 @@
         <property name="negateOutput" value="true" />
     </bean>
     <bean id="evaluator.doclib.action.IsWritePermission" class="com.onlyoffice.web.evaluator.IsWritePermission" />
+    <bean id="evaluator.doclib.action.IsConvertPermission" class="com.onlyoffice.web.evaluator.IsConvertPermission">
+        <property name="onlyofficeSettings" ref="slingshot.scriptprocessor.OnlyofficeSettingsQuery" />
+    </bean>
     <bean id="evaluator.doclib.action.IsReadPermission" parent="evaluator.doclib.action.IsWritePermission">
         <property name="negateOutput" value="true" />
     </bean>
