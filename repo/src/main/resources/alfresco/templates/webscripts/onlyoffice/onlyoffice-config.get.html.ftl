@@ -200,6 +200,43 @@
          msgTimeout = setTimeout(hideMessage, 3000);
       };
 
+      var testDocServiceApi = function (obj) {
+          var testApiResult = function () {
+              var result = typeof DocsAPI != "undefined";
+
+              if (result) {
+                  doPost(obj);
+              } else {
+                  btn.disabled = false;
+                  showMessage(msg.dataset.error + " " + msg.dataset.docservunreachable, true);
+              }
+          };
+
+          delete DocsAPI;
+
+          var scriptAddress = document.getElementById("scripDocServiceAddress");
+          if (scriptAddress) scriptAddress.parentNode.removeChild(scriptAddress);
+
+          var js = document.createElement("script");
+          js.setAttribute("type", "text/javascript");
+          js.setAttribute("id", "scripDocServiceAddress");
+          document.getElementsByTagName("head")[0].appendChild(js);
+
+          scriptAddress = document.getElementById("scripDocServiceAddress");
+
+          scriptAddress.onload = testApiResult;
+          scriptAddress.onerror = testApiResult;
+
+          var docServiceUrlApi = obj.url;
+
+          if (!docServiceUrlApi.endsWith("/")) {
+              docServiceUrlApi += "/";
+          }
+          docServiceUrlApi += "web-apps/apps/api/documents/api.js";
+
+          scriptAddress.src = docServiceUrlApi;
+      };
+
       btn.onclick = function() {
          hideMessage();
          if (btn.disabled) return;
@@ -208,7 +245,11 @@
          if (!obj) return;
 
          btn.disabled = true;
-         doPost(obj);
+         if (demo.checked) {
+            doPost(obj);
+         } else {
+            testDocServiceApi(obj);
+         }
       };
 
       var demoToggle = function () {
