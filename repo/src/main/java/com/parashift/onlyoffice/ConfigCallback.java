@@ -99,7 +99,7 @@ public class ConfigCallback extends AbstractWebScript {
 
             docInnerUrl = docInnerUrl.isEmpty() ? docUrl : docInnerUrl;
             logger.debug("Checking docserv url");
-            if (!CheckDocServUrl(docUrl)) {
+            if (!CheckDocServUrl(docInnerUrl)) {
                 response.getWriter().write("{\"success\": false, \"message\": \"docservunreachable\"}");
                 return;
             }
