@@ -12,8 +12,6 @@
 
     <!--Change the address on installed ONLYOFFICE™ Online Editors-->
     <script id="scriptApi" type="text/javascript" src="${onlyofficeUrl}OfficeWeb/apps/api/documents/api.js"></script>
-
-    <script type="text/javascript" src="${url.context}/res/components/onlyoffice/onlyoffice.js"></script>
 </head>
 
 <body>
@@ -21,8 +19,21 @@
         <div id="placeholder"></div>
     </div>
     <script>
+
+    var onAppReady = function (event) {
+        if (${demo?c}) {
+             docEditor.showMessage("${msg("alfresco.document.onlyoffice.action.edit.msg.demo")}");
+        }
+    };
+
     var config = ${config};
-    new DocsAPI.DocEditor("placeholder", config);
+
+    config.events = {
+        "onAppReady": onAppReady
+    };
+
+    var docEditor = new DocsAPI.DocEditor("placeholder", config);
+
     </script>
 </body>
 </html>

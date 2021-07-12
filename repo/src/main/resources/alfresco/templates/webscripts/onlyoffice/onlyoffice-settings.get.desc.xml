@@ -1,6 +1,6 @@
 <webscript>
     <shortname>ONLYOFFICE Format URL</shortname>
     <description>Sends information to Share about editable formats</description>
-    <url>/parashift/onlyoffice/editablemimetypes</url>
+    <url>/parashift/onlyoffice/onlyoffice-settings</url>
     <authentication>user</authentication>
 </webscript>

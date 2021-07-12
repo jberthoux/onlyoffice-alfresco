@@ -54,6 +54,10 @@
          <input class="value" id="webpreview" name="cert" type="checkbox" ${webpreview} />
          <label class="label" for="webpreview">${msg("onlyoffice-config.webpreview")}</label>
       </div>
+      <div class="control field">
+         <input class="value" id="convertOriginal" name="convertOriginal" type="checkbox" ${convertOriginal} />
+         <label class="label" for="convertOriginal">${msg("onlyoffice-config.convert-original")}</label>
+      </div>
       <div class="control field section">
           <label class="label">${msg("onlyoffice-config.file-type")}</label>
           <div style="padding-top: 4px">
@@ -72,7 +76,25 @@
           </div>
       </div>
       <br>
-      <input id="postonlycfg" type="button" value="${msg('onlyoffice-config.save-btn')}"/>
+      <table>
+          <tr style="vertical-align: top;">
+              <td>
+                  <input id="postonlycfg" type="button" value="${msg('onlyoffice-config.save-btn')}"/>
+              </td>
+              <td>
+                  <div class="control field" style="margin-left: 20px;">
+                      <input class="value" id="onlyofficeDemo" name="onlyofficeDemo" type="checkbox" ${demo} <#if !demoAvailable> disabled="disabled" </#if>/>
+                      <label class="label" for="onlyofficeDemo">${msg("onlyoffice-config.demo-connect")}</label>
+                      </br>
+                      <#if demoAvailable>
+                          <div class="description">${msg("onlyoffice-config.trial")}</div>
+                      <#else>
+                          <div class="description">${msg("onlyoffice-config.trial-is-over")}</div>
+                      </#if>
+                  </div>
+              </td>
+          </tr>
+      </table>
    </form>
    <br>
    <span data-saved="${msg('onlyoffice-config.saved')}" data-error="${msg('onlyoffice-config.error')}" data-mixedcontent="${msg('onlyoffice-config.mixedcontent')}" data-jsonparse="${msg('onlyoffice-config.jsonparse')}" data-docservunreachable="${msg('onlyoffice-config.docservunreachable')}" data-docservcommand="${msg('onlyoffice-config.docservcommand')}" data-docservconvert="${msg('onlyoffice-config.docservconvert')}" data-jwterror="${msg('onlyoffice-config.jwterror')}" data-statuscode="${msg('onlyoffice-config.statuscode')}" id="onlyresponse" class="message hidden"></span>
@@ -86,7 +108,9 @@
       var cert = document.getElementById("onlycert");
       var fs = document.getElementById("forcesave");
       var webpreview = document.getElementById("webpreview");
+      var convertOriginal = document.getElementById("convertOriginal");
       var jwts = document.getElementById("jwtsecret");
+      var demo = document.getElementById("onlyofficeDemo");
       var odt = document.getElementById("odt");
       var ods = document.getElementById("ods");
       var odp = document.getElementById("odp");
@@ -140,7 +164,9 @@
          obj.cert = cert.checked.toString();
          obj.forcesave = forcesave.checked.toString();
          obj.webpreview = webpreview.checked.toString();
+         obj.convertOriginal = convertOriginal.checked.toString();
          obj.jwtsecret = jwts.value.trim();
+         obj.demo = demo.checked.toString();
          obj.formats = {
             odt: odt.checked.toString(),
             ods: ods.checked.toString(),
@@ -184,6 +210,17 @@
          btn.disabled = true;
          doPost(obj);
       };
+
+      var demoToggle = function () {
+          if (!demo.disabled) {
+               url.disabled = demo.checked;
+               jwts.disabled = demo.checked;
+               innerurl.disabled = demo.checked;
+          }
+      };
+
+      demo.onclick = demoToggle;
+      demoToggle();
    })();
 //]]></script>
 </@page>

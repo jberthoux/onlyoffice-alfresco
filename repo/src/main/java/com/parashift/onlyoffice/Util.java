@@ -5,11 +5,13 @@ import org.alfresco.repo.admin.SysAdminParams;
 import org.alfresco.service.cmr.coci.CheckOutCheckInService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.cmr.repository.StoreRef;
 import org.alfresco.service.cmr.security.AuthenticationService;
 import org.alfresco.service.cmr.version.Version;
 import org.alfresco.service.cmr.version.VersionService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.util.UrlUtil;
+import org.springframework.extensions.surf.util.URLEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -17,9 +19,7 @@ import org.springframework.stereotype.Service;
 import java.io.Serializable;
 import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /*
    Copyright (c) Ascensio System SIA 2021. All rights reserved.
@@ -86,12 +86,16 @@ public class Util {
         }
 
         if (key == null) {
-            Version v = versionService.getCurrentVersion(nodeRef);
-            if (v == null) {
+            Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
+            String version = (String) properties.get(ContentModel.PROP_VERSION_LABEL);
+
+            if (version == null || version.isEmpty()) {
                 ensureVersioningEnabled(nodeRef);
-                v = versionService.getCurrentVersion(nodeRef);
+                Version v = versionService.getCurrentVersion(nodeRef);
+                key = nodeRef.getId() + "_" + v.getVersionLabel();
+            } else {
+                key = nodeRef.getId() + "_" + version;
             }
-            key = nodeRef.getId() + "_" + v.getVersionLabel();
         }
 
         return key;
@@ -112,15 +116,11 @@ public class Util {
     }
 
     public String getContentUrl(NodeRef nodeRef) {
-        return  getAlfrescoUrl() + "s/api/node/content/workspace/SpacesStore/" + nodeRef.getId() + "?alf_ticket=" + authenticationService.getCurrentTicket();
+        return  getAlfrescoUrl() + "s/parashift/onlyoffice/download?nodeRef=" + nodeRef.toString() + "&alf_ticket=" + authenticationService.getCurrentTicket();
     }
 
     public String getCallbackUrl(NodeRef nodeRef) {
         return getAlfrescoUrl() + "s/parashift/onlyoffice/callback?nodeRef=" + nodeRef.toString() + "&cb_key=" + getHash(nodeRef);
-    }
-
-    public String getConversionUrl(String key) {
-        return getAlfrescoUrl() + "s/parashift/onlyoffice/converter?key=" + key + "&alf_ticket=" + authenticationService.getCurrentTicket();
     }
 
     public String getTestConversionUrl() {
@@ -128,16 +128,44 @@ public class Util {
     }
 
     public String getEditorUrl() {
-        return (String) configManager.getOrDefault("url", "http://127.0.0.1/");
+        return configManager.demoActive() ? configManager.getDemo("url") : (String) configManager.getOrDefault("url", "http://127.0.0.1/");
     }
 
     public String getEditorInnerUrl() {
         String url = (String) configManager.getOrDefault("innerurl", "");
-        if (url.isEmpty()) {
+        if (url.isEmpty() || configManager.demoActive()) {
             return getEditorUrl();
         } else {
             return url;
         }
+    }
+
+    public String getEmbeddedSaveUrl(String sharedId, String docTitle) {
+        StringBuilder embeddedSaveUrl = new StringBuilder(8);
+        embeddedSaveUrl.append(UrlUtil.getShareUrl(sysAdminParams));
+        embeddedSaveUrl.append("/proxy/alfresco-noauth/api/internal/shared/node/");
+        embeddedSaveUrl.append(sharedId);
+        embeddedSaveUrl.append("/content/");
+        embeddedSaveUrl.append(URLEncoder.encodeUriComponent(docTitle));
+        embeddedSaveUrl.append("?c=force");
+        embeddedSaveUrl.append("&noCache=" + new Date().getTime());
+        embeddedSaveUrl.append("&a=true");
+
+        return embeddedSaveUrl.toString();
+    }
+
+    public String getEmbeddedSaveUrl(NodeRef nodeRef, String docTitle) {
+        StringBuilder embeddedSaveUrl = new StringBuilder(7);
+        StoreRef storeRef = nodeRef.getStoreRef();
+        embeddedSaveUrl.append(UrlUtil.getShareUrl(sysAdminParams));
+        embeddedSaveUrl.append("/proxy/alfresco/slingshot/node/content");
+        embeddedSaveUrl.append("/" + storeRef.getProtocol());
+        embeddedSaveUrl.append("/" + storeRef.getIdentifier());
+        embeddedSaveUrl.append("/" + nodeRef.getId());
+        embeddedSaveUrl.append("/" + URLEncoder.encodeUriComponent(docTitle));
+        embeddedSaveUrl.append("?a=true");
+
+        return embeddedSaveUrl.toString();
     }
 
     public String generateHash() {
@@ -165,11 +193,42 @@ public class Util {
         return fileName;
     }
 
+    public String getCorrectName(NodeRef nodeFolder, String title, String ext) {
+        String name = title + "." + ext;
+        NodeRef node = nodeService.getChildByName(nodeFolder, ContentModel.ASSOC_CONTAINS, name);
+
+        Integer i = 0;
+        while (node != null) {
+            i++;
+            name = title + " (" + i + ")." + ext;
+            node = nodeService.getChildByName(nodeFolder, ContentModel.ASSOC_CONTAINS, name);
+        }
+        return name;
+    }
+
     public String getFileExtension(String url)
     {
         String fileName = getFileName(url);
         if (fileName == null) return null;
         String fileExt = fileName.substring(fileName.lastIndexOf("."));
         return fileExt.toLowerCase();
+    }
+
+    public String getDocType(String ext) {
+        List<String> wordFormats = configManager.getListDefaultProperty("docservice.type.word");
+        List<String> cellFormats = configManager.getListDefaultProperty("docservice.type.cell");
+        List<String> slideFormats = configManager.getListDefaultProperty("docservice.type.slide");
+
+        if (wordFormats.contains(ext)) return "text";
+        if (cellFormats.contains(ext)) return "spreadsheet";
+        if (slideFormats.contains(ext)) return "presentation";
+
+        return null;
+    }
+
+    public boolean isEditable(String mime) {
+        List<String> defaultEditableMimeTypes = configManager.getListDefaultProperty("docservice.mime.edit");
+        Set<String> customizableEditableMimeTypes = configManager.getCustomizableEditableSet();
+        return defaultEditableMimeTypes.contains(mime) || customizableEditableMimeTypes.contains(mime);
     }
 }

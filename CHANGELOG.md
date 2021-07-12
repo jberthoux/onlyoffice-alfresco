@@ -1,5 +1,18 @@
 # Change Log
 
+# 5.0.0
+## Added
+- connection to the demo server
+- support alfresco multi tenancy [#83](https://github.com/ONLYOFFICE/onlyoffice-alfresco/issues/83)
+- conversion for macro-enabled document and document template
+- preview for shared files [#62](https://github.com/ONLYOFFICE/onlyoffice-alfresco/issues/62)
+- file conversion setting [#25](https://github.com/ONLYOFFICE/onlyoffice-alfresco/issues/25)
+
+## Changed
+- deleting thumbnail generation code
+- improving JWT validation
+- fixed search on the preview page [#63](https://github.com/ONLYOFFICE/onlyoffice-alfresco/issues/63)
+
 ## 4.3.0
 ## Added
 - Opening not OOXML file formats for editing

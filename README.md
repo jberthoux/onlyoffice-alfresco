@@ -90,7 +90,12 @@ Installation process is described [here](https://maven.apache.org/install.html)
     git clone https://github.com/onlyoffice/onlyoffice-alfresco.git
     ```
 
-4. Compile packages in the `repo` and `share` directories:
+4. Get a submodule:
+    ```bash
+    git submodule update --init --recursive
+    ```
+
+5. Compile packages in the `repo` and `share` directories:
     ```bash
     cd onlyoffice-alfresco/
     mvn clean install

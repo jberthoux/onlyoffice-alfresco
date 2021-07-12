@@ -21,6 +21,7 @@ import org.springframework.extensions.webscripts.WebScriptResponse;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
@@ -59,25 +60,29 @@ public class ConfigCallback extends AbstractWebScript {
 
             logger.debug(data.toString(3));
 
-            String docUrl = data.getString("url").trim();
-            String docInnerUrl = data.getString("innerurl").trim();
-            String alfUrl = data.getString("alfurl").trim();
+            String docUrl = AppendSlash(data.getString("url").trim());
+            String docInnerUrl = AppendSlash(data.getString("innerurl").trim());
+            String alfUrl = AppendSlash(data.getString("alfurl").trim());
             String jwtSecret = data.getString("jwtsecret").trim();
 
-            docUrl = AppendSlash(docUrl);
-            docInnerUrl = AppendSlash(docInnerUrl);
-            alfUrl = AppendSlash(alfUrl);
+            configManager.selectDemo(data.getBoolean("demo"));
 
-            JSONObject formats = (JSONObject) data.get("formats");
+            if (configManager.demoActive()) {
+                docUrl = configManager.getDemo("url");
+                docInnerUrl = configManager.getDemo("url");
+            } else {
+                configManager.set("url", docUrl);
+                configManager.set("innerurl", docInnerUrl);
+                configManager.set("jwtsecret", jwtSecret);
+            }
 
-            configManager.set("url", docUrl);
-            configManager.set("innerurl", docInnerUrl);
             configManager.set("alfurl", alfUrl);
             configManager.set("cert", data.getString("cert"));
             configManager.set("forcesave", data.getString("forcesave"));
             configManager.set("webpreview", data.getString("webpreview"));
-            configManager.set("jwtsecret", jwtSecret);
+            configManager.set("convertOriginal", data.getString("convertOriginal"));
 
+            JSONObject formats = (JSONObject) data.get("formats");
             configManager.set("formatODT", formats.getString("odt"));
             configManager.set("formatODS", formats.getString("ods"));
             configManager.set("formatODP", formats.getString("odp"));
@@ -92,22 +97,22 @@ public class ConfigCallback extends AbstractWebScript {
                 return;
             }
 
-            String docTestUrl = docInnerUrl.isEmpty() ? docUrl : docInnerUrl;
+            docInnerUrl = docInnerUrl.isEmpty() ? docUrl : docInnerUrl;
             logger.debug("Checking docserv url");
-            if (!CheckDocServUrl(docTestUrl)) {
+            if (!CheckDocServUrl(docUrl)) {
                 response.getWriter().write("{\"success\": false, \"message\": \"docservunreachable\"}");
                 return;
             }
 
             try {
                 logger.debug("Checking docserv commandservice");
-                if (!CheckDocServCommandService(docTestUrl)) {
+                if (!CheckDocServCommandService(docInnerUrl)) {
                     response.getWriter().write("{\"success\": false, \"message\": \"docservcommand\"}");
                     return;
                 }
 
                 logger.debug("Checking docserv convert");
-                if (!CheckDocServConvert(docTestUrl)) {
+                if (!CheckDocServConvert(docInnerUrl)) {
                     response.getWriter().write("{\"success\": false, \"message\": \"docservconvert\"}");
                     return;
                 }
@@ -159,7 +164,7 @@ public class ConfigCallback extends AbstractWebScript {
                 payloadBody.put("payload", body);
                 String headerToken = jwtManager.createToken(body);
                 body.put("token", token);
-                request.setHeader((String) configManager.getOrDefault("jwtheader", "Authorization"), "Bearer " + headerToken);
+                request.setHeader(jwtManager.getJwtHeader(), "Bearer " + headerToken);
             }
 
             StringEntity requestEntity = new StringEntity(body.toString(), ContentType.APPLICATION_JSON);

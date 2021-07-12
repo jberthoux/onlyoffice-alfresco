@@ -30,8 +30,11 @@ public class Config extends DeclarativeWebScript {
         model.put("cert", getBoolAsAttribute("cert", "false"));
         model.put("forcesave", getBoolAsAttribute("forcesave", "false"));
         model.put("webpreview", getBoolAsAttribute("webpreview", "false"));
+        model.put("convertOriginal", getBoolAsAttribute("convertOriginal", "false"));
 
         model.put("jwtsecret", configManager.getOrDefault("jwtsecret", ""));
+        model.put("demo", getBoolAsAttribute("demo", "false"));
+        model.put("demoAvailable", configManager.demoAvailable(true));
 
         model.put("formatODT", getBoolAsAttribute("formatODT", "false"));
         model.put("formatODS", getBoolAsAttribute("formatODS", "false"));

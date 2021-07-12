@@ -1,8 +1,6 @@
 package com.parashift.onlyoffice;
 
-import org.alfresco.repo.content.transform.AbstractContentTransformer2;
 import org.alfresco.service.cmr.repository.*;
-import org.springframework.extensions.surf.util.Pair;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpException;
@@ -21,12 +19,12 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.ContentType;
 
 import org.json.JSONObject;
+import org.springframework.stereotype.Service;
 
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 
 import javax.net.ssl.HostnameVerifier;
@@ -36,16 +34,13 @@ import javax.net.ssl.SSLSession;
     Copyright (c) Ascensio System SIA 2021. All rights reserved.
     http://www.onlyoffice.com
 */
-
-public class Converter extends AbstractContentTransformer2 {
+@Service
+public class Converter {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     MimetypeService mimetypeService;
-
-    @Autowired
-    NodeService nodeService;
 
     @Autowired
     ConfigManager configManager;
@@ -55,41 +50,6 @@ public class Converter extends AbstractContentTransformer2 {
 
     @Autowired
     Util util;
-
-    private static Map<String, Pair<String, ContentReader>> OnGoingConversions = new HashMap<String, Pair<String, ContentReader>>();
-
-    private static Map<String, Set<String>> TransformableDict = new HashMap<String, Set<String>>() {{
-        put("application/vnd.oasis.opendocument.text", new HashSet<String>() {{
-            add("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
-        }});
-        put("application/msword", new HashSet<String>() {{
-            add("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
-        }});
-
-        put("application/vnd.oasis.opendocument.spreadsheet", new HashSet<String>() {{
-            add("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        }});
-        put("application/vnd.ms-excel", new HashSet<String>() {{
-            add("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        }});
-
-        put("application/vnd.oasis.opendocument.presentation", new HashSet<String>() {{
-            add("application/vnd.openxmlformats-officedocument.presentationml.presentation");
-        }});
-        put("application/vnd.ms-powerpoint", new HashSet<String>() {{
-            add("application/vnd.openxmlformats-officedocument.presentationml.presentation");
-        }});
-
-        put("application/rtf", new HashSet<String>() {{
-            add("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
-        }});
-        put("application/x-rtf", new HashSet<String>() {{
-            add("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
-        }});
-        put("text/richtext", new HashSet<String>() {{
-            add("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
-        }});
-    }};
 
     private static Set<String> ConvertBackList = new HashSet<String>() {{
         add("application/vnd.oasis.opendocument.text");
@@ -103,69 +63,41 @@ public class Converter extends AbstractContentTransformer2 {
     }};
 
     public String GetModernMimetype(String mimetype) {
-        switch(mimetype){
-            case "application/vnd.oasis.opendocument.text":
-            case "application/msword":
-                return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+        List<String> mimeConvertToWord = configManager.getListDefaultProperty("docservice.mime.convert.word");
+        List<String> mimeConvertToCell = configManager.getListDefaultProperty("docservice.mime.convert.cell");
+        List<String> mimeConvertToSlide = configManager.getListDefaultProperty("docservice.mime.convert.slide");
 
-            case "application/vnd.oasis.opendocument.spreadsheet":
-            case "application/vnd.ms-excel":
-                return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-
-            case "application/vnd.oasis.opendocument.presentation":
-            case "application/vnd.ms-powerpoint":
-                return "application/vnd.openxmlformats-officedocument.presentationml.presentation";
-
-
-            case "application/rtf":
-            case "application/x-rtf":
-            case "text/richtext":
-                return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-
-            default:
-                return null;
+        if (mimeConvertToWord.contains(mimetype)) {
+            return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
         }
-    }
-
-    public Pair<String, ContentReader> GetConversion(String key) {
-        if (OnGoingConversions.containsKey(key)) {
-            return OnGoingConversions.get(key);
-        } else {
-            return null;
+        if (mimeConvertToCell.contains(mimetype)) {
+            return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
         }
-    }    
+        if (mimeConvertToSlide.contains(mimetype)) {
+            return "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+        }
 
-    @Override
-    public boolean isTransformableMimetype(String sourceMimetype, String targetMimetype, TransformationOptions options) {
-        if (!TransformableDict.containsKey(sourceMimetype)) return false;
-        return TransformableDict.get(sourceMimetype).contains(targetMimetype);
+        return null;
     }
 
     public boolean shouldConvertBack(String mimeType) {
         return ConvertBackList.contains(mimeType);
     }
 
-    @Override
-    protected void transformInternal(ContentReader reader, ContentWriter writer, TransformationOptions options) throws Exception {
+    public void transform(ContentReader reader, ContentWriter writer, TransformationOptions options) throws Exception {
         NodeRef ref = options.getSourceNodeRef();
         String srcMime = reader.getMimetype();
         String srcType = mimetypeService.getExtension(srcMime);
         String outType = mimetypeService.getExtension(writer.getMimetype());
         String key = util.getKey(ref) + "." + srcType;
-
         logger.info("Received conversion request from " + srcType + " to " + outType);
 
         try {
-            OnGoingConversions.put(key, new Pair<String, ContentReader>(srcMime, reader));
-            String url = convert(key, srcType, outType, util.getConversionUrl(key));
+            String url = convert(key, srcType, outType, util.getContentUrl(ref));
             saveFromUrl(url, writer);
         } catch (Exception ex) {
             logger.info("Conversion failed: " + ex.getMessage());
             throw ex;
-        } finally {
-            if (OnGoingConversions.containsKey(key)) {
-                OnGoingConversions.remove(key);
-            }
         }
     }
 
@@ -190,7 +122,7 @@ public class Converter extends AbstractContentTransformer2 {
                 payloadBody.put("payload", body);
                 String headerToken = jwtManager.createToken(body);
                 body.put("token", token);
-                request.setHeader((String) configManager.getOrDefault("jwtheader", "Authorization"), "Bearer " + headerToken);
+                request.setHeader(jwtManager.getJwtHeader(), "Bearer " + headerToken);
             }
 
             logger.debug("Sending POST to Docserver: " + body.toString());
