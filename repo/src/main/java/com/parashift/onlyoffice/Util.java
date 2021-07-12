@@ -231,4 +231,13 @@ public class Util {
         Set<String> customizableEditableMimeTypes = configManager.getCustomizableEditableSet();
         return defaultEditableMimeTypes.contains(mime) || customizableEditableMimeTypes.contains(mime);
     }
+
+    public String replaceDocEditorURLToInternal(String url) {
+        String innerDocEditorUrl = getEditorInnerUrl();
+        String publicDocEditorUrl = getEditorUrl();
+        if (!publicDocEditorUrl.equals(innerDocEditorUrl)) {
+            url = url.replace(publicDocEditorUrl, innerDocEditorUrl);
+        }
+        return url;
+    }
 }
