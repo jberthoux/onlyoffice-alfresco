@@ -19,7 +19,7 @@ To convert a specific file, select `Convert using ONLYOFFICE` action. Resulting 
 
 ## Installing ONLYOFFICE Docs
 
-You will need an instance of ONLYOFFICE Docs (Document Server) that is resolvable and connectable both from Alfresco and any end clients (version 3.0 and later are supported for use with the plugin). ONLYOFFICE Document Server must also be able to POST to Alfresco directly.
+You will need an instance of ONLYOFFICE Docs (Document Server) that is resolvable and connectable both from Alfresco and any end clients. ONLYOFFICE Document Server must also be able to POST to Alfresco directly.
 
 You can install free Community version of ONLYOFFICE Docs or scalable Enterprise Edition with pro features.
 
@@ -142,12 +142,12 @@ The table below will help you make the right choice.
 | Pricing and licensing | Community Edition | Enterprise Edition |
 | ------------- | ------------- | ------------- |
 | | [Get it now](https://www.onlyoffice.com/download.aspx?utm_source=github&utm_medium=cpc&utm_campaign=GitHubAlfresco)  | [Start Free Trial](https://www.onlyoffice.com/enterprise-edition-free.aspx?utm_source=github&utm_medium=cpc&utm_campaign=GitHubAlfresco)  |
-| Cost  | FREE  | [Go to the pricing page](https://www.onlyoffice.com/enterprise-edition.aspx?utm_source=github&utm_medium=cpc&utm_campaign=GitHubAlfresco)  |
+| Cost  | FREE  | [Go to the pricing page](https://www.onlyoffice.com/docs-enterprise-prices.aspx?utm_source=github&utm_medium=cpc&utm_campaign=GitHubAlfresco)  |
 | Simultaneous connections | up to 20 maximum  | As in chosen pricing plan |
 | Number of users | up to 20 recommended | As in chosen pricing plan |
 | License | GNU AGPL v.3 | Proprietary |
 | **Support** | **Community Edition** | **Enterprise Edition** | 
-| Documentation | [Help Center](https://helpcenter.onlyoffice.com/server/docker/opensource/index.aspx) | [Help Center](https://helpcenter.onlyoffice.com/server/integration-edition/index.aspx) |
+| Documentation | [Help Center](https://helpcenter.onlyoffice.com/installation/docs-community-index.aspx) | [Help Center](https://helpcenter.onlyoffice.com/installation/docs-enterprise-index.aspx) |
 | Standard support | [GitHub](https://github.com/ONLYOFFICE/DocumentServer/issues) or paid | One year support included |
 | Premium support | [Buy Now](https://www.onlyoffice.com/support.aspx?utm_source=github&utm_medium=cpc&utm_campaign=GitHubAlfresco) | [Buy Now](https://www.onlyoffice.com/support.aspx?utm_source=github&utm_medium=cpc&utm_campaign=GitHubAlfresco) |
 | **Services** | **Community Edition** | **Enterprise Edition** | 
@@ -155,6 +155,8 @@ The table below will help you make the right choice.
 | Document Builder Service          | + | + | 
 | **Interface** | **Community Edition** | **Enterprise Edition** |
 | Tabbed interface                       | + | + |
+| Dark theme                             | + | + |
+| 150% scaling                           | + | + |
 | White Label                            | - | - |
 | Integrated test example (node.js)     | - | + |
 | Mobile web editors                    | - | + |
@@ -177,18 +179,19 @@ The table below will help you make the right choice.
 | Table of contents               | + | + |
 | Navigation panel                | + | + |
 | Comparing Documents             | - | +* |
-| Comparing Documents             | - | + |
 | **Spreadsheet Editor features** | **Community Edition** | **Enterprise Edition** |
 | Font and paragraph formatting   | + | + |
 | Object insertion                | + | + |
 | Functions, formulas, equations  | + | + |
 | Table templates                 | + | + |
 | Pivot tables                    | + | + |
+| Data validation                 | + | + |
 | Conditional formatting  for viewing | +** | +** |
+| Sheet Views                     | - | + |
 | **Presentation Editor features** | **Community Edition** | **Enterprise Edition** |
 | Font and paragraph formatting   | + | + |
 | Object insertion                | + | + |
-| Animations                      | + | + |
+| Transitions                     | + | + |
 | Presenter mode                  | + | + |
 | Notes                           | + | + |
 | | [Get it now](https://www.onlyoffice.com/download.aspx?utm_source=github&utm_medium=cpc&utm_campaign=GitHubAlfresco)  | [Start Free Trial](https://www.onlyoffice.com/enterprise-edition-free.aspx?utm_source=github&utm_medium=cpc&utm_campaign=GitHubAlfresco)  |
