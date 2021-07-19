@@ -1,5 +1,9 @@
 # Change Log
 
+#
+## Added
+- creating new file from document editor
+
 # 5.0.0
 ## Added
 - connection to the demo server
