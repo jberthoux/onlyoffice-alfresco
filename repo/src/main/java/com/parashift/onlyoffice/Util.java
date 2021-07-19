@@ -115,6 +115,11 @@ public class Util {
         versionService.ensureVersioningEnabled(nodeRef, versionProps);
     }
 
+    public String getCreateNewUrl(NodeRef nodeRef, String docExtMime){
+        String folderNodeRef=this.nodeService.getPrimaryParent(nodeRef).getParentRef().toString();
+        return getAlfrescoUrl().split("alfresco")[0]+"share/page/onlyoffice-edit?nodeRef="+folderNodeRef+ "&new="+docExtMime;
+    }
+
     public String getContentUrl(NodeRef nodeRef) {
         return  getAlfrescoUrl() + "s/parashift/onlyoffice/download?nodeRef=" + nodeRef.toString() + "&alf_ticket=" + authenticationService.getCurrentTicket();
     }
