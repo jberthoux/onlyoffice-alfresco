@@ -116,8 +116,8 @@ public class Util {
     }
 
     public String getCreateNewUrl(NodeRef nodeRef, String docExtMime){
-        String folderNodeRef=this.nodeService.getPrimaryParent(nodeRef).getParentRef().toString();
-        return getAlfrescoUrl().split("alfresco")[0]+"share/page/onlyoffice-edit?nodeRef="+folderNodeRef+ "&new="+docExtMime;
+        String folderNodeRef = this.nodeService.getPrimaryParent(nodeRef).getParentRef().toString();
+        return getShareUrl() + "page/onlyoffice-edit?nodeRef=" + folderNodeRef + "&new=" + docExtMime;
     }
 
     public String getContentUrl(NodeRef nodeRef) {
@@ -178,6 +178,10 @@ public class Util {
         byte[] token = new byte[32];
         secureRandom.nextBytes(token);
         return Base64.getUrlEncoder().withoutPadding().encodeToString(token);
+    }
+
+    private String getShareUrl(){
+        return UrlUtil.getShareUrl(sysAdminParams) + "/";
     }
 
     private String getAlfrescoUrl() {
