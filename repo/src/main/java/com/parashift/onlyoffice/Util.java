@@ -136,6 +136,26 @@ public class Util {
         return configManager.demoActive() ? configManager.getDemo("url") : (String) configManager.getOrDefault("url", "http://127.0.0.1/");
     }
 
+    public String getBackUrl(NodeRef nodeRef){
+        String path = "";
+        while(this.nodeService.getPrimaryParent(nodeRef).getParentRef() != null){
+            if(this.nodeService.getProperty(this.nodeService.getPrimaryParent(nodeRef).getParentRef(),
+                    ContentModel.PROP_NAME).toString().equals("Company Home")) {
+                break;
+            }
+            path = ("/" + this.nodeService.getProperty(this.nodeService.getPrimaryParent(nodeRef).getParentRef(),
+                    ContentModel.PROP_NAME)) + path;
+            nodeRef=this.nodeService.getPrimaryParent(nodeRef).getParentRef();
+        }
+        path = "#filter=path%7C" + path + "%7C";
+
+        if(path.equals("#filter=path%7C%7C")){
+            return getShareUrl() + "page/context/mine/myfiles";
+        } else{
+            return getShareUrl() + "page/context/mine/myfiles" + path;
+        }
+    }
+
     public String getEditorInnerUrl() {
         String url = (String) configManager.getOrDefault("innerurl", "");
         if (url.isEmpty() || configManager.demoActive()) {
