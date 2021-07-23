@@ -27,13 +27,67 @@
             }
         };
 
+        var getCookie = function (name) {
+            var value = document.cookie;
+            var parts = value.split(name);
+            if (parts.length === 2) return parts.pop().split(';').shift().substring(1);
+        };
+
+        var onMetaChange = function (event) {
+            var favorite = !!event.data.favorite;
+            fetch("${share}proxy/alfresco/api/people/${user}/preferences?pf=org.alfresco.share.documents.favourites")
+                .then(response => response.json())
+                .then(data => {
+                        var key = config.document.key;
+                        key = key.replace(key.substring(key.indexOf("_")), "");
+                        var body = {
+                            org : {
+                                alfresco : {
+                                    ext : {
+                                        documents : {
+                                            favourites : {
+                                            }
+                                        }
+                                    },
+                                    share : {
+                                        documents : {
+                                            favourites : favorite ? data.org.alfresco.share.documents.favourites + "," + "workspace://SpacesStore/" + key : data.org.alfresco.share.documents.favourites.replace(",workspace://SpacesStore/" + key, '')
+                                        }
+                                    }
+                                }
+                            }
+                        };
+                        body.org.alfresco.ext.documents.favourites["workspace://SpacesStore/" + key] = {
+                            createdAt : favorite ? new Date().toISOString() : null
+                        };
+                        fetch("${share}proxy/alfresco/api/people/${user}/preferences", {
+                            method: "POST",
+                            headers: new Headers({
+                                'Content-Type': 'application/json',
+                                'Alfresco-CSRFToken': decodeURIComponent(getCookie('Alfresco-CSRFToken'))
+                            }),
+                            body: JSON.stringify(body)
+                        })
+                        .then(response => {
+                            var title = document.title.replace(/^\☆/g, "");
+                            document.title = (favorite ? "☆" : "") + title;
+                            docEditor.setFavorite(favorite);
+                        });
+                });
+
+        };
         var config = ${config};
 
         config.events = {
-            "onAppReady": onAppReady
+            "onAppReady": onAppReady,
+            "onMetaChange": onMetaChange
         };
 
         var docEditor = new DocsAPI.DocEditor("placeholder", config);
+        if(config.document.info.favorite){
+            var title = document.title.replace(/^\☆/g, "");
+            document.title = (config.document.info.favorite ? "☆" : "") + title;
+        }
     </script>
 </body>
 </html>

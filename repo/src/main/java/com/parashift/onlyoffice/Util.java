@@ -180,7 +180,7 @@ public class Util {
         return Base64.getUrlEncoder().withoutPadding().encodeToString(token);
     }
 
-    private String getShareUrl(){
+    public String getShareUrl(){
         return UrlUtil.getShareUrl(sysAdminParams) + "/";
     }
 

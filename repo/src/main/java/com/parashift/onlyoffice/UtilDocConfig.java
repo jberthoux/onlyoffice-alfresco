@@ -1,7 +1,9 @@
 package com.parashift.onlyoffice;
 
+import org.alfresco.model.ContentModel;
 import org.alfresco.repo.i18n.MessageService;
 import org.alfresco.service.cmr.coci.CheckOutCheckInService;
+import org.alfresco.service.cmr.favourites.FavouritesService;
 import org.alfresco.service.cmr.repository.MimetypeService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
@@ -50,6 +52,9 @@ public class UtilDocConfig {
     @Autowired
     Util util;
 
+    @Autowired
+    FavouritesService favouritesService;
+
     public JSONObject getConfigJson (NodeRef nodeRef, String sharedId, String username, String documentType,
             String docTitle, String docExt, Boolean preview, Boolean isReadOnly) throws Exception {
         JSONObject configJson = new JSONObject();
@@ -65,6 +70,10 @@ public class UtilDocConfig {
         documentObject.put("url", util.getContentUrl(nodeRef));
         documentObject.put("fileType", docExt);
         documentObject.put("key", util.getKey(nodeRef));
+
+        JSONObject info = new JSONObject();
+        info.put("favorite", favouritesService.isFavourite(username, nodeRef));
+        documentObject.put("info", info);
 
         JSONObject permObject = new JSONObject();
         documentObject.put("permissions", permObject);
