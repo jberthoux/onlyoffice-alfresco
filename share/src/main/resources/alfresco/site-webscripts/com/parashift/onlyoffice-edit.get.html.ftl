@@ -29,6 +29,23 @@
 
         var config = ${config};
 
+        fetch("http://192.168.88.94/share/proxy/alfresco/slingshot/doclib/node-templates")
+            .then(r=>r.json())
+            .then(data=>{
+                let templates = [];
+                for(node of data.data){
+                    if(node.name.substring(node.name.length-4) == config.document.fileType){
+                        template = {
+                            image: "${share}proxy/alfresco/api/node/workspace/SpacesStore/" + node.nodeRef.split("/SpacesStore/")[1] +"/content/thumbnails/doclib?ph=true",
+                            title: node.name,
+                            url: config.editorConfig.createUrl + "&parentNodeRef=" + node.nodeRef
+                        };
+                        templates.push(template);
+                    }
+                }
+            config.editorConfig.templates = templates;
+        });
+
         config.events = {
             "onAppReady": onAppReady
         };
