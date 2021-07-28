@@ -29,7 +29,7 @@
 
         var config = ${config};
 
-        fetch("http://192.168.88.94/share/proxy/alfresco/slingshot/doclib/node-templates")
+        fetch("${share}proxy/alfresco/slingshot/doclib/node-templates")
             .then(r=>r.json())
             .then(data=>{
                 let templates = [];
