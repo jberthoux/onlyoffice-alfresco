@@ -29,9 +29,34 @@
 
         var config = ${config};
 
-        config.events = {
-            "onAppReady": onAppReady
+        var onOutdatedVersion = function(event){
+            location.reload(true);
         };
+        config.events = {
+            "onAppReady": onAppReady,
+            "onOutdatedVersion": onOutdatedVersion
+        };
+
+        var hist = ${historyObj}.history;
+
+        if (hist) {
+            config.events['onRequestHistory'] = function () {
+                for(historyVersion of hist){
+                    historyVersion.serverVersion = docEditor.version;
+                    var date = new Date(historyVersion.created).toISOString().replace('T', ' ');
+                    date = date.substring(0, date.length-5);
+                    historyVersion.created = date;
+                    historyVersion.changes.created = date;
+                }
+                docEditor.refreshHistory({
+                    currentVersion: hist.length,
+                    history: hist.reverse()
+                });
+            };
+            config.events['onRequestHistoryClose'] = function () {
+                document.location.reload();
+            };
+        }
 
         var docEditor = new DocsAPI.DocEditor("placeholder", config);
     </script>

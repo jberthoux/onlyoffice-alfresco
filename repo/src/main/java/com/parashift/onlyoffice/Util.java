@@ -7,10 +7,14 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.repository.StoreRef;
 import org.alfresco.service.cmr.security.AuthenticationService;
+import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.cmr.version.Version;
 import org.alfresco.service.cmr.version.VersionService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.util.UrlUtil;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.extensions.surf.util.URLEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -46,6 +50,9 @@ public class Util {
 
     @Autowired
     NodeService nodeService;
+
+    @Autowired
+    PersonService personService;
 
     @Autowired
     ConfigManager configManager;
@@ -113,6 +120,48 @@ public class Util {
         Map<QName, Serializable> versionProps = new HashMap<>();
         versionProps.put(ContentModel.PROP_INITIAL_VERSION, true);
         versionService.ensureVersioningEnabled(nodeRef, versionProps);
+    }
+
+    public JSONObject getHistoryObj(NodeRef nodeRef){
+        JSONObject historyObj = new JSONObject();
+        JSONArray historyData = new JSONArray();
+        JSONArray history = new JSONArray();
+        try {
+            for(Version version : versionService.getVersionHistory(nodeRef).getAllVersions()) {
+                JSONObject jsonVersion = new JSONObject();
+                NodeRef person = personService.getPersonOrNull(version.getVersionProperty("modifier").toString());
+                PersonService.PersonInfo personInfo = null;
+                if (person != null) {
+                    personInfo = personService.getPerson(person);
+                }
+                JSONObject changes = new JSONObject();
+                JSONObject user = new JSONObject();
+                if (personInfo != null) {
+                    user.put("id", personInfo.getUserName());
+                    user.put("name", personInfo.getFirstName() + personInfo.getLastName());
+                }
+                changes.put("user", user);
+                changes.put("created", version.getVersionProperty("created"));
+                if(!version.getVersionLabel().equals("1.0")){
+                    jsonVersion.put("changes", changes);
+                    jsonVersion.put("serverVersion", "");
+                } else{
+                    jsonVersion.put("changes", (Collection) null);
+                }
+                jsonVersion.put("created", version.getVersionProperty("created"));
+                jsonVersion.put("user", user);
+                jsonVersion.put("key", getKey(nodeRef));
+                jsonVersion.put("version", version.getVersionLabel());
+                history.put(jsonVersion);
+            }
+            historyObj.put("historyData", historyData);
+            historyObj.put("history", history);
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return historyObj;
     }
 
     public String getCreateNewUrl(NodeRef nodeRef, String docExtMime){
