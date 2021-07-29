@@ -120,6 +120,10 @@ public class Util {
         return getShareUrl() + "page/onlyoffice-edit?nodeRef=" + folderNodeRef + "&new=" + docExtMime;
     }
 
+    public String getFavouriteUrl(NodeRef nodeRef){
+        return getAlfrescoUrl() + "s/parashift/onlyoffice/favourite?nodeRef=" + nodeRef.toString();
+    }
+
     public String getContentUrl(NodeRef nodeRef) {
         return  getAlfrescoUrl() + "s/parashift/onlyoffice/download?nodeRef=" + nodeRef.toString() + "&alf_ticket=" + authenticationService.getCurrentTicket();
     }

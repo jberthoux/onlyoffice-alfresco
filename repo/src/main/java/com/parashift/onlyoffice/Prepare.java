@@ -160,6 +160,7 @@ public class Prepare extends AbstractWebScript {
                 responseJson.put("documentType", documentType);
                 responseJson.put("user", username);
                 responseJson.put("share", util.getShareUrl());
+                responseJson.put("favo", util.getFavouriteUrl(nodeRef));
 
                 logger.debug("Sending JSON prepare object");
                 logger.debug(responseJson.toString(3));

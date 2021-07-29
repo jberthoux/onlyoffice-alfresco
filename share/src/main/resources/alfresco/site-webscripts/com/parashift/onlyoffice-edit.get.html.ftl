@@ -35,46 +35,18 @@
 
         var onMetaChange = function (event) {
             var favorite = !!event.data.favorite;
-            fetch("${share}proxy/alfresco/api/people/${user}/preferences?pf=org.alfresco.share.documents.favourites")
-                .then(response => response.json())
-                .then(data => {
-                        var key = config.document.key;
-                        key = key.replace(key.substring(key.indexOf("_")), "");
-                        var body = {
-                            org : {
-                                alfresco : {
-                                    ext : {
-                                        documents : {
-                                            favourites : {
-                                            }
-                                        }
-                                    },
-                                    share : {
-                                        documents : {
-                                            favourites : favorite ? data.org.alfresco.share.documents.favourites + "," + "workspace://SpacesStore/" + key : data.org.alfresco.share.documents.favourites.replace(",workspace://SpacesStore/" + key, '')
-                                        }
-                                    }
-                                }
-                            }
-                        };
-                        body.org.alfresco.ext.documents.favourites["workspace://SpacesStore/" + key] = {
-                            createdAt : favorite ? new Date().toISOString() : null
-                        };
-                        fetch("${share}proxy/alfresco/api/people/${user}/preferences", {
+                        fetch("${favo} ", {
                             method: "POST",
                             headers: new Headers({
                                 'Content-Type': 'application/json',
                                 'Alfresco-CSRFToken': decodeURIComponent(getCookie('Alfresco-CSRFToken'))
-                            }),
-                            body: JSON.stringify(body)
+                            })
                         })
                         .then(response => {
                             var title = document.title.replace(/^\☆/g, "");
                             document.title = (favorite ? "☆" : "") + title;
                             docEditor.setFavorite(favorite);
                         });
-                });
-
         };
         var config = ${config};
 
