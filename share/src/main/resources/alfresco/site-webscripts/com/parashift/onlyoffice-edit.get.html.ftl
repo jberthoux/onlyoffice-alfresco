@@ -27,10 +27,72 @@
             }
         };
 
+        var replaceActionLink = function(href, linkParam) {
+            var link;
+            var actionIndex = href.indexOf("&action=");
+            if (actionIndex != -1) {
+                var endIndex = href.indexOf("&", actionIndex + "&action=".length);
+                if (endIndex != -1) {
+                    link = href.substring(0, actionIndex) + href.substring(endIndex) + "&action=" + encodeURIComponent(linkParam);
+                } else {
+                    link = href.substring(0, actionIndex) + "&action=" + encodeURIComponent(linkParam);
+                }
+            } else {
+                link = href + "&action=" + encodeURIComponent(linkParam);
+            }
+            return link;
+        };
+
+        var onRequestUsers = function () {
+          docEditor.setUsers({
+              "users": ${mentions}
+          });
+        };
+
+        var onMakeActionLink = function (event) {
+            var actionData = event.data;
+            var linkParam = JSON.stringify(actionData);
+            docEditor.setActionLink(replaceActionLink(location.href, linkParam));
+        };
+
+        var onRequestSendNotify = function (event) {
+            var comment = event.data.message;
+            var emails = event.data.emails;
+            var replacedActionLink = location.href + "&actionType=" + event.data.actionLink.action.type + "&actionData=" + event.data.actionLink.action.data;
+            var data = {
+                comment : comment,
+                emails: emails,
+                link: replacedActionLink
+            };
+            fetch("${mentionUrl}", {
+                method: "POST",
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    var updatedSharing = config.document.info.sharingSettings;
+                    for(fullname of data) {
+                        updatedSharing.push({"permissions": "Read Only", "user": fullname});
+                    }
+                    docEditor.setSharingSettings({
+                        "sharingSettings": updatedSharing
+                    });
+            })
+        };
+
+        var onRequestSharingSettings = function () {
+
+        };
+
         var config = ${config};
 
         config.events = {
-            "onAppReady": onAppReady
+            "onAppReady": onAppReady,
+            "onRequestUsers": onRequestUsers,
+            "onMakeActionLink": onMakeActionLink,
+            "onRequestSendNotify": onRequestSendNotify,
+            "onRequestSharingSettings": onRequestSharingSettings
         };
 
         var docEditor = new DocsAPI.DocEditor("placeholder", config);

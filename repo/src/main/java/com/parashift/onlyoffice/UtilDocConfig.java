@@ -1,14 +1,18 @@
 package com.parashift.onlyoffice;
 
+import org.alfresco.model.ContentModel;
 import org.alfresco.repo.i18n.MessageService;
 import org.alfresco.service.cmr.coci.CheckOutCheckInService;
+import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.MimetypeService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.cmr.security.AccessPermission;
 import org.alfresco.service.cmr.security.AccessStatus;
 import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.cmr.security.PersonService.PersonInfo;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -65,6 +69,39 @@ public class UtilDocConfig {
         documentObject.put("url", util.getContentUrl(nodeRef));
         documentObject.put("fileType", docExt);
         documentObject.put("key", util.getKey(nodeRef));
+
+        JSONObject info = new JSONObject();
+
+        documentObject.put("info", info);
+        String ownerUsername = this.nodeService.getProperty(nodeRef, ContentModel.PROP_CREATOR).toString();
+        NodeRef personNode = personService.getPersonOrNull(ownerUsername);
+        PersonInfo ownerInfo = null;
+        if (personNode != null) {
+            ownerInfo = personService.getPerson(personNode);
+        }
+        String owner = ownerInfo != null ? ownerInfo.getFirstName() + " " + ownerInfo.getLastName() : "";
+        info.put("owner", owner);
+        JSONArray sharing = new JSONArray();
+        JSONObject sharingOwner = new JSONObject();
+        sharingOwner.put("permissions", "Full Access");
+        sharingOwner.put("user", owner);
+        sharing.put(sharingOwner);
+        for(AccessPermission permission : permissionService.getAllSetPermissions(nodeRef)){
+            JSONObject user = new JSONObject();
+            NodeRef peopleStore = personService.getPeopleContainer();
+            for(ChildAssociationRef assoc : nodeService.getChildAssocs(peopleStore)){
+                NodeRef person = assoc.getChildRef();
+                PersonService.PersonInfo personInfo = personService.getPerson(person);
+                if(personInfo != null && personInfo.getUserName().equals(permission.getAuthority())){
+                    user.put("user", personInfo.getFirstName() + " " + personInfo.getLastName());
+                    if(permission.getPermission().equals(PermissionService.CONSUMER)){
+                        user.put("permissions", "Read Only");
+                    } else user.put("permissions", "Full Access");
+                }
+            }
+            sharing.put(user);
+        }
+        info.put("sharingSettings", sharing);
 
         JSONObject permObject = new JSONObject();
         documentObject.put("permissions", permObject);

@@ -153,11 +153,21 @@ public class Prepare extends AbstractWebScript {
 
                 JSONObject configJson = utilDocConfig.getConfigJson(nodeRef, null, username, documentType, docTitle,
                         docExt, preview, isReadOnly);
+                if(request.getParameter("actionData") != null && request.getParameter("actionType") != null) {
+                    JSONObject action = new JSONObject();
+                    JSONObject actionLink = new JSONObject();
+                    action.put("type", request.getParameter("actionType"));
+                    action.put("data", request.getParameter("actionData"));
+                    actionLink.put("action", action);
+                    configJson.getJSONObject("editorConfig").put("actionLink", actionLink);
+                }
                 responseJson.put("config", configJson);
                 responseJson.put("onlyofficeUrl", util.getEditorUrl());
                 responseJson.put("mime", mimetypeService.getMimetype(docExt));
                 responseJson.put("demo", configManager.demoActive());
                 responseJson.put("documentType", documentType);
+                responseJson.put("mentions", util.getUsersForMention(username).toString());
+                responseJson.put("mentionUrl", util.getMentionUrl(nodeRef));
 
                 logger.debug("Sending JSON prepare object");
                 logger.debug(responseJson.toString(3));

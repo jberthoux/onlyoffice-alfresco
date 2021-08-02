@@ -1,16 +1,24 @@
 package com.parashift.onlyoffice;
 
 import org.alfresco.model.ContentModel;
+import org.alfresco.repo.action.executer.MailActionExecuter;
 import org.alfresco.repo.admin.SysAdminParams;
+import org.alfresco.service.cmr.action.Action;
+import org.alfresco.service.cmr.action.ActionService;
 import org.alfresco.service.cmr.coci.CheckOutCheckInService;
+import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.repository.StoreRef;
 import org.alfresco.service.cmr.security.AuthenticationService;
+import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.cmr.version.Version;
 import org.alfresco.service.cmr.version.VersionService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.util.UrlUtil;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.extensions.surf.util.URLEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -49,6 +57,12 @@ public class Util {
 
     @Autowired
     ConfigManager configManager;
+
+    @Autowired
+    PersonService personService;
+
+    @Autowired
+    ActionService actionService;
 
     public static final QName EditingKeyAspect = QName.createQName("onlyoffice:editing-key");
     public static final QName EditingHashAspect = QName.createQName("onlyoffice:editing-hash");
@@ -113,6 +127,32 @@ public class Util {
         Map<QName, Serializable> versionProps = new HashMap<>();
         versionProps.put(ContentModel.PROP_INITIAL_VERSION, true);
         versionService.ensureVersioningEnabled(nodeRef, versionProps);
+    }
+
+    public JSONArray getUsersForMention(String username){
+        JSONArray users = new JSONArray();
+        NodeRef peopleStore = personService.getPeopleContainer();
+        for(ChildAssociationRef assoc : nodeService.getChildAssocs(peopleStore)){
+            NodeRef person = assoc.getChildRef();
+            if(person !=null ){
+                PersonService.PersonInfo personInfo = personService.getPerson(person);
+                if(!personInfo.getUserName().equals(username) && !personInfo.getUserName().equals("guest") && !personInfo.getUserName().equals("admin")){
+                    JSONObject user = new JSONObject();
+                    try {
+                        user.put("name", personInfo.getFirstName() + " " + personInfo.getLastName());
+                        user.put("email", nodeService.getProperty(person, ContentModel.PROP_EMAIL));
+                        users.put(user);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+        return users;
+    }
+
+    public String getMentionUrl(NodeRef nodeRef){
+        return getAlfrescoUrl() + "s/parashift/onlyoffice/mentions?nodeRef=" + nodeRef.toString();
     }
 
     public String getCreateNewUrl(NodeRef nodeRef, String docExtMime){

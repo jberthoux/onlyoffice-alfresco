@@ -1,0 +1,6 @@
+<webscript>
+    <shortname>ONLYOFFICE Mentions URL</shortname>
+    <description>URL to send an email mentioning users in the comments </description>
+    <url>/parashift/onlyoffice/mentions</url>
+    <authentication>none</authentication>
+</webscript>
