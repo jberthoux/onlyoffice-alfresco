@@ -38,8 +38,9 @@
         };
 
         var hist = ${historyObj}.history;
+        var hData = ${historyObj}.data;
 
-        if (hist) {
+        if (hist && hData) {
             config.events['onRequestHistory'] = function () {
                 for(historyVersion of hist){
                     historyVersion.serverVersion = docEditor.version;
@@ -52,6 +53,17 @@
                     currentVersion: hist.length,
                     history: hist.reverse()
                 });
+            };
+            config.events['onRequestHistoryData'] = function (event) {
+                var ver = event.data;
+                var index = 0;
+                for(versionData of hData) {
+                    if(versionData.version == ver){
+                        index = hData.indexOf(versionData);
+                        break;
+                    }
+                }
+                docEditor.setHistoryData(hData[index]);
             };
             config.events['onRequestHistoryClose'] = function () {
                 document.location.reload();

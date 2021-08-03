@@ -57,7 +57,13 @@ public class UtilDocConfig {
         configJson.put("type", preview ? "embedded" : "desktop");
         configJson.put("width", "100%");
         configJson.put("height", "100%");
-        configJson.put("documentType", documentType);
+        String docType = "";
+        if(documentType.equals("text")) {
+            docType = "word";
+        } else if(documentType.equals("spreadsheet")) {
+            docType = "cell";
+        } else docType = "slide";
+        configJson.put("documentType", docType);
 
         JSONObject documentObject = new JSONObject();
         configJson.put("document", documentObject);

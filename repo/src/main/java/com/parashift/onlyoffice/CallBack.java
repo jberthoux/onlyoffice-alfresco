@@ -6,14 +6,14 @@ import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.tenant.TenantContextHolder;
 import org.alfresco.repo.transaction.RetryingTransactionHelper.RetryingTransactionCallback;
 import org.alfresco.service.cmr.coci.CheckOutCheckInService;
-import org.alfresco.service.cmr.repository.ContentData;
-import org.alfresco.service.cmr.repository.ContentService;
-import org.alfresco.service.cmr.repository.MimetypeService;
-import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.cmr.repository.*;
+import org.alfresco.service.cmr.version.VersionService;
+import org.alfresco.service.namespace.NamespaceService;
+import org.alfresco.service.namespace.QName;
 import org.alfresco.service.transaction.TransactionService;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,11 +26,14 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.net.URL;
 import java.util.Base64;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
+import java.util.HashMap;
+import java.util.Map;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -76,6 +79,9 @@ public class CallBack extends AbstractWebScript {
 
     @Autowired
     TransactionService transactionService;
+
+    @Autowired
+    VersionService versionService;
 
     @Autowired
     Util util;
@@ -218,6 +224,7 @@ public class CallBack extends AbstractWebScript {
 
                     AuthenticationUtil.setRunAsUser(AuthenticationUtil.getSystemUserName());
                     cociService.checkin(wc, null, null);
+                    saveHistoryToChildNode(nodeRef, callBackJSon);
                     break;
                 case 3:
                     logger.error("ONLYOFFICE has reported that saving the document has failed");
@@ -255,9 +262,41 @@ public class CallBack extends AbstractWebScript {
                     nodeService.setProperty(wc, Util.EditingHashAspect, hash);
                     nodeService.setProperty(wc, Util.EditingKeyAspect, key);
                     logger.debug("Forcesave complete");
+                    saveHistoryToChildNode(nodeRef, callBackJSon);
                     break;
             }
             return null;
+        }
+    }
+
+    private void saveHistoryToChildNode(NodeRef nodeRef, JSONObject changes) {
+        Map<QName, Serializable> props = new HashMap<>();
+        InputStream in;
+        try {
+            String name = changes.getString("key").split("_")[0] + "_" + versionService.getCurrentVersion(nodeRef).getVersionLabel();
+            props.put(ContentModel.PROP_NAME, name + ".zip");
+            NodeRef historyNodeRefZip = this.nodeService.createNode(nodeRef, ContentModel.ASSOC_THUMBNAILS,
+                    QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, "diff.zip"),
+                    ContentModel.TYPE_THUMBNAIL, props).getChildRef();
+            ContentWriter writer = this.contentService.getWriter(historyNodeRefZip, ContentModel.PROP_CONTENT, true);
+            writer.setMimetype("application/zip");
+            URL url = new URL(changes.getString("changesurl"));
+            in = url.openStream();
+            writer.putContent(in);
+
+            props.clear();
+            String docExt = changes.getString("url").substring(changes.getString("url").lastIndexOf(".") + 1).trim().toLowerCase();
+            props.put(ContentModel.PROP_NAME, name + "." + docExt);
+            NodeRef  outputNode = nodeService.createNode(historyNodeRefZip, ContentModel.ASSOC_THUMBNAILS,
+                    QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, "prev." + docExt),
+                    ContentModel.TYPE_THUMBNAIL, props).getChildRef();
+            writer = this.contentService.getWriter(outputNode, ContentModel.PROP_CONTENT, true);
+            writer.setMimetype(mimetypeService.getMimetype(docExt));
+            url = new URL(util.getContentUrl(versionService.getVersionHistory(nodeRef).getHeadVersion().getFrozenStateNodeRef()));
+            in = url.openStream();
+            writer.putContent(in);
+        } catch (JSONException | IOException e) {
+            e.printStackTrace();
         }
     }
 
