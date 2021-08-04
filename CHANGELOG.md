@@ -4,6 +4,7 @@
 ## Added
 - creating new file from document editor
 - change favicon in editor by document type
+- creating new file from document editor by document template
 
 # 5.0.0
 ## Added
