@@ -3,6 +3,7 @@
 #
 ## Added
 - creating new file from document editor
+- add goBack url for document editor 
 
 # 5.0.0
 ## Added
