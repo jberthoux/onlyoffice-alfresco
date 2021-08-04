@@ -3,6 +3,7 @@
 #
 ## Added
 - creating new file from document editor
+- detecting mobile browser
 
 # 5.0.0
 ## Added
