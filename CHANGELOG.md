@@ -4,6 +4,7 @@
 ## Added
 - creating new file from document editor
 - change favicon in editor by document type
+- changing favorite flag of the file from document editor
 
 # 5.0.0
 ## Added
