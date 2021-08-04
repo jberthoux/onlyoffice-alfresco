@@ -3,6 +3,7 @@
 #
 ## Added
 - creating new file from document editor
+- change favicon in editor by document type
 - add goBack url for document editor 
 
 # 5.0.0

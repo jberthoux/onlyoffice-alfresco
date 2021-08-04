@@ -196,7 +196,7 @@ public class CallBack extends AbstractWebScript {
         public Object execute() throws Throwable {
             NodeRef wc = cociService.getWorkingCopy(nodeRef);
             String lockOwner = (String)nodeService.getProperty(wc, ContentModel.PROP_WORKING_COPY_OWNER);
-
+            String downloadUrl = null;
             //Status codes from here: https://api.onlyoffice.com/editors/editor
             switch(callBackJSon.getInt("status")) {
                 case 0:
@@ -209,7 +209,8 @@ public class CallBack extends AbstractWebScript {
                     break;
                 case 2:
                     logger.debug("Document Updated, changing content");
-                    updateNode(wc, callBackJSon.getString("url"));
+                    downloadUrl = util.replaceDocEditorURLToInternal(callBackJSon.getString("url"));
+                    updateNode(wc, downloadUrl);
 
                     logger.info("removing prop");
                     nodeService.removeProperty(wc, Util.EditingHashAspect);
@@ -235,7 +236,7 @@ public class CallBack extends AbstractWebScript {
                     }
 
                     logger.debug("Forcesave request (type: " + callBackJSon.getInt("forcesavetype") + ")");
-                    String downloadUrl = util.replaceDocEditorURLToInternal(callBackJSon.getString("url"));
+                    downloadUrl = util.replaceDocEditorURLToInternal(callBackJSon.getString("url"));
                     updateNode(wc, downloadUrl);
 
                     String hash = (String) nodeService.getProperty(wc, Util.EditingHashAspect);
