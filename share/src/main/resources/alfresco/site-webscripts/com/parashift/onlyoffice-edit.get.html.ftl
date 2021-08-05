@@ -34,7 +34,7 @@
             .then(data=>{
                 let templates = [];
                 for(node of data.data){
-                    if(node.name.substring(node.name.length-4) == config.document.fileType){
+                    if(node.name.substring(node.name.lastIndexOf(".") + 1) == config.document.fileType){
                         template = {
                             image: "${share}proxy/alfresco/api/node/workspace/SpacesStore/" + node.nodeRef.split("/SpacesStore/")[1] +"/content/thumbnails/doclib?ph=true",
                             title: node.name,
