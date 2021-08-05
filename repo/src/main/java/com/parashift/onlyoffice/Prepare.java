@@ -108,9 +108,7 @@ public class Prepare extends AbstractWebScript {
                     NodeRef parentNodeRef = null;
                     if(request.getParameter("parentNodeRef") != null){
                         parentNodeRef = new NodeRef(request.getParameter("parentNodeRef"));
-                        URL url = new URL(util.getContentUrl(parentNodeRef));
-                        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                        in = connection.getInputStream();
+                        in = contentService.getReader(parentNodeRef, ContentModel.PROP_CONTENT).getContentInputStream();
                     }
                     else {
                         in = getClass().getResourceAsStream("/newdocs/" + pathLocale + "/new." + ext);
