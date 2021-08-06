@@ -15,4 +15,4 @@ model.demo = pObj.demo;
 model.documentType=pObj.documentType;
 model.share = pObj.share;
 model.user = pObj.user;
-model.favo = pObj.favo;
+model.favorite = pObj.favorite;

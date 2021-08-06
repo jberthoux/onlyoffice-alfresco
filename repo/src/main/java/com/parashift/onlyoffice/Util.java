@@ -17,6 +17,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -121,7 +123,12 @@ public class Util {
     }
 
     public String getFavouriteUrl(NodeRef nodeRef){
-        return getAlfrescoUrl() + "s/parashift/onlyoffice/favourite?nodeRef=" + nodeRef.toString();
+        try {
+            return getAlfrescoUrl() + "s/parashift/onlyoffice/favourite?nodeRef=" + java.net.URLEncoder.encode( nodeRef.toString(), String.valueOf(StandardCharsets.UTF_8));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public String getContentUrl(NodeRef nodeRef) {

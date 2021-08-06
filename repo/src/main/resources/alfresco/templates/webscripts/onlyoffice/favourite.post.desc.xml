@@ -2,5 +2,5 @@
     <shortname>Change favourite flag of file</shortname>
     <description>Change favourite flag of file from editor</description>
     <url>/parashift/onlyoffice/favourite</url>
-    <authentication>user</authentication>
+    <authentication>none</authentication>
 </webscript>

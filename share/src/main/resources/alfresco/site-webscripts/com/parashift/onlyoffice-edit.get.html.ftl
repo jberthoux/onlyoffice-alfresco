@@ -35,7 +35,7 @@
 
         var onMetaChange = function (event) {
             var favorite = !!event.data.favorite;
-                        fetch("${favo} ", {
+                        fetch("${favorite} ", {
                             method: "POST",
                             headers: new Headers({
                                 'Content-Type': 'application/json',
