@@ -17,6 +17,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -52,6 +54,7 @@ public class Util {
 
     public static final QName EditingKeyAspect = QName.createQName("onlyoffice:editing-key");
     public static final QName EditingHashAspect = QName.createQName("onlyoffice:editing-hash");
+    private static final String HOME_DIRECTORY = "Company Home";
 
     public static final Map<String, String> PathLocale = new HashMap<String, String>(){{
         put("az", "az-Latn-AZ");
@@ -140,20 +143,25 @@ public class Util {
         String path = "";
         while(this.nodeService.getPrimaryParent(nodeRef).getParentRef() != null){
             if(this.nodeService.getProperty(this.nodeService.getPrimaryParent(nodeRef).getParentRef(),
-                    ContentModel.PROP_NAME).toString().equals("Company Home")) {
+                    ContentModel.PROP_NAME).toString().equals(HOME_DIRECTORY)) {
                 break;
             }
             path = ("/" + this.nodeService.getProperty(this.nodeService.getPrimaryParent(nodeRef).getParentRef(),
                     ContentModel.PROP_NAME)) + path;
             nodeRef=this.nodeService.getPrimaryParent(nodeRef).getParentRef();
         }
-        path = "#filter=path%7C" + path + "%7C";
+        path = "|" + path + "|";
 
-        if(path.equals("#filter=path%7C%7C")){
+        if(path.equals("||")){
             return getShareUrl() + "page/context/mine/myfiles";
         } else{
-            return getShareUrl() + "page/context/mine/myfiles" + path;
+            try {
+                return getShareUrl() + "page/context/mine/myfiles#filter=path" + java.net.URLEncoder.encode(path, String.valueOf(StandardCharsets.UTF_8));
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
         }
+        return null;
     }
 
     public String getEditorInnerUrl() {
