@@ -2,6 +2,7 @@
 
 #
 ## Added
+- add history of file changes, highlighting changes between versions 
 - creating new file from document editor
 - change favicon in editor by document type
 
