@@ -42,12 +42,13 @@
 
         if (hist && hData) {
             config.events['onRequestHistory'] = function () {
-                for(historyVersion of hist){
-                    historyVersion.serverVersion = docEditor.version;
-                    var date = new Date(historyVersion.created).toISOString().replace('T', ' ');
-                    date = date.substring(0, date.length-5);
-                    historyVersion.created = date;
-                    historyVersion.changes.created = date;
+                for (historyObj of hist) {
+                    if (historyObj.created.indexOf("UTC") !== -1) {
+                        var date = new Date(historyObj.created).toISOString().replace('T', ' ');
+                        date = date.substring(0, date.length - 5);
+                        historyObj.created = date;
+                        historyObj.changes = null;
+                    }
                 }
                 docEditor.refreshHistory({
                     currentVersion: hist.length,
@@ -56,14 +57,17 @@
             };
             config.events['onRequestHistoryData'] = function (event) {
                 var ver = event.data;
-                var index = 0;
-                for(versionData of hData) {
+                var index = -1;
+                var hiData = hData;
+                for(versionData of hiData) {
                     if(versionData.version == ver){
-                        index = hData.indexOf(versionData);
+                        index = hiData.indexOf(versionData);
                         break;
                     }
                 }
-                docEditor.setHistoryData(hData[index]);
+                if (index !== -1) {
+                    docEditor.setHistoryData(hiData[index]);
+                }
             };
             config.events['onRequestHistoryClose'] = function () {
                 document.location.reload();

@@ -33,6 +33,7 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -271,30 +272,43 @@ public class CallBack extends AbstractWebScript {
 
     private void saveHistoryToChildNode(NodeRef nodeRef, JSONObject changes) {
         Map<QName, Serializable> props = new HashMap<>();
-        InputStream in;
-        try {
-            String name = changes.getString("key").split("_")[0] + "_" + versionService.getCurrentVersion(nodeRef).getVersionLabel();
-            props.put(ContentModel.PROP_NAME, name + ".zip");
-            NodeRef historyNodeRefZip = this.nodeService.createNode(nodeRef, ContentModel.ASSOC_THUMBNAILS,
+        NodeRef historyNodeRefZip;
+        NodeRef historyNodeRefJson;
+        if (nodeService.getChildAssocs(nodeRef).size() == 0) {
+            props.put(ContentModel.PROP_NAME, "diff.zip");
+            historyNodeRefZip = this.nodeService.createNode(nodeRef, ContentModel.ASSOC_THUMBNAILS,
                     QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, "diff.zip"),
                     ContentModel.TYPE_THUMBNAIL, props).getChildRef();
-            ContentWriter writer = this.contentService.getWriter(historyNodeRefZip, ContentModel.PROP_CONTENT, true);
-            writer.setMimetype("application/zip");
-            URL url = new URL(changes.getString("changesurl"));
-            in = url.openStream();
-            writer.putContent(in);
 
             props.clear();
-            String docExt = changes.getString("url").substring(changes.getString("url").lastIndexOf(".") + 1).trim().toLowerCase();
-            props.put(ContentModel.PROP_NAME, name + "." + docExt);
-            NodeRef  outputNode = nodeService.createNode(historyNodeRefZip, ContentModel.ASSOC_THUMBNAILS,
-                    QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, "prev." + docExt),
+            props.put(ContentModel.PROP_NAME, "changes.json");
+            historyNodeRefJson = this.nodeService.createNode(nodeRef, ContentModel.ASSOC_THUMBNAILS,
+                    QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, "changes.json"),
                     ContentModel.TYPE_THUMBNAIL, props).getChildRef();
-            writer = this.contentService.getWriter(outputNode, ContentModel.PROP_CONTENT, true);
-            writer.setMimetype(mimetypeService.getMimetype(docExt));
-            url = new URL(util.getContentUrl(versionService.getVersionHistory(nodeRef).getHeadVersion().getFrozenStateNodeRef()));
-            in = url.openStream();
+            writeContent(historyNodeRefZip, historyNodeRefJson, changes);
+
+            util.ensureVersioningEnabled(historyNodeRefZip);
+            util.ensureVersioningEnabled(historyNodeRefJson);
+            nodeService.setProperty(historyNodeRefZip, ContentModel.PROP_VERSION_LABEL, versionService.getCurrentVersion(historyNodeRefZip));
+            nodeService.setProperty(historyNodeRefJson, ContentModel.PROP_VERSION_LABEL, versionService.getCurrentVersion(historyNodeRefJson));
+        } else {
+            historyNodeRefZip = this.nodeService.getChildAssocs(nodeRef).get(0).getChildRef();
+            historyNodeRefJson = this.nodeService.getChildAssocs(nodeRef).get(1).getChildRef();
+            writeContent(historyNodeRefZip, historyNodeRefJson, changes);
+        }
+    }
+
+    private void writeContent(NodeRef zipNode, NodeRef jsonNode, JSONObject changes) {
+        try {
+            ContentWriter writer = this.contentService.getWriter(zipNode, ContentModel.PROP_CONTENT, true);
+            writer.setMimetype("application/zip");
+            URL url = new URL(changes.getString("changesurl"));
+            InputStream in = url.openStream();
             writer.putContent(in);
+
+            writer = this.contentService.getWriter(jsonNode, ContentModel.PROP_CONTENT, true);
+            writer.setMimetype("application/json");
+            writer.putContent(changes.getString("history"));
         } catch (JSONException | IOException e) {
             e.printStackTrace();
         }

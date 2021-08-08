@@ -1,12 +1,10 @@
 package com.parashift.onlyoffice;
 
+import com.google.common.collect.Lists;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.admin.SysAdminParams;
 import org.alfresco.service.cmr.coci.CheckOutCheckInService;
-import org.alfresco.service.cmr.repository.ChildAssociationRef;
-import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.cmr.repository.StoreRef;
+import org.alfresco.service.cmr.repository.*;
 import org.alfresco.service.cmr.security.AuthenticationService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.cmr.version.Version;
@@ -57,6 +55,9 @@ public class Util {
 
     @Autowired
     ConfigManager configManager;
+
+    @Autowired
+    ContentService contentService;
 
     public static final QName EditingKeyAspect = QName.createQName("onlyoffice:editing-key");
     public static final QName EditingHashAspect = QName.createQName("onlyoffice:editing-hash");
@@ -128,74 +129,94 @@ public class Util {
         JSONArray historyData = new JSONArray();
         JSONArray history = new JSONArray();
         try {
-            for(Version version : versionService.getVersionHistory(nodeRef).getAllVersions()) {
+            List<Version> versions = (List<Version>) versionService.getVersionHistory(nodeRef).getAllVersions();
+            for (Version version : versions) {
+                Boolean isRevertedVersion = true;
                 JSONObject jsonVersion = new JSONObject();
                 NodeRef person = personService.getPersonOrNull(version.getVersionProperty("modifier").toString());
                 PersonService.PersonInfo personInfo = null;
                 if (person != null) {
                     personInfo = personService.getPerson(person);
                 }
-                JSONObject changes = new JSONObject();
                 JSONObject user = new JSONObject();
                 if (personInfo != null) {
                     user.put("id", personInfo.getUserName());
-                    user.put("name", personInfo.getFirstName() + personInfo.getLastName());
-                }
-                changes.put("user", user);
-                changes.put("created", version.getVersionProperty("created"));
-                if(!version.getVersionLabel().equals("1.0")){
-                    jsonVersion.put("changes", changes);
-                    jsonVersion.put("serverVersion", "");
-                } else{
-                    jsonVersion.put("changes", (Collection) null);
+                    user.put("name", personInfo.getFirstName() + " " + personInfo.getLastName());
                 }
                 jsonVersion.put("created", version.getVersionProperty("created"));
                 jsonVersion.put("user", user);
-                jsonVersion.put("key", getKey(nodeRef));
+                jsonVersion.put("changes", (Collection) null);
+                if (!version.getVersionLabel().equals("1.0")) {
+                    List<Version> jsonVersions = (List<Version>) versionService.getVersionHistory(nodeService.getChildAssocs(nodeRef).get(1).getChildRef()).getAllVersions();
+                    for (Version jsonNodeVersion : jsonVersions) {
+                        if (jsonNodeVersion.getVersionLabel().equals(versions.get(versions.indexOf(version) + 1).getVersionLabel())) {
+                            isRevertedVersion = false;
+                        }
+                    }
+                    if (!isRevertedVersion) {
+                        int versionsListDifference = versions.size() - jsonVersions.size() - 1;
+                        NodeRef jsonNode;
+                        if (!version.getVersionLabel().equals(versionService.getCurrentVersion(nodeRef).getVersionLabel())) {
+                            jsonNode = jsonVersions.get(versions.indexOf(version) - versionsListDifference).getFrozenStateNodeRef();
+                        } else {
+                            jsonNode = nodeService.getChildAssocs(nodeRef).get(1).getChildRef();
+                        }
+                        ContentReader reader = this.contentService.getReader(jsonNode, ContentModel.PROP_CONTENT);
+                        JSONObject hist = new JSONObject(reader.getContentString());
+                        jsonVersion.put("changes", hist.getJSONArray("changes"));
+                        jsonVersion.put("created", ((JSONObject) hist.getJSONArray("changes").get(0)).getString("created"));
+                        jsonVersion.put("serverVersion", hist.getString("serverVersion"));
+                        jsonVersion.put("user", ((JSONObject) hist.getJSONArray("changes").get(0)).getJSONObject("user"));
+                    }
+                }
+                jsonVersion.put("key", getKey(nodeRef).split("_")[0] + "_" + version.getVersionLabel());
                 jsonVersion.put("version", version.getVersionLabel());
                 history.put(jsonVersion);
-            }
-            if(versionService.getVersionHistory(nodeRef).getAllVersions().size() == 1) {
-                JSONObject historyDataObj = new JSONObject();
-                historyDataObj.put("version", "1.0");
-                historyDataObj.put("key", getKey(nodeRef));
-                historyDataObj.put("url", getContentUrl(nodeRef));
-                historyData.put(historyDataObj);
-            } else {
-                JSONObject firstVersion = new JSONObject();
-                NodeRef child = nodeService.getChildAssocs(nodeRef).get(0).getChildRef();
-                firstVersion.put("version", "1.0");
-                firstVersion.put("key", getKey(nodeService.getChildAssocs(child).get(0).getChildRef()));
-                firstVersion.put("url", getContentUrl(nodeService.getChildAssocs(child).get(0).getChildRef()));
-                historyData.put(firstVersion);
-                List<ChildAssociationRef> list = nodeService.getChildAssocs(nodeRef);
-                for(ChildAssociationRef assoc : list) {
-                    NodeRef versionChild = assoc.getChildRef();
+                if (versionService.getVersionHistory(nodeRef).getAllVersions().size() == 1) {
                     JSONObject historyDataObj = new JSONObject();
-                    String version = list.indexOf(assoc) == list.size() - 1 ? versionService.getCurrentVersion(nodeRef).getVersionLabel() :
-                            nodeService.getProperty(list.get(list.indexOf(assoc) + 1).getChildRef(), ContentModel.PROP_NAME).toString().split("_")[1].replace(".zip", "");
-                    historyDataObj.put("version", version);
-                    if(version.equals(versionService.getCurrentVersion(nodeRef).getVersionLabel())) {
-                        historyDataObj.put("key", getKey(nodeRef).split("_")[0]);
-                        historyDataObj.put("url", getContentUrl(nodeRef));
-                    } else {
-                        historyDataObj.put("key", getKey(nodeService.getChildAssocs(list.get(list.indexOf(assoc) + 1).getChildRef()).get(0).getChildRef()));
-                        historyDataObj.put("url", getContentUrl(nodeService.getChildAssocs(list.get(list.indexOf(assoc) + 1).getChildRef()).get(0).getChildRef()));
-                    }
-                    JSONObject previous = new JSONObject();
-                    String previousKey = getKey(nodeService.getChildAssocs(versionChild).get(0).getChildRef());
-                    String previousUrl = getContentUrl(nodeService.getChildAssocs(versionChild).get(0).getChildRef());
-                    previous.put("key", previousKey);
-                    previous.put("url", previousUrl);
-                    historyDataObj.put("changesUrl", getContentUrl(versionChild));
-                    historyDataObj.put("previous", previous);
+                    historyDataObj.put("version", "1.0");
+                    historyDataObj.put("key", getKey(nodeRef));
+                    historyDataObj.put("url", getContentUrl(nodeRef));
                     historyData.put(historyDataObj);
+                } else {
+                    if (version.getVersionLabel().equals("1.0")) {
+                        JSONObject firstVersion = new JSONObject();
+                        NodeRef rootVersion = versionService.getVersionHistory(nodeRef).getRootVersion().getFrozenStateNodeRef();
+                        firstVersion.put("version", "1.0");
+                        firstVersion.put("key", getKey(rootVersion));
+                        firstVersion.put("url", getContentUrl(rootVersion));
+                        historyData.put(firstVersion);
+                    } else {
+                        NodeRef versionChild;
+                        if (version.getVersionLabel().equals(versionService.getCurrentVersion(nodeRef).getVersionLabel())) {
+                            versionChild = nodeRef;
+                        } else {
+                            versionChild = version.getFrozenStateNodeRef();
+                        }
+                        List<Version> zipVersions = (List<Version>) versionService.getVersionHistory(nodeService.getChildAssocs(nodeRef).get(0).getChildRef()).getAllVersions();
+                        if (!isRevertedVersion) {
+                            int versionsListDifference = versions.size() - zipVersions.size() - 1;
+                            JSONObject historyDataObj = new JSONObject();
+                            String vers = version.getVersionLabel();
+                            historyDataObj.put("version", vers);
+                            historyDataObj.put("key", getKey(nodeRef).split("_")[0] + "_" + vers);
+                            historyDataObj.put("url", getContentUrl(versionChild));
+                            JSONObject previous = new JSONObject();
+                            String previousKey = getKey(versions.get(versions.indexOf(version) + 1).getFrozenStateNodeRef());
+                            String previousUrl = getContentUrl(versions.get(versions.indexOf(version) + 1).getFrozenStateNodeRef());
+                            previous.put("key", previousKey);
+                            previous.put("url", previousUrl);
+                            historyDataObj.put("changesUrl", getContentUrl(zipVersions.get(versions.indexOf(version) - versionsListDifference).getFrozenStateNodeRef()));
+                            historyDataObj.put("previous", previous);
+                            historyData.put(historyDataObj);
+                        }
+                    }
                 }
+                historyObj.put("data", historyData);
+                historyObj.put("history", history);
             }
-            historyObj.put("data", historyData);
-            historyObj.put("history", history);
-        } catch (JSONException e) {
-            e.printStackTrace();
+        } catch (JSONException ex){
+            ex.printStackTrace();
         }
         return historyObj;
     }
