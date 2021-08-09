@@ -67,6 +67,8 @@
                 }
                 if (index !== -1) {
                     docEditor.setHistoryData(hiData[index]);
+                } else {
+                    docEditor.setHistoryData([]);
                 }
             };
             config.events['onRequestHistoryClose'] = function () {

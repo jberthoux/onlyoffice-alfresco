@@ -289,8 +289,6 @@ public class CallBack extends AbstractWebScript {
 
             util.ensureVersioningEnabled(historyNodeRefZip);
             util.ensureVersioningEnabled(historyNodeRefJson);
-            nodeService.setProperty(historyNodeRefZip, ContentModel.PROP_VERSION_LABEL, versionService.getCurrentVersion(historyNodeRefZip));
-            nodeService.setProperty(historyNodeRefJson, ContentModel.PROP_VERSION_LABEL, versionService.getCurrentVersion(historyNodeRefJson));
         } else {
             historyNodeRefZip = this.nodeService.getChildAssocs(nodeRef).get(0).getChildRef();
             historyNodeRefJson = this.nodeService.getChildAssocs(nodeRef).get(1).getChildRef();

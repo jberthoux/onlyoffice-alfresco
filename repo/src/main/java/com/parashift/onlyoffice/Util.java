@@ -131,7 +131,7 @@ public class Util {
         try {
             List<Version> versions = (List<Version>) versionService.getVersionHistory(nodeRef).getAllVersions();
             for (Version version : versions) {
-                Boolean isRevertedVersion = true;
+                Integer jsonZipIndex= null;
                 JSONObject jsonVersion = new JSONObject();
                 NodeRef person = personService.getPersonOrNull(version.getVersionProperty("modifier").toString());
                 PersonService.PersonInfo personInfo = null;
@@ -149,15 +149,14 @@ public class Util {
                 if (!version.getVersionLabel().equals("1.0")) {
                     List<Version> jsonVersions = (List<Version>) versionService.getVersionHistory(nodeService.getChildAssocs(nodeRef).get(1).getChildRef()).getAllVersions();
                     for (Version jsonNodeVersion : jsonVersions) {
-                        if (jsonNodeVersion.getVersionLabel().equals(versions.get(versions.indexOf(version) + 1).getVersionLabel())) {
-                            isRevertedVersion = false;
+                        if (jsonNodeVersion.getVersionProperty("created").toString().equals(version.getVersionProperty("created").toString())) {
+                            jsonZipIndex = jsonVersions.indexOf(jsonNodeVersion);
                         }
                     }
-                    if (!isRevertedVersion) {
-                        int versionsListDifference = versions.size() - jsonVersions.size() - 1;
+                    if (jsonZipIndex != null) {
                         NodeRef jsonNode;
-                        if (!version.getVersionLabel().equals(versionService.getCurrentVersion(nodeRef).getVersionLabel())) {
-                            jsonNode = jsonVersions.get(versions.indexOf(version) - versionsListDifference).getFrozenStateNodeRef();
+                        if (jsonZipIndex != 0) {
+                            jsonNode = jsonVersions.get(jsonZipIndex).getFrozenStateNodeRef();
                         } else {
                             jsonNode = nodeService.getChildAssocs(nodeRef).get(1).getChildRef();
                         }
@@ -194,8 +193,7 @@ public class Util {
                             versionChild = version.getFrozenStateNodeRef();
                         }
                         List<Version> zipVersions = (List<Version>) versionService.getVersionHistory(nodeService.getChildAssocs(nodeRef).get(0).getChildRef()).getAllVersions();
-                        if (!isRevertedVersion) {
-                            int versionsListDifference = versions.size() - zipVersions.size() - 1;
+                        if (jsonZipIndex != null) {
                             JSONObject historyDataObj = new JSONObject();
                             String vers = version.getVersionLabel();
                             historyDataObj.put("version", vers);
@@ -206,7 +204,7 @@ public class Util {
                             String previousUrl = getContentUrl(versions.get(versions.indexOf(version) + 1).getFrozenStateNodeRef());
                             previous.put("key", previousKey);
                             previous.put("url", previousUrl);
-                            historyDataObj.put("changesUrl", getContentUrl(zipVersions.get(versions.indexOf(version) - versionsListDifference).getFrozenStateNodeRef()));
+                            historyDataObj.put("changesUrl", getContentUrl(zipVersions.get(jsonZipIndex).getFrozenStateNodeRef()));
                             historyDataObj.put("previous", previous);
                             historyData.put(historyDataObj);
                         }
