@@ -41,6 +41,42 @@
          </div>
       </@tsection>
 
+       <@section label=msg("onlyoffice-config.customization-section")/>
+       <label class="label" style="margin-bottom: 12px">${msg("onlyoffice-config.customization-label")}</label>
+       <div class="control field">
+           <input class="value" id="chat" name="chat" type="checkbox" ${chat} />
+           <label class="label" for="chat">${msg("onlyoffice-config.chat")}</label>
+       </div>
+       <div class="control field">
+           <input class="value" id="compactHeader" name="compactHeader" type="checkbox" ${compactHeader} />
+           <label class="label" for="compactHeader">${msg("onlyoffice-config.compact-header")}</label>
+       </div>
+       <div class="control field">
+           <input class="value" id="feedback" name="feedback" type="checkbox" ${feedback} />
+           <label class="label" for="feedback">${msg("onlyoffice-config.feedback")}</label>
+       </div>
+       <div class="control field">
+           <input class="value" id="help" name="help" type="checkbox" ${help} />
+           <label class="label" for="help">${msg("onlyoffice-config.help")}</label>
+       </div>
+       <div class="control field">
+           <input class="value" id="toolbarNoTabs" name="toolbarNoTabs" type="checkbox" ${toolbarNoTabs} />
+           <label class="label" for="toolbarNoTabs">${msg("onlyoffice-config.toolbar-no-tabs")}</label>
+       </div>
+       <div class="control field section">
+           <p class="label">${msg("onlyoffice-config.review-mode-label")}</p>
+           <div style="padding-top: 4px">
+               <input class="value" id="reviewDisplayMarkup" name="reviewDisplay" type="radio" value="markup"/>
+               <label class="label" for="reviewDisplayMarkup" style="margin-right: 21px">${msg("onlyoffice-config.review-mode-markup")}</label>
+
+               <input class="value" id="reviewDisplayFinal" name="reviewDisplay" type="radio" value="final"/>
+               <label class="label" for="reviewDisplayFinal" style="margin-right: 21px">${msg("onlyoffice-config.review-mode-final")}</label>
+
+               <input class="value" id="reviewDisplayOriginal" name="reviewDisplay" type="radio" value="original"/>
+               <label class="label" for="reviewDisplayOriginal" style="margin-right: 21px">${msg("onlyoffice-config.review-mode-original")}</label>
+           </div>
+       </div>
+
       <@section label=msg("onlyoffice-config.common-section") />
       <div class="control field">
          <input class="value" id="onlycert" name="cert" type="checkbox" ${cert} />
@@ -75,40 +111,6 @@
               <label class="label" style="margin-right: 21px" for="txt">txt</label>
           </div>
       </div>
-       <label class="label">${msg("onlyoffice-config.customization-label")}</label>
-       <div class="control field">
-           <input class="value" id="chat" name="chat" type="checkbox" ${chat} />
-           <label class="label" for="chat">${msg("onlyoffice-config.chat")}</label>
-       </div>
-       <div class="control field">
-           <input class="value" id="compactHeader" name="compactHeader" type="checkbox" ${compactHeader} />
-           <label class="label" for="compactHeader">${msg("onlyoffice-config.compact-header")}</label>
-       </div>
-       <div class="control field">
-           <input class="value" id="feedback" name="feedback" type="checkbox" ${feedback} />
-           <label class="label" for="feedback">${msg("onlyoffice-config.feedback")}</label>
-       </div>
-       <div class="control field">
-           <input class="value" id="help" name="help" type="checkbox" ${help} />
-           <label class="label" for="help">${msg("onlyoffice-config.help")}</label>
-       </div>
-       <div class="control field">
-           <input class="value" id="toolbarNoTabs" name="toolbarNoTabs" type="checkbox" ${toolbarNoTabs} />
-           <label class="label" for="toolbarNoTabs">${msg("onlyoffice-config.toolbar-no-tabs")}</label>
-       </div>
-       <div class="control field section">
-           <p class="label">${msg("onlyoffice-config.review-mode-label")}</p>
-           <div style="padding-top: 4px">
-               <input class="value" id="reviewDisplayMarkup" name="reviewDisplay" type="radio" value="markup"/>
-               <label class="label" for="reviewDisplayMarkup" style="margin-right: 21px">${msg("onlyoffice-config.review-mode-markup")}</label>
-
-               <input class="value" id="reviewDisplayFinal" name="reviewDisplay" type="radio" value="final"/>
-               <label class="label" for="reviewDisplayFinal" style="margin-right: 21px">${msg("onlyoffice-config.review-mode-final")}</label>
-
-               <input class="value" id="reviewDisplayOriginal" name="reviewDisplay" type="radio" value="original"/>
-               <label class="label" for="reviewDisplayOriginal" style="margin-right: 21px">${msg("onlyoffice-config.review-mode-original")}</label>
-           </div>
-       </div>
       <br>
       <table>
           <tr style="vertical-align: top;">
