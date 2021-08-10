@@ -108,6 +108,12 @@ public class UtilDocConfig {
         JSONObject customizationObject = new JSONObject();
         editorConfigObject.put("customization", customizationObject);
         customizationObject.put("forcesave", configManager.getAsBoolean("forcesave", "false"));
+        customizationObject.put("chat", configManager.getAsBoolean("chat", "true"));
+        customizationObject.put("help", configManager.getAsBoolean("help", "true"));
+        customizationObject.put("compactHeader", configManager.getAsBoolean("compactHeader", "false"));
+        customizationObject.put("toolbarNoTabs", configManager.getAsBoolean("toolbarNoTabs", "false"));
+        customizationObject.put("feedback", configManager.getAsBoolean("feedback", "true"));
+        customizationObject.put("reviewDisplay", configManager.getOrDefault("reviewDisplay", "original"));
 
         JSONObject userObject = new JSONObject();
         editorConfigObject.put("user", userObject);

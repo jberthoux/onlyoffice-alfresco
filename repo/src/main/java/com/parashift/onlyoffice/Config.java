@@ -32,6 +32,13 @@ public class Config extends DeclarativeWebScript {
         model.put("webpreview", getBoolAsAttribute("webpreview", "false"));
         model.put("convertOriginal", getBoolAsAttribute("convertOriginal", "false"));
 
+        model.put("chat", getBoolAsAttribute("chat", "true"));
+        model.put("help", getBoolAsAttribute("help", "true"));
+        model.put("compactHeader", getBoolAsAttribute("compactHeader", "false"));
+        model.put("toolbarNoTabs", getBoolAsAttribute("toolbarNoTabs", "false"));
+        model.put("feedback", getBoolAsAttribute("feedback", "true"));
+        model.put("reviewDisplay", configManager.getOrDefault("reviewDisplay", "original"));
+
         model.put("jwtsecret", configManager.getOrDefault("jwtsecret", ""));
         model.put("demo", getBoolAsAttribute("demo", "false"));
         model.put("demoAvailable", configManager.demoAvailable(true));

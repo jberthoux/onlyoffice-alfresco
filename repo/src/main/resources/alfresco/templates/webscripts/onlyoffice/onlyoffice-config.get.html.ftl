@@ -75,6 +75,40 @@
               <label class="label" style="margin-right: 21px" for="txt">txt</label>
           </div>
       </div>
+       <label class="label">${msg("onlyoffice-config.customization-label")}</label>
+       <div class="control field">
+           <input class="value" id="chat" name="chat" type="checkbox" ${chat} />
+           <label class="label" for="chat">${msg("onlyoffice-config.chat")}</label>
+       </div>
+       <div class="control field">
+           <input class="value" id="compactHeader" name="compactHeader" type="checkbox" ${compactHeader} />
+           <label class="label" for="compactHeader">${msg("onlyoffice-config.compact-header")}</label>
+       </div>
+       <div class="control field">
+           <input class="value" id="feedback" name="feedback" type="checkbox" ${feedback} />
+           <label class="label" for="feedback">${msg("onlyoffice-config.feedback")}</label>
+       </div>
+       <div class="control field">
+           <input class="value" id="help" name="help" type="checkbox" ${help} />
+           <label class="label" for="help">${msg("onlyoffice-config.help")}</label>
+       </div>
+       <div class="control field">
+           <input class="value" id="toolbarNoTabs" name="toolbarNoTabs" type="checkbox" ${toolbarNoTabs} />
+           <label class="label" for="toolbarNoTabs">${msg("onlyoffice-config.toolbar-no-tabs")}</label>
+       </div>
+       <div class="control field section">
+           <p class="label">${msg("onlyoffice-config.review-mode-label")}</p>
+           <div style="padding-top: 4px">
+               <input class="value" id="reviewDisplayMarkup" name="reviewDisplay" type="radio" value="markup"/>
+               <label class="label" for="reviewDisplayMarkup" style="margin-right: 21px">${msg("onlyoffice-config.review-mode-markup")}</label>
+
+               <input class="value" id="reviewDisplayFinal" name="reviewDisplay" type="radio" value="final"/>
+               <label class="label" for="reviewDisplayFinal" style="margin-right: 21px">${msg("onlyoffice-config.review-mode-final")}</label>
+
+               <input class="value" id="reviewDisplayOriginal" name="reviewDisplay" type="radio" value="original"/>
+               <label class="label" for="reviewDisplayOriginal" style="margin-right: 21px">${msg("onlyoffice-config.review-mode-original")}</label>
+           </div>
+       </div>
       <br>
       <table>
           <tr style="vertical-align: top;">
@@ -122,6 +156,22 @@
       var btn = document.getElementById("postonlycfg");
       var msg = document.getElementById("onlyresponse");
 
+      var chat = document.getElementById("chat");
+      var help = document.getElementById("help");
+      var compactHeader = document.getElementById("compactHeader");
+      var toolbarNoTabs = document.getElementById("toolbarNoTabs");
+      var feedback = document.getElementById("feedback");
+      var reviewDisplay = null;
+
+      if("${reviewDisplay}" === "original") {
+          reviewDisplay = document.getElementById("reviewDisplayOriginal");
+      } else if ("${reviewDisplay}" === "final") {
+          reviewDisplay = document.getElementById("reviewDisplayFinal")
+      } else {
+          reviewDisplay = document.getElementById("reviewDisplayMarkup");
+      }
+      reviewDisplay.checked = "checked";
+
       var doPost = function(obj) {
          var xhr = new XMLHttpRequest();
          xhr.open("POST", form.action, true);
@@ -162,7 +212,7 @@
          obj.innerurl = innerurl.value.trim();
          obj.alfurl = alfurl.value.trim();
          obj.cert = cert.checked.toString();
-         obj.forcesave = forcesave.checked.toString();
+         obj.forcesave = fs.checked.toString();
          obj.webpreview = webpreview.checked.toString();
          obj.convertOriginal = convertOriginal.checked.toString();
          obj.jwtsecret = jwts.value.trim();
@@ -175,6 +225,13 @@
             txt: txt.checked.toString(),
             rtf: rtf.checked.toString()
          };
+         obj.chat = chat.checked.toString();
+         obj.help = help.checked.toString();
+         obj.compactHeader = compactHeader.checked.toString();
+         obj.toolbarNoTabs = toolbarNoTabs.checked.toString();
+         obj.feedback = feedback.checked.toString();
+         obj.reviewDisplay = reviewDisplay.value.trim();
+
 
          return obj;
       };
