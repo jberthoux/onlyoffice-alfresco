@@ -75,6 +75,10 @@
                 document.location.reload();
             };
         }
+        if (/android|avantgo|playbook|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od|ad)|iris|kindle|lge |maemo|midp|mmp|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\\|plucker|pocket|psp|symbian|treo|up\\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i
+            .test(navigator.userAgent)) {
+            config.type='mobile';
+        }
 
         var docEditor = new DocsAPI.DocEditor("placeholder", config);
     </script>
