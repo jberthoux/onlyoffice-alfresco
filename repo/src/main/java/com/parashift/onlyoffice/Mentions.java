@@ -7,6 +7,7 @@ package com.parashift.onlyoffice;
 
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.action.executer.MailActionExecuter;
+import org.alfresco.repo.i18n.MessageService;
 import org.alfresco.service.cmr.action.Action;
 import org.alfresco.service.cmr.action.ActionService;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
@@ -47,8 +48,12 @@ public class Mentions extends AbstractWebScript {
     @Autowired
     PersonService personService;
 
+    @Autowired
+    MessageService messageService;
+
     @Override
     public void execute(WebScriptRequest request, WebScriptResponse response) throws IOException {
+        messageService.registerResourceBundle("alfresco/messages/mentions");
         if(request.getParameter("nodeRef") !=null ){
             NodeRef nodeRef = new NodeRef(request.getParameter("nodeRef"));
             JSONParser parser = new JSONParser();
@@ -58,14 +63,7 @@ public class Mentions extends AbstractWebScript {
                 List<String> emails = (List<String>) json.get("emails");
                 JSONArray responseJson = new JSONArray();
                 for(String email : emails) {
-                    Map<String, Serializable> aParams = new HashMap<>();
-                    aParams.put(MailActionExecuter.PARAM_TO, email);
-                    aParams.put(MailActionExecuter.PARAM_SUBJECT, "You were mentioned in an Alfresco comment.");
-                    aParams.put(MailActionExecuter.PARAM_TEXT, "Link to the comment in the document: " + link);
-                    Action action = actionService.createAction(MailActionExecuter.NAME);
-                    action.setParameterValues(aParams);
-                    action.setExecuteAsynchronously(true);
-                    actionService.executeAction(action, nodeRef);
+                    String fullName = "";
                     NodeRef peopleStore = personService.getPeopleContainer();
                     for(ChildAssociationRef assoc : nodeService.getChildAssocs(peopleStore)){
                         NodeRef person = assoc.getChildRef();
@@ -73,10 +71,19 @@ public class Mentions extends AbstractWebScript {
                             PersonService.PersonInfo personInfo = personService.getPerson(person);
                             if(personInfo != null){
                                 permissionService.setPermission(nodeRef, personInfo.getUserName(), PermissionService.CONSUMER, true);
-                                responseJson.put(personInfo.getFirstName() + " " + personInfo.getLastName());
+                                fullName = personInfo.getFirstName() + " " + personInfo.getLastName();
+                                responseJson.put(fullName);
                             }
                         }
                     }
+                    Map<String, Serializable> aParams = new HashMap<>();
+                    aParams.put(MailActionExecuter.PARAM_TO, email);
+                    aParams.put(MailActionExecuter.PARAM_SUBJECT, fullName + " " + messageService.getMessage("onlyoffice.mail-subject"));
+                    aParams.put(MailActionExecuter.PARAM_TEXT, "Link to the comment in the document: " + link);
+                    Action action = actionService.createAction(MailActionExecuter.NAME);
+                    action.setParameterValues(aParams);
+                    action.setExecuteAsynchronously(true);
+                    actionService.executeAction(action, nodeRef);
                 }
                 response.setContentType("application/json; charset=utf-8");
                 response.setContentEncoding("UTF-8");
