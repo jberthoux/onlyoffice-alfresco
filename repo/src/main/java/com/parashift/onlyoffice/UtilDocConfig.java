@@ -97,9 +97,9 @@ public class UtilDocConfig {
                     if(permission.getPermission().equals(PermissionService.CONSUMER)){
                         user.put("permissions", "Read Only");
                     } else user.put("permissions", "Full Access");
+                    sharing.put(user);
                 }
             }
-            sharing.put(user);
         }
         info.put("sharingSettings", sharing);
 
