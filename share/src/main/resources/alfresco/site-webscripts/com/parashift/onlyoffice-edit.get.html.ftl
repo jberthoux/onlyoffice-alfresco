@@ -19,6 +19,15 @@
 <body>
     <div>
         <div id="placeholder"></div>
+        <iframe id="frame"
+                width="65%"
+                height="50%"
+                scrolling="no"
+                align="top"
+                allow="display-capture"
+                src="${share}page/context/mine/manage-permissions?nodeRef=workspace://SpacesStore/${nodeRef}#bd">
+        </iframe>
+        <div id="black-overlay"></div>
     </div>
     <script>
         var onAppReady = function (event) {
@@ -27,10 +36,20 @@
             }
         };
 
+        var onRequestSharingSettings = function () {
+            document.getElementById("black-overlay").style.display="block";
+            var frame = document.getElementById("frame");
+            frame.contentWindow.location.reload();
+            frame.style.display = "block";
+            frame.contentWindow.document.getElementsByClassName("sticky-footer")[0].style.display = "none";
+            frame.contentWindow.document.getElementById("alf-hd").style.display = "none";
+        };
+
         var config = ${config};
 
         config.events = {
-            "onAppReady": onAppReady
+            "onAppReady": onAppReady,
+            "onRequestSharingSettings": onRequestSharingSettings
         };
 
         if (/android|avantgo|playbook|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od|ad)|iris|kindle|lge |maemo|midp|mmp|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\\|plucker|pocket|psp|symbian|treo|up\\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i
