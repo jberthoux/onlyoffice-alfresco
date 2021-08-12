@@ -29,16 +29,11 @@
 
         var replaceActionLink = function(href, linkParam) {
             var link;
-            var actionIndex = href.indexOf("&action=");
+            var actionIndex = href.indexOf("&actionType=");
             if (actionIndex != -1) {
-                var endIndex = href.indexOf("&", actionIndex + "&action=".length);
-                if (endIndex != -1) {
-                    link = href.substring(0, actionIndex) + href.substring(endIndex) + "&action=" + encodeURIComponent(linkParam);
-                } else {
-                    link = href.substring(0, actionIndex) + "&action=" + encodeURIComponent(linkParam);
-                }
+                link = href.substring(0, actionIndex) + "&actionType=" + encodeURIComponent(linkParam.type) + "&actionData=" + encodeURIComponent(linkParam.data);
             } else {
-                link = href + "&action=" + encodeURIComponent(linkParam);
+                link = href + "&actionType=" + encodeURIComponent(linkParam.type) + "&actionData=" + encodeURIComponent(linkParam.data);
             }
             return link;
         };
@@ -50,15 +45,14 @@
         };
 
         var onMakeActionLink = function (event) {
-            var actionData = event.data;
-            var linkParam = JSON.stringify(actionData);
-            docEditor.setActionLink(replaceActionLink(location.href, linkParam));
+            var actionData = event.data.action;
+            docEditor.setActionLink(replaceActionLink(location.href, actionData));
         };
 
         var onRequestSendNotify = function (event) {
             var comment = event.data.message;
             var emails = event.data.emails;
-            var replacedActionLink = location.href + "&actionType=" + event.data.actionLink.action.type + "&actionData=" + event.data.actionLink.action.data;
+            var replacedActionLink = replaceActionLink(location.href, event.data.actionLink.action);
             var data = {
                 comment : comment,
                 emails: emails,

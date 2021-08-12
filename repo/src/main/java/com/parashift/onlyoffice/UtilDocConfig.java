@@ -110,6 +110,7 @@ public class UtilDocConfig {
 
         mesService.registerResourceBundle("alfresco/messages/prepare");
         editorConfigObject.put("lang", mesService.getLocale().toLanguageTag());
+        editorConfigObject.put("actionLink", JSONObject.NULL);
 
 
         String mimeType = mimetypeService.getMimetype(docExt);
