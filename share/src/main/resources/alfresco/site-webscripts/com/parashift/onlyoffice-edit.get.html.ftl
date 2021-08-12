@@ -42,7 +42,6 @@
         var onRequestSharingSettings = function () {
             document.getElementById("black-overlay").style.display = "block";
             var frame = document.getElementById("frame");
-            frame.contentWindow.location.reload();
             frame.style.display = "block";
             frame.contentWindow.document.getElementsByClassName("sticky-footer")[0].style.display = "none";
             frame.contentWindow.document.getElementById("alf-hd").style.display = "none";
