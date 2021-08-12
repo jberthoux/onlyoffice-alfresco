@@ -34,9 +34,13 @@
                  docEditor.showMessage("${msg("alfresco.document.onlyoffice.action.edit.msg.demo")}");
             }
         };
+        document.getElementById("black-overlay").addEventListener("click", function (event) {
+            event.target.style.display = "none";
+            document.getElementById("frame").style.display = "none";
+        });
 
         var onRequestSharingSettings = function () {
-            document.getElementById("black-overlay").style.display="block";
+            document.getElementById("black-overlay").style.display = "block";
             var frame = document.getElementById("frame");
             frame.contentWindow.location.reload();
             frame.style.display = "block";
