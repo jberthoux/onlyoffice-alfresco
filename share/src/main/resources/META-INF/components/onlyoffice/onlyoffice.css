@@ -41,7 +41,7 @@ div {
     z-index: 8;
 }
 
-#inlineFrameExample {
+#frame {
     display: none;
     position: relative;
     margin: -600px auto;

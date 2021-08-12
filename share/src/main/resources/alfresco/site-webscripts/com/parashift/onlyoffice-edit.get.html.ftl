@@ -22,7 +22,6 @@
         <iframe id="frame"
                 width="65%"
                 height="50%"
-                scrolling="no"
                 align="top"
                 allow="display-capture"
                 src="${share}page/context/mine/manage-permissions?nodeRef=workspace://SpacesStore/${nodeRef}#bd">
