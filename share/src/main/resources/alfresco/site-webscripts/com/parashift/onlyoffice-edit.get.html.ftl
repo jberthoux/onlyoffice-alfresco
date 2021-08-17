@@ -36,7 +36,9 @@
         };
         document.getElementById("black-overlay").addEventListener("click", function (event) {
             event.target.style.display = "none";
-            document.getElementById("frame").style.display = "none";
+            if (document.getElementById("frame").style.display == "block") {
+                document.getElementById("frame").style.display = "none";
+            }
         });
 
         var onRequestSharingSettings = function () {
