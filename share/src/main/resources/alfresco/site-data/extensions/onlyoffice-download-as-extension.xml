@@ -1,0 +1,52 @@
+<extension>
+    <modules>
+        <module>
+            <id>ONLYOFFICE DOWNLOAD AS </id>
+            <version>1.0</version>
+            <auto-deploy>true</auto-deploy>
+            <configurations>
+                <config evaluator="string-compare" condition="DocLibActions">
+                    <actions>
+                        <action id="document-onlyoffice-download-as" type="javascript" label="actions.document.onlyoffice-download-as">
+                            <param name="function">onActionWaitingFormDialog</param>
+                            <param name="itemKind">action</param>
+                            <param name="itemId">onlyoffice-download-as</param>
+                            <param name="mode">create</param>
+                            <param name="destination">{node.nodeRef}</param>
+                            <param name="successMessage">alfresco.document.onlyoffice.action.download-as.msg.success</param>
+                            <param name="failureMessage">alfresco.document.onlyoffice.action.download-as.msg.failure</param>
+                            <evaluator>evaluator.doclib.action.displayDownloadAs</evaluator>
+                            <evaluator>evaluator.doclib.action.IsConvertPermission</evaluator>
+                        </action>
+                    </actions>
+
+                    <actionGroups>
+                        <actionGroup id="document-browse">
+                            <action index="92" id="document-onlyoffice-download-as"/>
+                        </actionGroup>
+                        <actionGroup id="document-details">
+                            <action index="92" id="document-onlyoffice-download-as"/>
+                        </actionGroup>
+                    </actionGroups>
+                </config>
+
+                <config evaluator="string-compare" condition="onlyoffice-download-as">
+                    <forms>
+                        <form>
+                            <field-visibility>
+                                <show id="select_type"/>
+                            </field-visibility>
+                            <appearance>
+                                <field id="select_type" label-id="alfresco.document-onlyoffice-download-as.form.field.select-type">
+                                    <control template="/org/alfresco/components/form/controls/selectone.ftl">
+                                        <control-param name="options">docx</control-param>
+                                    </control>
+                                </field>
+                            </appearance>
+                        </form>
+                    </forms>
+                </config>
+            </configurations>
+        </module>
+    </modules>
+</extension>

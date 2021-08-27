@@ -6,9 +6,11 @@ import org.alfresco.service.cmr.coci.CheckOutCheckInService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.repository.StoreRef;
+import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.cmr.security.AuthenticationService;
 import org.alfresco.service.cmr.version.Version;
 import org.alfresco.service.cmr.version.VersionService;
+import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.util.UrlUtil;
 import org.springframework.extensions.surf.util.URLEncoder;
@@ -49,6 +51,12 @@ public class Util {
 
     @Autowired
     ConfigManager configManager;
+
+    @Autowired
+    SearchService searchService;
+
+    @Autowired
+    NamespaceService namespaceService;
 
     public static final QName EditingKeyAspect = QName.createQName("onlyoffice:editing-key");
     public static final QName EditingHashAspect = QName.createQName("onlyoffice:editing-hash");
@@ -178,6 +186,14 @@ public class Util {
         byte[] token = new byte[32];
         secureRandom.nextBytes(token);
         return Base64.getUrlEncoder().withoutPadding().encodeToString(token);
+    }
+
+    public NodeRef getNodeByPath(String path) {
+        String storePath = "workspace://SpacesStore";
+        StoreRef storeRef = new StoreRef(storePath);
+        NodeRef storeRootNodeRef = nodeService.getRootNode(storeRef);
+        List<NodeRef> nodeRefs = searchService.selectNodes(storeRootNodeRef, path, null, namespaceService, false);
+        return nodeRefs.get(0);
     }
 
     private String getShareUrl(){
