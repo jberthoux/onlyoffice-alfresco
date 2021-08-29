@@ -26,6 +26,8 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -102,8 +104,15 @@ public class Prepare extends AbstractWebScript {
                         if (pathLocale == null) pathLocale = Util.PathLocale.get("en");
                     }
 
-                    InputStream in = getClass().getResourceAsStream("/newdocs/" + pathLocale + "/new." + ext);
-
+                    InputStream in;
+                    NodeRef parentNodeRef = null;
+                    if(request.getParameter("parentNodeRef") != null){
+                        parentNodeRef = new NodeRef(request.getParameter("parentNodeRef"));
+                        in = contentService.getReader(parentNodeRef, ContentModel.PROP_CONTENT).getContentInputStream();
+                    }
+                    else {
+                        in = getClass().getResourceAsStream("/newdocs/" + pathLocale + "/new." + ext);
+                    }
                     writer.putContent(in);
 
                     util.ensureVersioningEnabled(nodeRef);
