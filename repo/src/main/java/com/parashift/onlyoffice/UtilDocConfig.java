@@ -108,6 +108,9 @@ public class UtilDocConfig {
         JSONObject customizationObject = new JSONObject();
         editorConfigObject.put("customization", customizationObject);
         customizationObject.put("forcesave", configManager.getAsBoolean("forcesave", "false"));
+        JSONObject goBack = new JSONObject();
+        goBack.put("url", util.getBackUrl(nodeRef));
+        customizationObject.put("goback",goBack);
 
         JSONObject userObject = new JSONObject();
         editorConfigObject.put("user", userObject);

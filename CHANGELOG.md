@@ -2,6 +2,7 @@
 
 #
 ## Added
+- add goBack url for document editor
 - creating new file from document editor
 - change favicon in editor by document type
 - detecting mobile browser
