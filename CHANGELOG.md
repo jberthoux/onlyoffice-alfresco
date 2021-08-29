@@ -2,9 +2,12 @@
 
 #
 ## Added
+- changing favorite flag of the file from document editor
+- add goBack url for document editor
 - creating new file from document editor
 - change favicon in editor by document type
-- changing favorite flag of the file from document editor
+- detecting mobile browser
+- creating new file from document editor by document template
 
 # 5.0.0
 ## Added

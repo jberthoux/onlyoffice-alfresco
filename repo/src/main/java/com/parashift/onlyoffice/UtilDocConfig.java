@@ -11,6 +11,7 @@ import org.alfresco.service.cmr.security.AccessStatus;
 import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.cmr.security.PersonService.PersonInfo;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -88,6 +89,7 @@ public class UtilDocConfig {
         editorConfigObject.put("createUrl", util.getCreateNewUrl(nodeRef, mimeType));
         boolean canWrite = util.isEditable(mimeType) && permissionService.hasPermission(nodeRef, PermissionService.WRITE) == AccessStatus.ALLOWED;
 
+        editorConfigObject.put("templates", util.getTemplates(nodeRef, docExt, mimeType));
         if (isReadOnly || preview || !canWrite) {
             editorConfigObject.put("mode", "view");
             permObject.put("edit", false);
@@ -117,6 +119,9 @@ public class UtilDocConfig {
         JSONObject customizationObject = new JSONObject();
         editorConfigObject.put("customization", customizationObject);
         customizationObject.put("forcesave", configManager.getAsBoolean("forcesave", "false"));
+        JSONObject goBack = new JSONObject();
+        goBack.put("url", util.getBackUrl(nodeRef));
+        customizationObject.put("goback",goBack);
 
         JSONObject userObject = new JSONObject();
         editorConfigObject.put("user", userObject);
