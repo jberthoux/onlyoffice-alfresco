@@ -136,6 +136,15 @@ public class Util {
         return getShareUrl() + "page/onlyoffice-edit?nodeRef=" + folderNodeRef + "&new=" + docExtMime;
     }
 
+    public String getFavouriteUrl(NodeRef nodeRef){
+        try {
+            return getAlfrescoUrl() + "s/parashift/onlyoffice/favourite?nodeRef=" + java.net.URLEncoder.encode( nodeRef.toString(), String.valueOf(StandardCharsets.UTF_8));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public String getContentUrl(NodeRef nodeRef) {
         return  getAlfrescoUrl() + "s/parashift/onlyoffice/download?nodeRef=" + nodeRef.toString() + "&alf_ticket=" + authenticationService.getCurrentTicket();
     }
@@ -253,7 +262,7 @@ public class Util {
         return templates;
     }
 
-    private String getShareUrl(){
+    public String getShareUrl(){
         return UrlUtil.getShareUrl(sysAdminParams) + "/";
     }
 
