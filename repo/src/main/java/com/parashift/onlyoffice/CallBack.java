@@ -189,7 +189,7 @@ public class CallBack extends AbstractWebScript {
         public ProccessRequestCallback(JSONObject json, NodeRef node) {
             callBackJSon = json;
             nodeRef = node;
-            forcesave = configManager.getAsBoolean("forcesave", "fasle");
+            forcesave = configManager.getAsBoolean("forcesave", "false");
         }
 
         @Override
