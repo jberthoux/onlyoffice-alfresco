@@ -27,13 +27,35 @@
             }
         };
 
+        var getCookie = function (name) {
+            var value = document.cookie;
+            var parts = value.split(name);
+            if (parts.length === 2) return parts.pop().split(';').shift().substring(1);
+        };
+
+        var onMetaChange = function (event) {
+            var favorite = !!event.data.favorite;
+                        fetch("${favorite} ", {
+                            method: "POST",
+                            headers: new Headers({
+                                'Content-Type': 'application/json',
+                                'Alfresco-CSRFToken': decodeURIComponent(getCookie('Alfresco-CSRFToken'))
+                            })
+                        })
+                        .then(response => {
+                            var title = document.title.replace(/^\☆/g, "");
+                            document.title = (favorite ? "☆" : "") + title;
+                            docEditor.setFavorite(favorite);
+                        });
+        };
         var config = ${config};
 
         var onOutdatedVersion = function(event){
             location.reload(true);
         };
         config.events = {
-            "onAppReady": onAppReady,
+            "onAppReady": onAppReady
+            "onMetaChange": onMetaChange
             "onOutdatedVersion": onOutdatedVersion
         };
 
@@ -81,6 +103,10 @@
         }
 
         var docEditor = new DocsAPI.DocEditor("placeholder", config);
+        if(config.document.info.favorite){
+            var title = document.title.replace(/^\☆/g, "");
+            document.title = (config.document.info.favorite ? "☆" : "") + title;
+        }
     </script>
 </body>
 </html>

@@ -5,10 +5,13 @@ import org.alfresco.model.ContentModel;
 import org.alfresco.repo.admin.SysAdminParams;
 import org.alfresco.service.cmr.coci.CheckOutCheckInService;
 import org.alfresco.service.cmr.repository.*;
+import org.alfresco.service.cmr.search.ResultSet;
+import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.cmr.security.AuthenticationService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.cmr.version.Version;
 import org.alfresco.service.cmr.version.VersionService;
+import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.util.UrlUtil;
 import org.json.JSONArray;
@@ -20,6 +23,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -57,10 +62,17 @@ public class Util {
     ConfigManager configManager;
 
     @Autowired
+    SearchService searchService;
+
+    @Autowired
+    NamespaceService namespaceService;
+
+    @Autowired
     ContentService contentService;
 
     public static final QName EditingKeyAspect = QName.createQName("onlyoffice:editing-key");
     public static final QName EditingHashAspect = QName.createQName("onlyoffice:editing-hash");
+    private static final String HOME_DIRECTORY = "Company Home";
 
     public static final Map<String, String> PathLocale = new HashMap<String, String>(){{
         put("az", "az-Latn-AZ");
@@ -224,6 +236,15 @@ public class Util {
         return getShareUrl() + "page/onlyoffice-edit?nodeRef=" + folderNodeRef + "&new=" + docExtMime;
     }
 
+    public String getFavouriteUrl(NodeRef nodeRef){
+        try {
+            return getAlfrescoUrl() + "s/parashift/onlyoffice/favourite?nodeRef=" + java.net.URLEncoder.encode( nodeRef.toString(), String.valueOf(StandardCharsets.UTF_8));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public String getContentUrl(NodeRef nodeRef) {
         return  getAlfrescoUrl() + "s/parashift/onlyoffice/download?nodeRef=" + nodeRef.toString() + "&alf_ticket=" + authenticationService.getCurrentTicket();
     }
@@ -238,6 +259,31 @@ public class Util {
 
     public String getEditorUrl() {
         return configManager.demoActive() ? configManager.getDemo("url") : (String) configManager.getOrDefault("url", "http://127.0.0.1/");
+    }
+
+    public String getBackUrl(NodeRef nodeRef){
+        String path = "";
+        while(this.nodeService.getPrimaryParent(nodeRef).getParentRef() != null){
+            if(this.nodeService.getProperty(this.nodeService.getPrimaryParent(nodeRef).getParentRef(),
+                    ContentModel.PROP_NAME).toString().equals(HOME_DIRECTORY)) {
+                break;
+            }
+            path = ("/" + this.nodeService.getProperty(this.nodeService.getPrimaryParent(nodeRef).getParentRef(),
+                    ContentModel.PROP_NAME)) + path;
+            nodeRef=this.nodeService.getPrimaryParent(nodeRef).getParentRef();
+        }
+        path = "|" + path + "|";
+
+        if(path.equals("||")){
+            return getShareUrl() + "page/context/mine/myfiles";
+        } else{
+            try {
+                return getShareUrl() + "page/context/mine/myfiles#filter=path" + java.net.URLEncoder.encode(path, String.valueOf(StandardCharsets.UTF_8));
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
     }
 
     public String getEditorInnerUrl() {
@@ -284,7 +330,39 @@ public class Util {
         return Base64.getUrlEncoder().withoutPadding().encodeToString(token);
     }
 
-    private String getShareUrl(){
+    public NodeRef getNodeByPath(String path) {
+        String storePath = "workspace://SpacesStore";
+        StoreRef storeRef = new StoreRef(storePath);
+        NodeRef storeRootNodeRef = nodeService.getRootNode(storeRef);
+        List<NodeRef> nodeRefs = searchService.selectNodes(storeRootNodeRef, path, null, namespaceService, false);
+        return nodeRefs.get(0);
+    }
+
+    public JSONArray getTemplates(NodeRef nodeRef, String docExt, String mimeType){
+        JSONArray templates = new JSONArray();
+        NodeRef templatesNodeRef = getNodeByPath("/app:company_home/app:dictionary/app:node_templates");
+        List<ChildAssociationRef> assocs = nodeService.getChildAssocs(templatesNodeRef);
+        for(ChildAssociationRef assoc : assocs){
+            String docName = nodeService.getProperty(assoc.getChildRef(), ContentModel.PROP_NAME).toString();
+            if(docExt.equals(docName.substring(docName.lastIndexOf(".") + 1))){
+                JSONObject template = new JSONObject();
+                String image = getShareUrl() + "proxy/alfresco/api/node/workspace/SpacesStore/" + assoc.getChildRef().toString().split("/SpacesStore/")[1] + "/content/thumbnails/doclib?ph=true";
+                String title = nodeService.getProperty(assoc.getChildRef(), ContentModel.PROP_NAME).toString();
+                String url = getCreateNewUrl(nodeRef, mimeType) + "&parentNodeRef=" + assoc.getChildRef();
+                try {
+                    template.put("image", image);
+                    template.put("title", title);
+                    template.put("url", url);
+                    templates.put(template);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return templates;
+    }
+
+    public String getShareUrl(){
         return UrlUtil.getShareUrl(sysAdminParams) + "/";
     }
 
