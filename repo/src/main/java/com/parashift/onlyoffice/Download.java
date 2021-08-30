@@ -66,6 +66,10 @@ public class Download extends AbstractWebScript {
             String name = (String) properties.get(ContentModel.PROP_NAME);
             String docExt = name.substring(name.lastIndexOf(".") + 1).trim().toLowerCase();
 
+            response.setHeader("Access-Control-Allow-Origin", "*");
+            response.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+            response.setHeader("Access-Control-Allow-Credentials", "true");
+            response.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS,HEAD");
             response.setHeader("Content-Length", String.valueOf(reader.getSize()));
             response.setHeader("Content-Type", mimetypeService.getMimetype(docExt));
             response.setHeader("Content-Disposition", "attachment; filename*=UTF-8\'\'" + URLEncoder.encode(name));

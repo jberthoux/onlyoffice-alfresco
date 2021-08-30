@@ -20,6 +20,7 @@ import org.json.JSONObject;
 import org.springframework.extensions.surf.util.URLEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
@@ -158,8 +159,17 @@ public class Util {
                 jsonVersion.put("created", version.getVersionProperty("created"));
                 jsonVersion.put("user", user);
                 jsonVersion.put("changes", (Collection) null);
+                NodeRef zipNodeRef = null;
                 if (!version.getVersionLabel().equals("1.0")) {
-                    List<Version> jsonVersions = (List<Version>) versionService.getVersionHistory(nodeService.getChildAssocs(nodeRef).get(1).getChildRef()).getAllVersions();
+                    NodeRef jsonNodeRef = null;
+                    for(ChildAssociationRef assoc : nodeService.getChildAssocs(nodeRef)) {
+                        if (nodeService.getProperty(assoc.getChildRef(), ContentModel.PROP_NAME).equals("changes.json")) {
+                            jsonNodeRef = assoc.getChildRef();
+                        } else if (nodeService.getProperty(assoc.getChildRef(), ContentModel.PROP_NAME).equals("diff.zip")) {
+                            zipNodeRef = assoc.getChildRef();
+                        }
+                    }
+                    List<Version> jsonVersions = (List<Version>) versionService.getVersionHistory(jsonNodeRef).getAllVersions();
                     for (Version jsonNodeVersion : jsonVersions) {
                         if (jsonNodeVersion.getVersionProperty("created").toString().equals(version.getVersionProperty("created").toString())) {
                             jsonZipIndex = jsonVersions.indexOf(jsonNodeVersion);
@@ -170,7 +180,7 @@ public class Util {
                         if (jsonZipIndex != 0) {
                             jsonNode = jsonVersions.get(jsonZipIndex).getFrozenStateNodeRef();
                         } else {
-                            jsonNode = nodeService.getChildAssocs(nodeRef).get(1).getChildRef();
+                            jsonNode = jsonNodeRef;
                         }
                         ContentReader reader = this.contentService.getReader(jsonNode, ContentModel.PROP_CONTENT);
                         JSONObject hist = new JSONObject(reader.getContentString());
@@ -204,7 +214,7 @@ public class Util {
                         } else {
                             versionChild = version.getFrozenStateNodeRef();
                         }
-                        List<Version> zipVersions = (List<Version>) versionService.getVersionHistory(nodeService.getChildAssocs(nodeRef).get(0).getChildRef()).getAllVersions();
+                        List<Version> zipVersions = (List<Version>) versionService.getVersionHistory(zipNodeRef).getAllVersions();
                         if (jsonZipIndex != null) {
                             JSONObject historyDataObj = new JSONObject();
                             String vers = version.getVersionLabel();
@@ -243,6 +253,10 @@ public class Util {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public String getHistoryUrl(NodeRef nodeRef) {
+        return getAlfrescoUrl() + "s/parashift/onlyoffice/history?nodeRef=" + nodeRef.toString();
     }
 
     public String getContentUrl(NodeRef nodeRef) {

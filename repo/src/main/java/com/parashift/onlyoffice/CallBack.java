@@ -255,6 +255,7 @@ public class CallBack extends AbstractWebScript {
 
                     AuthenticationUtil.setRunAsUser(AuthenticationUtil.getSystemUserName());
                     cociService.checkin(wc, null, null, true);
+                    saveHistoryToChildNode(nodeRef, callBackJSon);
 
                     AuthenticationUtil.clearCurrentSecurityContext();
                     TenantContextHolder.setTenantDomain(AuthenticationUtil.getUserTenant(lockOwner).getSecond());
@@ -263,7 +264,6 @@ public class CallBack extends AbstractWebScript {
                     nodeService.setProperty(wc, Util.EditingHashAspect, hash);
                     nodeService.setProperty(wc, Util.EditingKeyAspect, key);
                     logger.debug("Forcesave complete");
-                    saveHistoryToChildNode(nodeRef, callBackJSon);
                     break;
             }
             return null;
@@ -272,17 +272,24 @@ public class CallBack extends AbstractWebScript {
 
     private void saveHistoryToChildNode(NodeRef nodeRef, JSONObject changes) {
         Map<QName, Serializable> props = new HashMap<>();
-        NodeRef historyNodeRefZip;
-        NodeRef historyNodeRefJson;
-        if (nodeService.getChildAssocs(nodeRef).size() == 0) {
+        NodeRef jsonNode = null;
+        NodeRef zipNode = null;
+        for(ChildAssociationRef assoc : nodeService.getChildAssocs(nodeRef)) {
+            if (nodeService.getProperty(assoc.getChildRef(), ContentModel.PROP_NAME).equals("changes.json")) {
+                jsonNode = assoc.getChildRef();
+            } else if (nodeService.getProperty(assoc.getChildRef(), ContentModel.PROP_NAME).equals("diff.zip")) {
+                zipNode = assoc.getChildRef();
+            }
+        }
+        if (jsonNode == null && zipNode == null) {
             props.put(ContentModel.PROP_NAME, "diff.zip");
-            historyNodeRefZip = this.nodeService.createNode(nodeRef, ContentModel.ASSOC_THUMBNAILS,
+            NodeRef historyNodeRefZip = this.nodeService.createNode(nodeRef, ContentModel.ASSOC_THUMBNAILS,
                     QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, "diff.zip"),
                     ContentModel.TYPE_THUMBNAIL, props).getChildRef();
 
             props.clear();
             props.put(ContentModel.PROP_NAME, "changes.json");
-            historyNodeRefJson = this.nodeService.createNode(nodeRef, ContentModel.ASSOC_THUMBNAILS,
+            NodeRef historyNodeRefJson = this.nodeService.createNode(nodeRef, ContentModel.ASSOC_THUMBNAILS,
                     QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, "changes.json"),
                     ContentModel.TYPE_THUMBNAIL, props).getChildRef();
             writeContent(historyNodeRefZip, historyNodeRefJson, changes);
@@ -290,9 +297,7 @@ public class CallBack extends AbstractWebScript {
             util.ensureVersioningEnabled(historyNodeRefZip);
             util.ensureVersioningEnabled(historyNodeRefJson);
         } else {
-            historyNodeRefZip = this.nodeService.getChildAssocs(nodeRef).get(0).getChildRef();
-            historyNodeRefJson = this.nodeService.getChildAssocs(nodeRef).get(1).getChildRef();
-            writeContent(historyNodeRefZip, historyNodeRefJson, changes);
+            writeContent(zipNode, jsonNode, changes);
         }
     }
 
@@ -306,7 +311,7 @@ public class CallBack extends AbstractWebScript {
 
             writer = this.contentService.getWriter(jsonNode, ContentModel.PROP_CONTENT, true);
             writer.setMimetype("application/json");
-            writer.putContent(changes.getString("history"));
+            writer.putContent(changes.getJSONObject("history").toString());
         } catch (JSONException | IOException e) {
             e.printStackTrace();
         }
