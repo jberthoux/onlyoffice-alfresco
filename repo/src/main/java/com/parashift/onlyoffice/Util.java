@@ -11,6 +11,7 @@ import org.alfresco.service.cmr.security.AuthenticationService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.cmr.version.Version;
 import org.alfresco.service.cmr.version.VersionService;
+import org.alfresco.service.cmr.version.VersionType;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.util.UrlUtil;
@@ -171,7 +172,7 @@ public class Util {
                     }
                     List<Version> jsonVersions = (List<Version>) versionService.getVersionHistory(jsonNodeRef).getAllVersions();
                     for (Version jsonNodeVersion : jsonVersions) {
-                        if (jsonNodeVersion.getVersionProperty("created").toString().equals(version.getVersionProperty("created").toString())) {
+                        if (jsonNodeVersion.getVersionProperty("modified").toString().equals(version.getVersionProperty("created").toString())) {
                             jsonZipIndex = jsonVersions.indexOf(jsonNodeVersion);
                         }
                     }
@@ -222,11 +223,14 @@ public class Util {
                             historyDataObj.put("key", getKey(nodeRef).split("_")[0] + "_" + vers);
                             historyDataObj.put("url", getContentUrl(versionChild));
                             JSONObject previous = new JSONObject();
-                            String previousKey = getKey(versions.get(versions.indexOf(version) + 1).getFrozenStateNodeRef());
-                            String previousUrl = getContentUrl(versions.get(versions.indexOf(version) + 1).getFrozenStateNodeRef());
+                            Integer previousMajor = getPreviousMajorVersion(versions, version);
+                            String previousKey = version.getVersionType() == VersionType.MAJOR && previousMajor != null ? getKey(versions.get(previousMajor).getFrozenStateNodeRef())
+                                    : getKey(versions.get(versions.indexOf(version) + 1).getFrozenStateNodeRef());
+                            String previousUrl = version.getVersionType() == VersionType.MAJOR && previousMajor != null ? getContentUrl(versions.get(previousMajor).getFrozenStateNodeRef())
+                                    : getContentUrl(versions.get(versions.indexOf(version) + 1).getFrozenStateNodeRef());
                             previous.put("key", previousKey);
                             previous.put("url", previousUrl);
-                            historyDataObj.put("changesUrl", getContentUrl(zipVersions.get(jsonZipIndex).getFrozenStateNodeRef()));
+                            historyDataObj.put("changesUrl", jsonZipIndex == 0 ? getContentUrl(zipNodeRef) : getContentUrl(zipVersions.get(jsonZipIndex).getFrozenStateNodeRef()));
                             historyDataObj.put("previous", previous);
                             historyData.put(historyDataObj);
                         }
@@ -239,6 +243,16 @@ public class Util {
             ex.printStackTrace();
         }
         return historyObj;
+    }
+
+    private Integer getPreviousMajorVersion(List<Version> versions, Version versionForPreviousVersion) {
+        int index = versions.indexOf(versionForPreviousVersion);
+        for (int i = versions.size() ; i > 0; i--) {
+            if (versions.get(versions.size() - i).getVersionType() == VersionType.MAJOR && i > index) {
+                return versions.indexOf(versions.get(i - 1));
+            }
+        }
+        return null;
     }
 
     public String getCreateNewUrl(NodeRef nodeRef, String docExtMime){

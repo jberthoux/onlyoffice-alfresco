@@ -69,7 +69,7 @@
                     }
                 }
                 docEditor.refreshHistory({
-                    currentVersion: hist.length,
+                    currentVersion: hist[0].version,
                     history: hist.reverse()
                 });
             }
