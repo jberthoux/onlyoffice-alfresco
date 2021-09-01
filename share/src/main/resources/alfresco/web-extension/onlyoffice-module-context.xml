@@ -63,14 +63,6 @@
         </property>
      </bean>
 
-    <bean id="evaluator.doclib.action.displayDownloadAs" parent="evaluator.doclib.action.chainedMatchOne">
-        <property name="evaluators">
-            <list>
-                <ref bean="evaluator.doclib.action.onlyofficeEditMimetype"/>
-            </list>
-        </property>
-    </bean>
-
     <bean id="evaluator.doclib.action.onlyofficeConvertMimetype" parent="evaluator.doclib.action.isMimetype">
         <property name="mimetypes">
             <list>
@@ -136,6 +128,7 @@
         </property>
     </bean>
 
+    <bean id="evaluator.doclib.action.IsCorrectDownloadAs" class="com.onlyoffice.web.evaluator.IsCorrectDownloadAs"/>
     <bean id="evaluator.doclib.action.isOnlyEdit" class="com.onlyoffice.web.evaluator.IsOnlyEditEvaluator" />
     <bean id="evaluator.doclib.action.isNotOnlyEdit" parent="evaluator.doclib.action.isOnlyEdit">
         <property name="negateOutput" value="true" />

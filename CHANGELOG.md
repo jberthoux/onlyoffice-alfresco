@@ -2,6 +2,7 @@
 
 #
 ## Added
+- add action download as... from document manager
 - creating new file from document editor
 - change favicon in editor by document type
 - detecting mobile browser

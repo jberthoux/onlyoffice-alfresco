@@ -188,14 +188,6 @@ public class Util {
         return Base64.getUrlEncoder().withoutPadding().encodeToString(token);
     }
 
-    public NodeRef getNodeByPath(String path) {
-        String storePath = "workspace://SpacesStore";
-        StoreRef storeRef = new StoreRef(storePath);
-        NodeRef storeRootNodeRef = nodeService.getRootNode(storeRef);
-        List<NodeRef> nodeRefs = searchService.selectNodes(storeRootNodeRef, path, null, namespaceService, false);
-        return nodeRefs.get(0);
-    }
-
     private String getShareUrl(){
         return UrlUtil.getShareUrl(sysAdminParams) + "/";
     }

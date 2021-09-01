@@ -22,9 +22,12 @@
     YAHOO.Bubbling.fire("registerAction", {
             actionName: "onActionWaitingFormDialog",
             fn: function action(record, owner) {
-                var wordConvertType = ["docx", "dotx", "pdf", "pdfa", "odt", "ott", "txt", "rtf", "html", "fb2", "epub"];
-                var cellConvertType = ["xlsx", "xltx", "pdf", "pdfa", "ods", "ots", "csv"];
-                var slideConvertType = ["pptx", "potx", "pdf", "pdfa", "odp", "otp", "png", "jpg"];
+                var textInputType = ["doc", "docm", "docx", "dot", "dotm", "dotx", "epub", "fb2", "fodt", "html", "mht", "odt", "ott", "pdf", "rtf", "txt", "xps", "xml"];
+                var cellInputType = ["csv", "fods", "ods", "ots", "xls", "xlsm", "xlsx", "xlt", "xltm", "xltx"];
+
+                var textOutputType = ["docx", "bmp", "epub", "fb2", "gif", "html", "jpg", "odt", "pdf", "pdfa", "png", "rtf", "txt"];
+                var cellOutputType = ["xlsx", "bmp", "csv", "gif", "jpg", "ods", "pdf", "pdfa", "png"];
+                var slideOutputType = ["pptx", "bmp", "gif","jpg", "odp", "pdf", "pdfa", "png"];
 
                 var action = this.getAction(record, owner),
                     params = action.params,
@@ -35,17 +38,36 @@
 
                 delete params["function"];
                 var docExt = displayName.substring(displayName.lastIndexOf(".") + 1);
-                var options = [];
-                if (wordConvertType.includes(docExt)) {
-                    options = wordConvertType;
-                } else if (cellConvertType.includes(docExt)) {
-                    options = cellConvertType;
+                var outputOptions = [];
+                if (textInputType.includes(docExt)) {
+                    switch (docExt) {
+                        case "mht": {
+                            textOutputType.splice(textOutputType.indexOf("html"), 1);
+                            break;
+                        }
+                        case "pdf": {
+                            outputOptions = ["bmp", "gif", "jpg", "png"];
+                            break;
+                        }
+                        case "xps": {
+                            outputOptions = ["bmp", "gif", "jpg", "pdf", "pdfa", "png"];
+                            break;
+                        }
+                        default: {
+                            outputOptions = textOutputType;
+                            break;
+                        }
+                    }
+                } else if (cellInputType.includes(docExt)) {
+                    outputOptions = cellOutputType;
                 } else {
-                    options = slideConvertType;
+                    outputOptions = slideOutputType;
                 }
                 var getDownloadUrl = function (nodeRef, outputType) {
-                    Alfresco.util.Ajax.jsonGet({
+                    Alfresco.util.Ajax.jsonPost({
                         url : Alfresco.constants.PROXY_URI + "parashift/onlyoffice/download-as?nodeRef=" + nodeRef + "&srcType=" + docExt + "&outputType=" + outputType,
+                        successMessage: scope.msg(params.successMessage, displayName, displayName.substring(0, displayName.lastIndexOf(".") + 1) + outputType),
+                        failureMessage: scope.msg(params.successMessage, displayName, displayName.substring(0, displayName.lastIndexOf(".") + 1) + outputType),
                         successCallback : {
                             fn : function (response) {
                                 window.open(response.json.downloadUrl);
@@ -60,7 +82,7 @@
                 };
                 config.success = {
                     fn: function(response, obj) {
-                        getDownloadUrl(obj.nodeRef, options[0]);
+                        getDownloadUrl(obj.nodeRef, outputOptions[0]);
                         YAHOO.Bubbling.fire("metadataRefresh", obj);
                     },
                     obj: record,
@@ -73,12 +95,6 @@
                         obj: record,
                         scope: this
                     };
-                if (params.successMessage) {
-                    config.successMessage = this.msg(params.successMessage, displayName, displayName.substring(0, displayName.lastIndexOf(".") + 1) + options[0]);
-                }
-                if (params.failureMessage) {
-                    config.failureMessage = this.msg(params.failureMessage, displayName, displayName.substring(0, displayName.lastIndexOf(".") + 1) + options[0]);
-                }
                 config.properties = params;
                 Alfresco.util.PopupManager.displayForm(config);
                 waitDialog = Alfresco.util.PopupManager.displayMessage({
@@ -114,15 +130,13 @@
                         select.before(label);
                         submitButton.innerText = scope.msg("alfresco.document-onlyoffice-download-as.form.submit-button");
                         select.remove(select.children[0]);
-                        for (var option of options) {
+                        for (var option of outputOptions) {
                             var downloadOption = document.createElement("option");
                             downloadOption.innerText = option;
                             select.append(downloadOption);
                         }
                         select.onchange = function(event){
-                            config.failureMessage = scope.msg(params.failureMessage, displayName, displayName.substring(0, displayName.lastIndexOf(".") + 1) + event.target.value);
-                            config.successMessage = scope.msg(params.successMessage, displayName, displayName.substring(0, displayName.lastIndexOf(".") + 1) + event.target.value);
-                            config.success = {
+                             config.success = {
                                 fn: function(response, obj) {
                                     getDownloadUrl(obj.nodeRef, event.target.value);
                                     YAHOO.Bubbling.fire("metadataRefresh", obj);
@@ -133,15 +147,15 @@
                         };
                         var closeButton = panel.getElementsByClassName("container-close")[0];
                         if (closeButton) {
-                            closeButton.addEventListener("click", function(){
+                            closeButton.onclick = function () {
                                 waitDialog.destroy();
-                            });
+                            }
                         }
                         var cancelButton = document.getElementById(config.properties.htmlid + "-form-cancel-button");
                         if (cancelButton) {
-                            cancelButton.addEventListener("click", function(){
+                            cancelButton.onclick = function () {
                                 waitDialog.destroy();
-                            });
+                            }
                         }
                     },
                     {

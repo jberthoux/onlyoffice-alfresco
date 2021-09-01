@@ -5,6 +5,15 @@
             <version>1.0</version>
             <auto-deploy>true</auto-deploy>
             <configurations>
+                <config evaluator="string-compare" condition="DocumentLibrary">
+                    <multi-select>
+                        <action id="onMultipleDownloadAs" type="javascript"
+                                icon="document-onlyoffice-download-as"
+                                label="actions.document.onlyoffice-download-as">
+                        </action>
+                    </multi-select>
+                </config>
+
                 <config evaluator="string-compare" condition="DocLibActions">
                     <actions>
                         <action id="document-onlyoffice-download-as" type="javascript" label="actions.document.onlyoffice-download-as">
@@ -15,8 +24,8 @@
                             <param name="destination">{node.nodeRef}</param>
                             <param name="successMessage">alfresco.document.onlyoffice.action.download-as.msg.success</param>
                             <param name="failureMessage">alfresco.document.onlyoffice.action.download-as.msg.failure</param>
-                            <evaluator>evaluator.doclib.action.displayDownloadAs</evaluator>
                             <evaluator>evaluator.doclib.action.IsConvertPermission</evaluator>
+                            <evaluator>evaluator.doclib.action.IsCorrectDownloadAs</evaluator>
                         </action>
                     </actions>
 
