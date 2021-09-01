@@ -224,10 +224,11 @@ public class Util {
                             historyDataObj.put("url", getContentUrl(versionChild));
                             JSONObject previous = new JSONObject();
                             Integer previousMajor = getPreviousMajorVersion(versions, version);
-                            String previousKey = version.getVersionType() == VersionType.MAJOR && previousMajor != null ? getKey(versions.get(previousMajor).getFrozenStateNodeRef())
-                                    : getKey(versions.get(versions.indexOf(version) + 1).getFrozenStateNodeRef());
-                            String previousUrl = version.getVersionType() == VersionType.MAJOR && previousMajor != null ? getContentUrl(versions.get(previousMajor).getFrozenStateNodeRef())
-                                    : getContentUrl(versions.get(versions.indexOf(version) + 1).getFrozenStateNodeRef());
+                            if (previousMajor == null) {
+                                throw new WebScriptException("Error to get previous major version");
+                            }
+                            String previousKey = getKey(versions.get(previousMajor).getFrozenStateNodeRef());
+                            String previousUrl = getContentUrl(versions.get(previousMajor).getFrozenStateNodeRef());
                             previous.put("key", previousKey);
                             previous.put("url", previousUrl);
                             historyDataObj.put("changesUrl", jsonZipIndex == 0 ? getContentUrl(zipNodeRef) : getContentUrl(zipVersions.get(jsonZipIndex).getFrozenStateNodeRef()));
