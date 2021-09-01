@@ -21,10 +21,14 @@
         <div id="placeholder"></div>
     </div>
     <script>
+        var linkWithoutNewParameter = null;
         var onAppReady = function (event) {
             if (${demo?c}) {
                  docEditor.showMessage("${msg("alfresco.document.onlyoffice.action.edit.msg.demo")}");
             }
+            linkWithoutNewParameter = document.location.href.substring(0, document.location.href.lastIndexOf("nodeRef")) + "nodeRef=workspace://SpacesStore/"
+                + config.document.key.substring(0, config.document.key.lastIndexOf("_"));
+            window.history.pushState({}, {}, linkWithoutNewParameter);
         };
 
         var getCookie = function (name) {
@@ -50,13 +54,13 @@
         };
 
         var onRequestHistoryClose = function () {
-            document.location.reload();
+            document.location.href = linkWithoutNewParameter;
         };
 
         var onRequestHistory = function () {
             var xhr = new XMLHttpRequest();
             var historyUri = "${historyUrl}";
-            xhr.open("GET", historyUri + "&alf_ticket=  " + "${ticket}", false);
+            xhr.open("GET", historyUri + "&alf_ticket=" + "${ticket}", false);
             xhr.send();
             if (xhr.status == 200) {
                 var hist = JSON.parse(xhr.responseText);
@@ -83,7 +87,6 @@
             xhr.send();
             if (xhr.status == 200) {
                 var response = JSON.parse(xhr.responseText);
-                console.log(response);
                 if (response !== null) {
                     docEditor.setHistoryData(response);
                 } else {
@@ -93,13 +96,9 @@
         };
         var config = ${config};
 
-        var onOutdatedVersion = function(event){
-            location.reload(true);
-        };
         config.events = {
             "onAppReady": onAppReady,
             "onMetaChange": onMetaChange,
-            "onOutdatedVersion": onOutdatedVersion,
             "onRequestHistoryClose": onRequestHistoryClose,
             "onRequestHistory": onRequestHistory,
             "onRequestHistoryData": onRequestHistoryData
