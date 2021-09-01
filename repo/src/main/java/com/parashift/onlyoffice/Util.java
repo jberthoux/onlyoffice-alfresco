@@ -248,9 +248,9 @@ public class Util {
 
     private Integer getPreviousMajorVersion(List<Version> versions, Version versionForPreviousVersion) {
         int index = versions.indexOf(versionForPreviousVersion);
-        for (int i = versions.size() ; i > 0; i--) {
-            if (versions.get(versions.size() - i).getVersionType() == VersionType.MAJOR && i > index) {
-                return versions.indexOf(versions.get(i - 1));
+        for (int i = 0 ; i < versions.size(); i++) {
+            if (versions.get(i).getVersionType() == VersionType.MAJOR && i > index) {
+                return i;
             }
         }
         return null;
