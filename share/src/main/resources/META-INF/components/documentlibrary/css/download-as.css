@@ -1,3 +1,51 @@
 .toolbar .onMultipleDownloadAs {
     background-image: url("../actions/document-onlyoffice-download-as-16.png");
 }
+.checkbox-download-as {
+    display: inline-block;
+    margin-top: 10px;
+    position: absolute;
+    left: 60px;
+}
+.filename-download-as {
+    text-align: left;
+    text-overflow: ellipsis;
+    display: inline-block;
+    width: 30%;
+    overflow: hidden;
+    margin-top: 5px;
+    margin-left: 20px;
+}
+.filenameLabel-download-as {
+    overflow: hidden;
+    margin-left: 6%;
+    margin-right: 6%;
+    display: inline-block;
+}
+.select-download-as {
+    width: 60px !important;
+    margin-top: 5px;
+    position: absolute;
+}
+.form-download-as {
+    overflow-y: auto;
+    max-height: 250px;
+}
+.formLabel-download-as {
+    display: block;
+    width: auto;
+    text-align: left;
+}
+.fileName-download-as-oneFile {
+    text-overflow: ellipsis;
+    display: inline-block;
+    width: 40%;
+    overflow: hidden;
+    margin-top: 10px;
+}
+.label-download-as-oneFile {
+    overflow: hidden;
+    margin-left: 10%;
+    margin-right: 10%;
+    display: inline-block;
+}

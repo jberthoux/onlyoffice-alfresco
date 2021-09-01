@@ -113,13 +113,10 @@
             prompt.cfg.queueProperty("buttons", buttons);
             prompt.render(document.body);
             var form = document.getElementById("prompt_c").getElementsByClassName("bd")[0].children[0];
+            form.className = "form-download-as";
             var formLabel = document.createElement("label");
-            formLabel.style.display = "block";
-            formLabel.style.width = "auto";
-            formLabel.style.textAlign = "left";
+            formLabel.className = "formLabel-download-as";
             formLabel.innerText = this.msg("alfresco.document-onlyoffice-download-as.form.field.select-type");
-            form.style.overflowY = "auto";
-            form.style.maxHeight = "250px";
             form.appendChild(formLabel);
             for (var node of correctNodes) {
                 var div = document.createElement("div");
@@ -130,39 +127,18 @@
                 checkbox.className = "checkbox-download-as";
                 checkbox.type = "checkbox";
                 checkbox.checked = true;
-                Object.assign(checkbox.style, {
-                    display: "inline-block",
-                    marginTop: "10px",
-                    position: "absolute",
-                    left: "60px"
-                });
                 div.appendChild(checkbox);
                 var fileName = document.createElement("p");
+                fileName.className = "filename-download-as";
                 fileName.innerText = node.displayName;
-                Object.assign(fileName.style, {
-                    textAlign: "left",
-                    textOverflow: "ellipsis",
-                    display: "inline-block",
-                    width: "30%",
-                    overflow: "hidden",
-                    marginTop: "5px",
-                    marginLeft: "20px"
-                });
                 checkbox.after(fileName);
                 var label = document.createElement("p");
+                label.className = "filenameLabel-download-as";
                 label.innerText = this.msg("alfresco.document-onlyoffice-download-as.form.field.p.convert-into");
-                Object.assign(label.style, {
-                    overflow: "hidden",
-                    marginLeft: "6%",
-                    marginRight: "6%",
-                    display: "inline-block"
-                });
                 fileName.after(label);
                 var select =  document.createElement("select");
                 select.id = "select-download-as-" + correctNodes.indexOf(node);
-                select.style.width = "60px";
-                select.style.marginTop = "5px";
-                select.style.position = "absolute";
+                select.className = "select-download-as";
                 select.onchange = function (event) {
                     dataToConvert[event.target.id.split("-")[3]].outputType = event.target.value;
                 };

@@ -111,22 +111,11 @@
                         var submitButton = document.getElementById(config.properties.htmlid + "-form-submit-button");
                         var fileName = document.createElement("p");
                         fileName.innerText = displayName;
-                        Object.assign(fileName.style, {
-                            textOverflow: "ellipsis",
-                            display: "inline-block",
-                            width: "40%",
-                            overflow: "hidden",
-                            marginTop: "10px"
-                        });
+                        fileName.className = "fileName-download-as-oneFile";
                         select.before(fileName);
                         var label = document.createElement("p");
                         label.innerText = scope.msg("alfresco.document-onlyoffice-download-as.form.field.p.convert-into");
-                        Object.assign(label.style, {
-                            overflow: "hidden",
-                            marginLeft: "10%",
-                            marginRight: "10%",
-                            display: "inline-block"
-                        });
+                        label.className = "label-download-as-oneFile";
                         select.before(label);
                         submitButton.innerText = scope.msg("alfresco.document-onlyoffice-download-as.form.submit-button");
                         select.remove(select.children[0]);
