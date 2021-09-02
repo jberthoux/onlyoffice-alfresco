@@ -72,6 +72,9 @@ public class Util {
     @Autowired
     ContentService contentService;
 
+    @Autowired
+    JwtManager jwtManager;
+
     public static final QName EditingKeyAspect = QName.createQName("onlyoffice:editing-key");
     public static final QName EditingHashAspect = QName.createQName("onlyoffice:editing-hash");
     private static final String HOME_DIRECTORY = "Company Home";
@@ -207,6 +210,14 @@ public class Util {
                         firstVersion.put("version", "1.0");
                         firstVersion.put("key", getKey(rootVersion));
                         firstVersion.put("url", getContentUrl(rootVersion));
+                        if (jwtManager.jwtEnabled()) {
+                            try {
+                                firstVersion.put("token", jwtManager.createToken(firstVersion));
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                throw new WebScriptException("Unable to create JWT");
+                            }
+                        }
                         historyData.put(firstVersion);
                     } else {
                         NodeRef versionChild;
@@ -231,8 +242,16 @@ public class Util {
                             String previousUrl = getContentUrl(versions.get(previousMajor).getFrozenStateNodeRef());
                             previous.put("key", previousKey);
                             previous.put("url", previousUrl);
-                            historyDataObj.put("changesUrl", jsonZipIndex == 0 ? getContentUrl(zipNodeRef) : getContentUrl(zipVersions.get(jsonZipIndex).getFrozenStateNodeRef()));
                             historyDataObj.put("previous", previous);
+                            historyDataObj.put("changesUrl", jsonZipIndex == 0 ? getContentUrlWithoutJWTCheck(zipNodeRef) : getContentUrlWithoutJWTCheck(zipVersions.get(jsonZipIndex).getFrozenStateNodeRef()));
+                            if (jwtManager.jwtEnabled()) {
+                                try {
+                                    historyDataObj.put("token", jwtManager.createToken(historyDataObj));
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    throw new WebScriptException("Unable to create JWT");
+                                }
+                            }
                             historyData.put(historyDataObj);
                         }
                     }
@@ -272,6 +291,10 @@ public class Util {
 
     public String getHistoryUrl(NodeRef nodeRef) {
         return getAlfrescoUrl() + "s/parashift/onlyoffice/history?nodeRef=" + nodeRef.toString();
+    }
+
+    private String getContentUrlWithoutJWTCheck(NodeRef nodeRef) {
+        return getAlfrescoUrl() + "s/parashift/onlyoffice/download?nodeRef=" + nodeRef.toString() + "&wjc=true&alf_ticket=" + authenticationService.getCurrentTicket();
     }
 
     public String getContentUrl(NodeRef nodeRef) {

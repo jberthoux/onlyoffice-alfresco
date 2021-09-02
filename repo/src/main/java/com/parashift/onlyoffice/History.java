@@ -1,10 +1,9 @@
 package com.parashift.onlyoffice;
 
 
-import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.alfresco.service.cmr.favourites.FavouritesService;
 import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.cmr.security.PersonService;
+import org.alfresco.service.cmr.security.AccessStatus;
+import org.alfresco.service.cmr.security.PermissionService;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,10 +13,9 @@ import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 import org.springframework.stereotype.Component;
+import org.alfresco.repo.security.permissions.AccessDeniedException;
 
 import java.io.IOException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 
 /*
     Copyright (c) Ascensio System SIA 2021. All rights reserved.
@@ -29,12 +27,18 @@ public class History extends AbstractWebScript {
     @Autowired
     Util util;
 
+    @Autowired
+    PermissionService permissionService;
+
     @Override
     public void execute(WebScriptRequest request, WebScriptResponse response) throws IOException {
         response.setContentType("application/json; charset=utf-8");
         response.setContentEncoding("UTF-8");
         if (request.getParameter("nodeRef") != null) {
             NodeRef nodeRef = new NodeRef(request.getParameter("nodeRef"));
+            if (permissionService.hasPermission(nodeRef, PermissionService.READ) != AccessStatus.ALLOWED) {
+                throw new AccessDeniedException("Access denied. You do not have the appropriate permissions to perform this operation");
+            }
             JSONObject history = util.getHistoryObj(nodeRef);
             if (request.getParameter("version") == null) {
                 try {

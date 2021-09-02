@@ -37,10 +37,13 @@ public class Download extends AbstractWebScript {
     @Autowired
     MimetypeService mimetypeService;
 
+    @Autowired
+    Util util;
+
     @Override
     public void execute(WebScriptRequest request, WebScriptResponse response) throws IOException {
         if (request.getParameter("nodeRef") != null) {
-            if (jwtManager.jwtEnabled()) {
+            if (jwtManager.jwtEnabled() && request.getParameter("wjc") == null) {
                 String jwth = jwtManager.getJwtHeader();
                 String header = request.getHeader(jwth);
                 String token = (header != null && header.startsWith("Bearer ")) ? header.substring(7) : header;
@@ -66,7 +69,12 @@ public class Download extends AbstractWebScript {
             String name = (String) properties.get(ContentModel.PROP_NAME);
             String docExt = name.substring(name.lastIndexOf(".") + 1).trim().toLowerCase();
 
-            response.setHeader("Access-Control-Allow-Origin", "*");
+            String editorUrl = util.getEditorUrl();
+            if (editorUrl.endsWith("/")) {
+                editorUrl = editorUrl.substring(0, editorUrl.length() - 1);
+            }
+
+            response.setHeader("Access-Control-Allow-Origin", editorUrl);
             response.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
             response.setHeader("Access-Control-Allow-Credentials", "true");
             response.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS,HEAD");
