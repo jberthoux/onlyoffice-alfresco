@@ -166,32 +166,36 @@ public class Util {
                 NodeRef zipNodeRef = null;
                 if (!version.getVersionLabel().equals("1.0")) {
                     NodeRef jsonNodeRef = null;
-                    for(ChildAssociationRef assoc : nodeService.getChildAssocs(nodeRef)) {
+                    Boolean isCurrentVersion = version.getVersionLabel().equals(versionService.getCurrentVersion(nodeRef).getVersionLabel());
+                    for(ChildAssociationRef assoc : nodeService.getChildAssocs(isCurrentVersion ? nodeRef : version.getFrozenStateNodeRef())) {
                         if (nodeService.getProperty(assoc.getChildRef(), ContentModel.PROP_NAME).equals("changes.json")) {
                             jsonNodeRef = assoc.getChildRef();
                         } else if (nodeService.getProperty(assoc.getChildRef(), ContentModel.PROP_NAME).equals("diff.zip")) {
                             zipNodeRef = assoc.getChildRef();
                         }
                     }
-                    List<Version> jsonVersions = (List<Version>) versionService.getVersionHistory(jsonNodeRef).getAllVersions();
-                    for (Version jsonNodeVersion : jsonVersions) {
-                        if (jsonNodeVersion.getVersionProperty("modified").toString().equals(version.getVersionProperty("created").toString())) {
-                            jsonZipIndex = jsonVersions.indexOf(jsonNodeVersion);
+                    if (jsonNodeRef != null) {
+                        List<Version> jsonVersions = (List<Version>) versionService.getVersionHistory(jsonNodeRef).getAllVersions();
+                        for (Version jsonNodeVersion : jsonVersions) {
+                            if (jsonNodeVersion.getVersionProperty("modified").toString().equals(version.getVersionProperty("created").toString())
+                                || jsonNodeVersion.getVersionProperty("modified").toString().equals(version.getVersionProperty("modified").toString())) {
+                                jsonZipIndex = jsonVersions.indexOf(jsonNodeVersion);
+                            }
                         }
-                    }
-                    if (jsonZipIndex != null) {
-                        NodeRef jsonNode;
-                        if (jsonZipIndex != 0) {
-                            jsonNode = jsonVersions.get(jsonZipIndex).getFrozenStateNodeRef();
-                        } else {
-                            jsonNode = jsonNodeRef;
+                        if (jsonZipIndex != null) {
+                            NodeRef jsonNode;
+                            if (jsonZipIndex != 0) {
+                                jsonNode = jsonVersions.get(jsonZipIndex).getFrozenStateNodeRef();
+                            } else {
+                                jsonNode = jsonNodeRef;
+                            }
+                            ContentReader reader = this.contentService.getReader(jsonNode, ContentModel.PROP_CONTENT);
+                            JSONObject hist = new JSONObject(reader.getContentString());
+                            jsonVersion.put("changes", hist.getJSONArray("changes"));
+                            jsonVersion.put("created", ((JSONObject) hist.getJSONArray("changes").get(0)).getString("created"));
+                            jsonVersion.put("serverVersion", hist.getString("serverVersion"));
+                            jsonVersion.put("user", ((JSONObject) hist.getJSONArray("changes").get(0)).getJSONObject("user"));
                         }
-                        ContentReader reader = this.contentService.getReader(jsonNode, ContentModel.PROP_CONTENT);
-                        JSONObject hist = new JSONObject(reader.getContentString());
-                        jsonVersion.put("changes", hist.getJSONArray("changes"));
-                        jsonVersion.put("created", ((JSONObject) hist.getJSONArray("changes").get(0)).getString("created"));
-                        jsonVersion.put("serverVersion", hist.getString("serverVersion"));
-                        jsonVersion.put("user", ((JSONObject) hist.getJSONArray("changes").get(0)).getJSONObject("user"));
                     }
                 }
                 jsonVersion.put("key", getKey(nodeRef).split("_")[0] + "_" + version.getVersionLabel());
