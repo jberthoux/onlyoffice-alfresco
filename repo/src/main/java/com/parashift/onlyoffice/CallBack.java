@@ -285,24 +285,7 @@ public class CallBack extends AbstractWebScript {
                 zipNode = assoc.getChildRef();
             }
         }
-        if (jsonNode == null && zipNode == null) {
-            props.put(ContentModel.PROP_NAME, "diff.zip");
-            NodeRef historyNodeRefZip = this.nodeService.createNode(nodeRef, RenditionModel.ASSOC_RENDITION,
-                    QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, "diff.zip"),
-                    ContentModel.TYPE_CONTENT, props).getChildRef();
-
-            props.clear();
-            props.put(ContentModel.PROP_NAME, "changes.json");
-            NodeRef historyNodeRefJson = this.nodeService.createNode(nodeRef, RenditionModel.ASSOC_RENDITION,
-                    QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, "changes.json"),
-                    ContentModel.TYPE_CONTENT, props).getChildRef();
-            writeContent(historyNodeRefZip, historyNodeRefJson, changes, forceSave, nodeRef);
-
-            util.ensureVersioningEnabled(historyNodeRefZip);
-            util.ensureVersioningEnabled(historyNodeRefJson);
-        } else {
             writeContent(zipNode, jsonNode, changes, forceSave, nodeRef);
-        }
     }
 
     private void writeContent(NodeRef zipNode, NodeRef jsonNode, JSONObject changes, Boolean forceSave, NodeRef nodeRef) {

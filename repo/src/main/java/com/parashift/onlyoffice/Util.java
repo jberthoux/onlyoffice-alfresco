@@ -178,7 +178,8 @@ public class Util {
                         List<Version> jsonVersions = (List<Version>) versionService.getVersionHistory(jsonNodeRef).getAllVersions();
                         for (Version jsonNodeVersion : jsonVersions) {
                             if (jsonNodeVersion.getVersionProperty("modified").toString().equals(version.getVersionProperty("created").toString())
-                                || jsonNodeVersion.getVersionProperty("modified").toString().equals(version.getVersionProperty("modified").toString())) {
+                                || jsonNodeVersion.getVersionProperty("modified").toString().equals(version.getVersionProperty("modified").toString())
+                                    || jsonNodeVersion.getVersionProperty("created").toString().equals(version.getVersionProperty("created").toString())) {
                                 jsonZipIndex = jsonVersions.indexOf(jsonNodeVersion);
                             }
                         }
@@ -230,8 +231,8 @@ public class Util {
                         } else {
                             versionChild = version.getFrozenStateNodeRef();
                         }
-                        List<Version> zipVersions = (List<Version>) versionService.getVersionHistory(zipNodeRef).getAllVersions();
                         if (jsonZipIndex != null) {
+                            List<Version> zipVersions = (List<Version>) versionService.getVersionHistory(zipNodeRef).getAllVersions();
                             JSONObject historyDataObj = new JSONObject();
                             String vers = version.getVersionLabel();
                             historyDataObj.put("version", vers);

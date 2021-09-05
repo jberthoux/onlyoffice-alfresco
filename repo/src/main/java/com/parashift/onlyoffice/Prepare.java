@@ -1,6 +1,7 @@
 package com.parashift.onlyoffice;
 
 import org.alfresco.model.ContentModel;
+import org.alfresco.model.RenditionModel;
 import org.alfresco.service.cmr.repository.ContentService;
 import org.alfresco.service.cmr.repository.ContentWriter;
 import org.alfresco.service.cmr.repository.MimetypeService;
@@ -96,6 +97,20 @@ public class Prepare extends AbstractWebScript {
                     nodeRef = this.nodeService.createNode(nodeRef, ContentModel.ASSOC_CONTAINS,
                             QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, newName), ContentModel.TYPE_CONTENT, props)
                             .getChildRef();
+
+                    props.clear();
+                    props.put(ContentModel.PROP_NAME, "diff.zip");
+                    NodeRef historyNodeRefZip = this.nodeService.createNode(nodeRef, RenditionModel.ASSOC_RENDITION,
+                            QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, "diff.zip"),
+                            ContentModel.TYPE_CONTENT, props).getChildRef();
+
+                    props.clear();
+                    props.put(ContentModel.PROP_NAME, "changes.json");
+                    NodeRef historyNodeRefJson = this.nodeService.createNode(nodeRef, RenditionModel.ASSOC_RENDITION,
+                            QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, "changes.json"),
+                            ContentModel.TYPE_CONTENT, props).getChildRef();
+                    util.ensureVersioningEnabled(historyNodeRefZip);
+                    util.ensureVersioningEnabled(historyNodeRefJson);
 
                     ContentWriter writer = contentService.getWriter(nodeRef, ContentModel.PROP_CONTENT, true);
                     writer.setMimetype(newFileMime);
