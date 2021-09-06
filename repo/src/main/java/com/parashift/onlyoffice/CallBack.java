@@ -275,7 +275,6 @@ public class CallBack extends AbstractWebScript {
     }
 
     private void saveHistoryToChildNode(NodeRef nodeRef, JSONObject changes, Boolean forceSave) {
-        Map<QName, Serializable> props = new HashMap<>();
         NodeRef jsonNode = null;
         NodeRef zipNode = null;
         for(ChildAssociationRef assoc : nodeService.getChildAssocs(nodeRef)) {
@@ -285,7 +284,7 @@ public class CallBack extends AbstractWebScript {
                 zipNode = assoc.getChildRef();
             }
         }
-            writeContent(zipNode, jsonNode, changes, forceSave, nodeRef);
+        writeContent(zipNode, jsonNode, changes, forceSave, nodeRef);
     }
 
     private void writeContent(NodeRef zipNode, NodeRef jsonNode, JSONObject changes, Boolean forceSave, NodeRef nodeRef) {

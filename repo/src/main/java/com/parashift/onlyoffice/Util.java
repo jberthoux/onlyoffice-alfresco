@@ -1,11 +1,11 @@
 package com.parashift.onlyoffice;
 
-import com.google.common.collect.Lists;
 import org.alfresco.model.ContentModel;
+import org.alfresco.model.RenditionModel;
 import org.alfresco.repo.admin.SysAdminParams;
+import org.alfresco.repo.version.VersionModel;
 import org.alfresco.service.cmr.coci.CheckOutCheckInService;
 import org.alfresco.service.cmr.repository.*;
-import org.alfresco.service.cmr.search.ResultSet;
 import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.cmr.security.AuthenticationService;
 import org.alfresco.service.cmr.security.PersonService;
@@ -18,9 +18,9 @@ import org.alfresco.util.UrlUtil;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.springframework.extensions.surf.util.URLEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.extensions.surf.util.URLEncoder;
 import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +29,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.*;
 
 /*
@@ -141,6 +142,38 @@ public class Util {
         versionService.ensureVersioningEnabled(nodeRef, versionProps);
     }
 
+    public void createVersionWithZipAndJson(NodeRef nodeRef) {
+        NodeRef rootVersion = new NodeRef("versionStore://version2Store/" + this.versionService.getVersionHistory(nodeRef).getRootVersion().getVersionProperty("node-uuid"));
+        boolean containsJsonAndZip = false;
+        for (ChildAssociationRef assoc : this.nodeService.getChildAssocs(rootVersion)) {
+            if (this.nodeService.getProperty(assoc.getChildRef(), ContentModel.PROP_NAME).equals("changes.json")
+                    || this.nodeService.getProperty(assoc.getChildRef(), ContentModel.PROP_NAME).equals("diff.zip")) {
+                containsJsonAndZip = true;
+            }
+        }
+        if (this.versionService.getCurrentVersion(nodeRef).getVersionLabel().equals("1.0") && !containsJsonAndZip) {
+            versionService.deleteVersion(nodeRef, versionService.getVersionHistory(nodeRef).getRootVersion());
+            Map<QName, Serializable> props = new HashMap<QName, Serializable>(1);
+            props.put(ContentModel.PROP_NAME, "diff.zip");
+            NodeRef historyNodeRefZip = this.nodeService.createNode(nodeRef, RenditionModel.ASSOC_RENDITION,
+                    QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, "diff.zip"),
+                    ContentModel.TYPE_CONTENT, props).getChildRef();
+
+            props.clear();
+            props.put(ContentModel.PROP_NAME, "changes.json");
+            NodeRef historyNodeRefJson = this.nodeService.createNode(nodeRef, RenditionModel.ASSOC_RENDITION,
+                    QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, "changes.json"),
+                    ContentModel.TYPE_CONTENT, props).getChildRef();
+            ensureVersioningEnabled(historyNodeRefZip);
+            ensureVersioningEnabled(historyNodeRefJson);
+
+            Map<String, Serializable> versionProps = new HashMap<String, Serializable>(1);
+            versionProps.put(ContentModel.PROP_INITIAL_VERSION.getLocalName(), true);
+            versionProps.put(VersionModel.PROP_VERSION_TYPE, VersionType.MAJOR);
+            versionService.createVersion(nodeRef, versionProps);
+        }
+    }
+
     public JSONObject getHistoryObj(NodeRef nodeRef){
         JSONObject historyObj = new JSONObject();
         JSONArray historyData = new JSONArray();
@@ -177,9 +210,7 @@ public class Util {
                     if (jsonNodeRef != null) {
                         List<Version> jsonVersions = (List<Version>) versionService.getVersionHistory(jsonNodeRef).getAllVersions();
                         for (Version jsonNodeVersion : jsonVersions) {
-                            if (jsonNodeVersion.getVersionProperty("modified").toString().equals(version.getVersionProperty("created").toString())
-                                || jsonNodeVersion.getVersionProperty("modified").toString().equals(version.getVersionProperty("modified").toString())
-                                    || jsonNodeVersion.getVersionProperty("created").toString().equals(version.getVersionProperty("created").toString())) {
+                            if (checkTimes(jsonNodeVersion, version)) {
                                 jsonZipIndex = jsonVersions.indexOf(jsonNodeVersion);
                             }
                         }
@@ -202,8 +233,8 @@ public class Util {
                 jsonVersion.put("key", getKey(nodeRef).split("_")[0] + "_" + version.getVersionLabel());
                 jsonVersion.put("version", version.getVersionLabel());
                 history.put(jsonVersion);
+                JSONObject historyDataObj = new JSONObject();
                 if (versionService.getVersionHistory(nodeRef).getAllVersions().size() == 1) {
-                    JSONObject historyDataObj = new JSONObject();
                     historyDataObj.put("version", "1.0");
                     historyDataObj.put("key", getKey(nodeRef));
                     historyDataObj.put("url", getContentUrl(nodeRef));
@@ -231,13 +262,12 @@ public class Util {
                         } else {
                             versionChild = version.getFrozenStateNodeRef();
                         }
+                        String vers = version.getVersionLabel();
+                        historyDataObj.put("version", vers);
+                        historyDataObj.put("key", getKey(nodeRef).split("_")[0] + "_" + vers);
+                        historyDataObj.put("url", getContentUrl(versionChild));
                         if (jsonZipIndex != null) {
                             List<Version> zipVersions = (List<Version>) versionService.getVersionHistory(zipNodeRef).getAllVersions();
-                            JSONObject historyDataObj = new JSONObject();
-                            String vers = version.getVersionLabel();
-                            historyDataObj.put("version", vers);
-                            historyDataObj.put("key", getKey(nodeRef).split("_")[0] + "_" + vers);
-                            historyDataObj.put("url", getContentUrl(versionChild));
                             JSONObject previous = new JSONObject();
                             Integer previousMajor = getPreviousMajorVersion(versions, version);
                             if (previousMajor == null) {
@@ -249,16 +279,16 @@ public class Util {
                             previous.put("url", previousUrl);
                             historyDataObj.put("previous", previous);
                             historyDataObj.put("changesUrl", jsonZipIndex == 0 ? getContentUrlWithoutJWTCheck(zipNodeRef) : getContentUrlWithoutJWTCheck(zipVersions.get(jsonZipIndex).getFrozenStateNodeRef()));
-                            if (jwtManager.jwtEnabled()) {
-                                try {
-                                    historyDataObj.put("token", jwtManager.createToken(historyDataObj));
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                    throw new WebScriptException("Unable to create JWT");
-                                }
-                            }
-                            historyData.put(historyDataObj);
                         }
+                        historyData.put(historyDataObj);
+                    }
+                }
+                if (jwtManager.jwtEnabled()) {
+                    try {
+                        historyDataObj.put("token", jwtManager.createToken(historyDataObj));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        throw new WebScriptException("Unable to create JWT");
                     }
                 }
                 historyObj.put("data", historyData);
@@ -268,6 +298,20 @@ public class Util {
             ex.printStackTrace();
         }
         return historyObj;
+    }
+
+    private Boolean checkTimes(Version jsonNodeVersion, Version version) {
+        java.time.format.DateTimeFormatter dtf =
+                java.time.format.DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss zzz yyyy");
+        LocalDateTime jsonDateParsed = LocalDateTime.parse(jsonNodeVersion.getVersionProperty("frozenModified").toString(), dtf);
+        LocalDateTime nodeDateParsed = LocalDateTime.parse(version.getVersionProperty("frozenModified").toString(), dtf);
+        if (jsonDateParsed.minusSeconds(1L).equals(nodeDateParsed) || jsonNodeVersion.getVersionProperty("modified").toString().equals(version.getVersionProperty("created").toString())
+                || jsonNodeVersion.getVersionProperty("modified").toString().equals(version.getVersionProperty("modified").toString())
+                || jsonNodeVersion.getVersionProperty("created").toString().equals(version.getVersionProperty("created").toString())
+                || jsonNodeVersion.getVersionProperty("frozenModified").toString().equals(version.getVersionProperty("frozenModified").toString())) {
+            return true;
+        }
+        return false;
     }
 
     private Integer getPreviousMajorVersion(List<Version> versions, Version versionForPreviousVersion) {

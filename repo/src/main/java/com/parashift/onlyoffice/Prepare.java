@@ -1,19 +1,15 @@
 package com.parashift.onlyoffice;
 
 import org.alfresco.model.ContentModel;
-import org.alfresco.model.RenditionModel;
-import org.alfresco.service.cmr.repository.ContentService;
-import org.alfresco.service.cmr.repository.ContentWriter;
-import org.alfresco.service.cmr.repository.MimetypeService;
-import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.repo.i18n.MessageService;
+import org.alfresco.repo.security.authentication.AuthenticationUtil;
+import org.alfresco.service.cmr.repository.*;
 import org.alfresco.service.cmr.security.AccessStatus;
 import org.alfresco.service.cmr.security.AuthenticationService;
 import org.alfresco.service.cmr.security.PermissionService;
+import org.alfresco.service.cmr.version.VersionService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
-import org.alfresco.repo.i18n.MessageService;
-import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -28,8 +24,6 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -73,6 +67,9 @@ public class Prepare extends AbstractWebScript {
     @Autowired
     AuthenticationService authenticationService;
 
+    @Autowired
+    VersionService versionService;
+
     @Override
     public void execute(WebScriptRequest request, WebScriptResponse response) throws IOException {
         mesService.registerResourceBundle("alfresco/messages/prepare");
@@ -97,20 +94,6 @@ public class Prepare extends AbstractWebScript {
                     nodeRef = this.nodeService.createNode(nodeRef, ContentModel.ASSOC_CONTAINS,
                             QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, newName), ContentModel.TYPE_CONTENT, props)
                             .getChildRef();
-
-                    props.clear();
-                    props.put(ContentModel.PROP_NAME, "diff.zip");
-                    NodeRef historyNodeRefZip = this.nodeService.createNode(nodeRef, RenditionModel.ASSOC_RENDITION,
-                            QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, "diff.zip"),
-                            ContentModel.TYPE_CONTENT, props).getChildRef();
-
-                    props.clear();
-                    props.put(ContentModel.PROP_NAME, "changes.json");
-                    NodeRef historyNodeRefJson = this.nodeService.createNode(nodeRef, RenditionModel.ASSOC_RENDITION,
-                            QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, "changes.json"),
-                            ContentModel.TYPE_CONTENT, props).getChildRef();
-                    util.ensureVersioningEnabled(historyNodeRefZip);
-                    util.ensureVersioningEnabled(historyNodeRefJson);
 
                     ContentWriter writer = contentService.getWriter(nodeRef, ContentModel.PROP_CONTENT, true);
                     writer.setMimetype(newFileMime);
@@ -139,6 +122,7 @@ public class Prepare extends AbstractWebScript {
                     throw new SecurityException("User don't have the permissions to create child node");
                 }
             }
+            util.createVersionWithZipAndJson(nodeRef);
 
             response.setContentType("application/json; charset=utf-8");
             response.setContentEncoding("UTF-8");
