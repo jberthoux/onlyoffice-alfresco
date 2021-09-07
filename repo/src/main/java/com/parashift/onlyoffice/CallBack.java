@@ -275,6 +275,7 @@ public class CallBack extends AbstractWebScript {
     }
 
     private void saveHistoryToChildNode(NodeRef nodeRef, JSONObject changes, Boolean forceSave) {
+        Map<QName, Serializable> props = new HashMap<>();
         NodeRef jsonNode = null;
         NodeRef zipNode = null;
         for(ChildAssociationRef assoc : nodeService.getChildAssocs(nodeRef)) {
@@ -284,9 +285,25 @@ public class CallBack extends AbstractWebScript {
                 zipNode = assoc.getChildRef();
             }
         }
-        writeContent(zipNode, jsonNode, changes, forceSave, nodeRef);
-    }
+        if (jsonNode == null && zipNode == null) {
+            props.put(ContentModel.PROP_NAME, "diff.zip");
+            NodeRef historyNodeRefZip = this.nodeService.createNode(nodeRef, RenditionModel.ASSOC_RENDITION,
+                    QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, "diff.zip"),
+                    ContentModel.TYPE_CONTENT, props).getChildRef();
 
+            props.clear();
+            props.put(ContentModel.PROP_NAME, "changes.json");
+            NodeRef historyNodeRefJson = this.nodeService.createNode(nodeRef, RenditionModel.ASSOC_RENDITION,
+                    QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, "changes.json"),
+                    ContentModel.TYPE_CONTENT, props).getChildRef();
+            writeContent(historyNodeRefZip, historyNodeRefJson, changes, forceSave, nodeRef);
+
+            util.ensureVersioningEnabled(historyNodeRefZip);
+            util.ensureVersioningEnabled(historyNodeRefJson);
+        } else {
+            writeContent(zipNode, jsonNode, changes, forceSave, nodeRef);
+        }
+    }
     private void writeContent(NodeRef zipNode, NodeRef jsonNode, JSONObject changes, Boolean forceSave, NodeRef nodeRef) {
         try {
             if (!forceSave) {
@@ -308,7 +325,6 @@ public class CallBack extends AbstractWebScript {
             URL url = new URL(changes.getString("changesurl"));
             InputStream in = url.openStream();
             writer.putContent(in);
-
             writer = this.contentService.getWriter(jsonNode, ContentModel.PROP_CONTENT, true);
             writer.setMimetype("application/json");
             writer.putContent(changes.getJSONObject("history").toString());

@@ -142,37 +142,6 @@ public class Util {
         versionService.ensureVersioningEnabled(nodeRef, versionProps);
     }
 
-    public void createVersionWithZipAndJson(NodeRef nodeRef) {
-        NodeRef rootVersion = new NodeRef("versionStore://version2Store/" + this.versionService.getVersionHistory(nodeRef).getRootVersion().getVersionProperty("node-uuid"));
-        boolean containsJsonAndZip = false;
-        for (ChildAssociationRef assoc : this.nodeService.getChildAssocs(rootVersion)) {
-            if (this.nodeService.getProperty(assoc.getChildRef(), ContentModel.PROP_NAME).equals("changes.json")
-                    || this.nodeService.getProperty(assoc.getChildRef(), ContentModel.PROP_NAME).equals("diff.zip")) {
-                containsJsonAndZip = true;
-            }
-        }
-        if (this.versionService.getCurrentVersion(nodeRef).getVersionLabel().equals("1.0") && !containsJsonAndZip) {
-            versionService.deleteVersion(nodeRef, versionService.getVersionHistory(nodeRef).getRootVersion());
-            Map<QName, Serializable> props = new HashMap<QName, Serializable>(1);
-            props.put(ContentModel.PROP_NAME, "diff.zip");
-            NodeRef historyNodeRefZip = this.nodeService.createNode(nodeRef, RenditionModel.ASSOC_RENDITION,
-                    QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, "diff.zip"),
-                    ContentModel.TYPE_CONTENT, props).getChildRef();
-
-            props.clear();
-            props.put(ContentModel.PROP_NAME, "changes.json");
-            NodeRef historyNodeRefJson = this.nodeService.createNode(nodeRef, RenditionModel.ASSOC_RENDITION,
-                    QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, "changes.json"),
-                    ContentModel.TYPE_CONTENT, props).getChildRef();
-            ensureVersioningEnabled(historyNodeRefZip);
-            ensureVersioningEnabled(historyNodeRefJson);
-
-            Map<String, Serializable> versionProps = new HashMap<String, Serializable>(1);
-            versionProps.put(ContentModel.PROP_INITIAL_VERSION.getLocalName(), true);
-            versionProps.put(VersionModel.PROP_VERSION_TYPE, VersionType.MAJOR);
-            versionService.createVersion(nodeRef, versionProps);
-        }
-    }
 
     public JSONObject getHistoryObj(NodeRef nodeRef){
         JSONObject historyObj = new JSONObject();

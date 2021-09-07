@@ -122,7 +122,6 @@ public class Prepare extends AbstractWebScript {
                     throw new SecurityException("User don't have the permissions to create child node");
                 }
             }
-            util.createVersionWithZipAndJson(nodeRef);
 
             response.setContentType("application/json; charset=utf-8");
             response.setContentEncoding("UTF-8");
