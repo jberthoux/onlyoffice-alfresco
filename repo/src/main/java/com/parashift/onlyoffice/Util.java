@@ -142,6 +142,12 @@ public class Util {
         versionService.ensureVersioningEnabled(nodeRef, versionProps);
     }
 
+    private String parseDate(String date){
+        java.time.format.DateTimeFormatter dtf =
+                java.time.format.DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss zzz yyyy");
+        LocalDateTime dateParsed = LocalDateTime.parse(date, dtf);
+        return dateParsed.toString().replace("T", " ").substring(0, dateParsed.toString().length());
+    }
 
     public JSONObject getHistoryObj(NodeRef nodeRef){
         JSONObject historyObj = new JSONObject();
@@ -162,7 +168,7 @@ public class Util {
                     user.put("id", personInfo.getUserName());
                     user.put("name", personInfo.getFirstName() + " " + personInfo.getLastName());
                 }
-                jsonVersion.put("created", version.getVersionProperty("created"));
+                jsonVersion.put("created", parseDate(version.getVersionProperty("created").toString()));
                 jsonVersion.put("user", user);
                 jsonVersion.put("changes", (Collection) null);
                 NodeRef zipNodeRef = null;

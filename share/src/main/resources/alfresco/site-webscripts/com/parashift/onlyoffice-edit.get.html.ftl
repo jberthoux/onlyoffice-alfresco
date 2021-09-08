@@ -64,14 +64,6 @@
             xhr.send();
             if (xhr.status == 200) {
                 var hist = JSON.parse(xhr.responseText);
-                for (var historyObj of hist) {
-                    if (historyObj.created.indexOf("UTC") !== -1) {
-                        var date = new Date(historyObj.created).toISOString().replace('T', ' ');
-                        date = date.substring(0, date.length - 5);
-                        historyObj.created = date;
-                        historyObj.changes = null;
-                    }
-                }
                 docEditor.refreshHistory({
                     currentVersion: hist[0].version,
                     history: hist.reverse()
