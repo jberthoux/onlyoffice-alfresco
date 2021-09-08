@@ -2,6 +2,7 @@
 
 #
 ## Added
+- add history of file changes, highlighting changes between versions 
 - changing favorite flag of the file from document editor
 - add goBack url for document editor
 - creating new file from document editor

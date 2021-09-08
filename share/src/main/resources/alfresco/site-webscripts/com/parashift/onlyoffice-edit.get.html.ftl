@@ -21,10 +21,14 @@
         <div id="placeholder"></div>
     </div>
     <script>
+        var linkWithoutNewParameter = null;
         var onAppReady = function (event) {
             if (${demo?c}) {
                  docEditor.showMessage("${msg("alfresco.document.onlyoffice.action.edit.msg.demo")}");
             }
+            linkWithoutNewParameter = document.location.href.substring(0, document.location.href.lastIndexOf("nodeRef")) + "nodeRef=workspace://SpacesStore/"
+                + config.document.key.substring(0, config.document.key.lastIndexOf("_"));
+            window.history.pushState({}, {}, linkWithoutNewParameter);
         };
 
         var getCookie = function (name) {
@@ -48,17 +52,55 @@
                             docEditor.setFavorite(favorite);
                         });
         };
+
+        var onRequestHistoryClose = function () {
+            document.location.href = linkWithoutNewParameter;
+        };
+
+        var onRequestHistory = function () {
+            var xhr = new XMLHttpRequest();
+            var historyUri = "${historyUrl}";
+            xhr.open("GET", historyUri + "&alf_ticket=" + "${ticket}", false);
+            xhr.send();
+            if (xhr.status == 200) {
+                var hist = JSON.parse(xhr.responseText);
+                docEditor.refreshHistory({
+                    currentVersion: hist[0].version,
+                    history: hist.reverse()
+                });
+            }
+        };
+
+        var onRequestHistoryData = function (event) {
+            var xhr = new XMLHttpRequest();
+            var historyUri = "${historyUrl}";
+            var version = event.data;
+            xhr.open("GET", historyUri + "&version=" + version + "&alf_ticket=" + "${ticket}", false);
+            xhr.send();
+            if (xhr.status == 200) {
+                var response = JSON.parse(xhr.responseText);
+                if (response !== null) {
+                    docEditor.setHistoryData(response);
+                } else {
+                    docEditor.setHistoryData([]);
+                }
+            }
+        };
         var config = ${config};
 
         config.events = {
             "onAppReady": onAppReady,
-            "onMetaChange": onMetaChange
+            "onMetaChange": onMetaChange,
+            "onRequestHistoryClose": onRequestHistoryClose,
+            "onRequestHistory": onRequestHistory,
+            "onRequestHistoryData": onRequestHistoryData
         };
 
         if (/android|avantgo|playbook|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od|ad)|iris|kindle|lge |maemo|midp|mmp|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\\|plucker|pocket|psp|symbian|treo|up\\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i
             .test(navigator.userAgent)) {
             config.type='mobile';
         }
+
         var docEditor = new DocsAPI.DocEditor("placeholder", config);
         if(config.document.info.favorite){
             var title = document.title.replace(/^\☆/g, "");

@@ -1,17 +1,15 @@
 package com.parashift.onlyoffice;
 
 import org.alfresco.model.ContentModel;
-import org.alfresco.service.cmr.repository.ContentService;
-import org.alfresco.service.cmr.repository.ContentWriter;
-import org.alfresco.service.cmr.repository.MimetypeService;
-import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.cmr.security.AccessStatus;
-import org.alfresco.service.cmr.security.PermissionService;
-import org.alfresco.service.namespace.NamespaceService;
-import org.alfresco.service.namespace.QName;
 import org.alfresco.repo.i18n.MessageService;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
+import org.alfresco.service.cmr.repository.*;
+import org.alfresco.service.cmr.security.AccessStatus;
+import org.alfresco.service.cmr.security.AuthenticationService;
+import org.alfresco.service.cmr.security.PermissionService;
+import org.alfresco.service.cmr.version.VersionService;
+import org.alfresco.service.namespace.NamespaceService;
+import org.alfresco.service.namespace.QName;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -26,8 +24,6 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -67,6 +63,12 @@ public class Prepare extends AbstractWebScript {
 
     @Autowired
     UtilDocConfig utilDocConfig;
+
+    @Autowired
+    AuthenticationService authenticationService;
+
+    @Autowired
+    VersionService versionService;
 
     @Override
     public void execute(WebScriptRequest request, WebScriptResponse response) throws IOException {
@@ -167,9 +169,10 @@ public class Prepare extends AbstractWebScript {
                 responseJson.put("mime", mimetypeService.getMimetype(docExt));
                 responseJson.put("demo", configManager.demoActive());
                 responseJson.put("documentType", documentType);
-                responseJson.put("user", username);
+                responseJson.put("historyUrl", util.getHistoryUrl(nodeRef));
                 responseJson.put("share", util.getShareUrl());
                 responseJson.put("favorite", util.getFavouriteUrl(nodeRef));
+                responseJson.put("ticket",  authenticationService.getCurrentTicket());
 
                 logger.debug("Sending JSON prepare object");
                 logger.debug(responseJson.toString(3));
