@@ -1,51 +1,41 @@
-.toolbar .onMultipleDownloadAs {
+.toolbar .onOnlyofficeDownloadAs {
     background-image: url("../actions/document-onlyoffice-download-as-16.png");
 }
-.checkbox-download-as {
-    display: inline-block;
-    margin-top: 10px;
-    position: absolute;
-    left: 60px;
-}
-.filename-download-as {
-    text-align: left;
-    text-overflow: ellipsis;
-    display: inline-block;
-    width: 30%;
-    overflow: hidden;
-    margin-top: 5px;
-    margin-left: 20px;
-}
-.filenameLabel-download-as {
-    overflow: hidden;
-    margin-left: 6%;
-    margin-right: 6%;
-    display: inline-block;
-}
-.select-download-as {
-    width: 60px !important;
-    margin-top: 5px;
-    position: absolute;
-}
-.form-download-as {
+
+.download-as-main {
     overflow-y: auto;
-    max-height: 250px;
+    max-height: 400px;
 }
-.formLabel-download-as {
-    display: block;
-    width: auto;
+
+.download-as-file {
     text-align: left;
+    padding: 4px;
 }
-.fileName-download-as-oneFile {
+
+.download-as-checkbox {
+    display: inline-block;
+    margin-left: 10px;
+    vertical-align: middle;
+}
+
+.download-as-filename {
+    display: inline-block;
+    margin-left: 20px;
+    vertical-align: middle;
+    overflow: hidden;
     text-overflow: ellipsis;
-    display: inline-block;
-    width: 40%;
-    overflow: hidden;
-    margin-top: 10px;
+    width: 50%;
 }
-.label-download-as-oneFile {
-    overflow: hidden;
-    margin-left: 10%;
-    margin-right: 10%;
+
+.download-as-convert-label {
     display: inline-block;
+    vertical-align: middle;
+    overflow: hidden;
+    width: 100px;
+}
+
+.download-as-select {
+    display: inline-block;
+    vertical-align: middle;
+    width: 60px !important;
 }
