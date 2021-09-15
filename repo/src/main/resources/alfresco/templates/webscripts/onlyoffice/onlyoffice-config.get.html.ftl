@@ -101,13 +101,13 @@
       <div class="control field section">
           <p class="label">${msg("onlyoffice-config.review-mode-label")}</p>
           <div style="padding-top: 4px">
-              <input class="value" id="reviewDisplayMarkup" name="reviewDisplay" type="radio" value="markup"/>
+              <input class="value" id="reviewDisplayMarkup" name="reviewDisplay" type="radio" value="markup" <#if reviewDisplay == 'markup'>checked</#if> />
               <label class="label" for="reviewDisplayMarkup" style="margin-right: 21px">${msg("onlyoffice-config.review-mode-markup")}</label>
 
-              <input class="value" id="reviewDisplayFinal" name="reviewDisplay" type="radio" value="final"/>
+              <input class="value" id="reviewDisplayFinal" name="reviewDisplay" type="radio" value="final" <#if reviewDisplay == 'final'>checked</#if> />
               <label class="label" for="reviewDisplayFinal" style="margin-right: 21px">${msg("onlyoffice-config.review-mode-final")}</label>
 
-              <input class="value" id="reviewDisplayOriginal" name="reviewDisplay" type="radio" value="original"/>
+              <input class="value" id="reviewDisplayOriginal" name="reviewDisplay" type="radio" value="original" <#if reviewDisplay == 'original'>checked</#if> />
               <label class="label" for="reviewDisplayOriginal" style="margin-right: 21px">${msg("onlyoffice-config.review-mode-original")}</label>
           </div>
       </div>
@@ -164,16 +164,7 @@
       var compactHeader = document.getElementById("compactHeader");
       var toolbarNoTabs = document.getElementById("toolbarNoTabs");
       var feedback = document.getElementById("feedback");
-      var reviewDisplay = null;
-
-      if("${reviewDisplay}" === "original") {
-          reviewDisplay = document.getElementById("reviewDisplayOriginal");
-      } else if ("${reviewDisplay}" === "final") {
-          reviewDisplay = document.getElementById("reviewDisplayFinal")
-      } else {
-          reviewDisplay = document.getElementById("reviewDisplayMarkup");
-      }
-      reviewDisplay.checked = "checked";
+      var reviewDisplay = document.getElementsByName("reviewDisplay");
 
       var doPost = function(obj) {
          var xhr = new XMLHttpRequest();
@@ -233,8 +224,10 @@
          obj.compactHeader = compactHeader.checked.toString();
          obj.toolbarNoTabs = toolbarNoTabs.checked.toString();
          obj.feedback = feedback.checked.toString();
-         obj.reviewDisplay = reviewDisplay.value.trim();
 
+         reviewDisplay.forEach((element) => {
+             if (element.checked) obj.reviewDisplay = element.value.trim();
+         });
 
          return obj;
       };
