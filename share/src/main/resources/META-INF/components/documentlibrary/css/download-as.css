@@ -4,7 +4,7 @@
 
 .download-as-main {
     overflow-y: auto;
-    max-height: 400px;
+    max-height: 375px;
 }
 
 .download-as-file {
@@ -14,21 +14,22 @@
 
 .download-as-checkbox {
     display: inline-block;
-    margin-left: 10px;
     vertical-align: middle;
 }
 
 .download-as-filename {
     display: inline-block;
-    margin-left: 20px;
+    margin-left: 15px;
     vertical-align: middle;
     overflow: hidden;
     text-overflow: ellipsis;
-    width: 50%;
+    width: 250px;
+    white-space: nowrap;
 }
 
 .download-as-convert-label {
     display: inline-block;
+    margin-left: 15px;
     vertical-align: middle;
     overflow: hidden;
     width: 100px;
