@@ -7,30 +7,39 @@
     var cellOutputType = ["xlsx", "bmp", "csv", "gif", "jpg", "ods", "pdf", "pdfa", "png"];
     var slideOutputType = ["pptx", "bmp", "gif", "jpg", "odp", "pdf", "pdfa", "png"];
 
+    var outputType = null;
+
     var getConvertTypes = function (docExt) {
         if (textInputType.includes(docExt)) {
             switch (docExt) {
                 case "mht": {
-                    textOutputType.splice(textOutputType.indexOf("html"), 1);
+                    outputType = textOutputType.splice(textOutputType.indexOf("html"), 1);
                     break;
                 }
                 case "pdf": {
-                    return ["bmp", "gif", "jpg", "png"];
+                    outputType = ["bmp", "gif", "jpg", "png"];
                 }
                 case "xps": {
-                    return ["bmp", "gif", "jpg", "pdf", "pdfa", "png"];
+                    outputType = ["bmp", "gif", "jpg", "pdf", "pdfa", "png"];
                 }
                 default: {
-                    return textOutputType;
+                    outputType = textOutputType;
                 }
             }
         } else if (cellInputType.includes(docExt)) {
-            return cellOutputType;
+            outputType = cellOutputType;
         } else if (slideInputType.includes(docExt)) {
-            return slideOutputType;
-        } else {
-            return null;
+            outputType = slideOutputType;
         }
+
+        if (outputType != null) {
+            if (outputType.includes(docExt)) {
+                outputType.splice(outputType.indexOf(docExt), 1);
+            }
+            outputType.unshift(docExt);
+        }
+
+        return outputType;
     };
 
     YAHOO.Bubbling.fire("registerAction", {
