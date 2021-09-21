@@ -126,7 +126,7 @@ public class UtilDocConfig {
         customizationObject.put("help", configManager.getAsBoolean("help", "true"));
         customizationObject.put("compactHeader", configManager.getAsBoolean("compactHeader", "false"));
         customizationObject.put("toolbarNoTabs", configManager.getAsBoolean("toolbarNoTabs", "false"));
-        customizationObject.put("feedback", configManager.getAsBoolean("feedback", "true"));
+        customizationObject.put("feedback", configManager.getAsBoolean("feedback", "false"));
         customizationObject.put("reviewDisplay", configManager.getOrDefault("reviewDisplay", "original"));
 
         JSONObject userObject = new JSONObject();
