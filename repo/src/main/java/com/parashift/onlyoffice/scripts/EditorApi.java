@@ -1,0 +1,102 @@
+package com.parashift.onlyoffice.scripts;
+
+import com.parashift.onlyoffice.JwtManager;
+import com.parashift.onlyoffice.Util;
+
+import org.alfresco.model.ContentModel;
+import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.cmr.security.AccessStatus;
+import org.alfresco.service.cmr.security.PermissionService;
+import org.alfresco.service.namespace.QName;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.extensions.webscripts.*;
+import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+/*
+   Copyright (c) Ascensio System SIA 2021. All rights reserved.
+   http://www.onlyoffice.com
+*/
+@Component(value = "webscript.onlyoffice.editor-api.post")
+public class EditorApi extends AbstractWebScript {
+
+    @Autowired
+    NodeService nodeService;
+
+    @Autowired
+    PermissionService permissionService;
+
+    @Autowired
+    Util util;
+
+    @Autowired
+    JwtManager jwtManager;
+
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Override
+    public void execute(WebScriptRequest request, WebScriptResponse response) throws IOException {
+        Map<String, String> templateVars = request.getServiceMatch().getTemplateVars();
+        String type = templateVars.get("type");
+        switch (type.toLowerCase()) {
+            case "insert":
+                insert(request, response);
+                break;
+            default:
+                throw new WebScriptException(Status.STATUS_NOT_FOUND, "API Not Found");
+        }
+    }
+
+    private void insert(WebScriptRequest request, WebScriptResponse response) throws IOException {
+        try {
+            JSONObject requestData = new JSONObject(request.getContent().getContent());
+            JSONArray nodes = requestData.getJSONArray("nodes");
+            List<Object> responseJson = new ArrayList<>();
+
+            for (int i = 0; i < nodes.length(); i++) {
+                JSONObject data = new JSONObject();
+
+                NodeRef node = new NodeRef(nodes.getString(i));
+
+                if (permissionService.hasPermission(node, PermissionService.READ) == AccessStatus.ALLOWED) {
+                    Map<QName, Serializable> properties = nodeService.getProperties(node);
+                    String docTitle = (String) properties.get(ContentModel.PROP_NAME);
+                    String fileType = docTitle.substring(docTitle.lastIndexOf(".") + 1).trim().toLowerCase();
+
+                    if (requestData.has("command")) {
+                        data.put("c", requestData.get("command"));
+                    }
+                    data.put("fileType", fileType);
+                    data.put("url", util.getContentUrl(node));
+                    if (jwtManager.jwtEnabled()) {
+                        try {
+                            data.put("token", jwtManager.createToken(data));
+                        } catch (Exception e) {
+                            throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR, "Token creation error", e);
+                        }
+                    }
+
+                    responseJson.add(data);
+                }
+            }
+
+            response.setContentType("application/json");
+            response.getWriter().write(responseJson.toString());
+        } catch (JSONException e) {
+            throw new WebScriptException(Status.STATUS_BAD_REQUEST, "Could not parse JSON from request", e);
+        }
+    }
+}
+

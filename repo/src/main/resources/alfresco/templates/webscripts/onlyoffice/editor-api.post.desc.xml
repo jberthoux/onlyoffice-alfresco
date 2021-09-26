@@ -1,0 +1,6 @@
+<webscript>
+    <shortname>ONLYOFFICE Editor API URL</shortname>
+    <description>Editor API URL for ONLYOFFICE</description>
+    <url>/parashift/onlyoffice/editor-api/{type}</url>
+    <authentication>user</authentication>
+</webscript>
