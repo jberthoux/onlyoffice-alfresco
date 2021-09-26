@@ -10,8 +10,9 @@ if (url.args.parentNodeRef) query+= "&parentNodeRef=" + url.args.parentNodeRef;
 
 pObj = eval('(' + remote.call("/parashift/onlyoffice/prepare" + query) + ')');
 model.onlyofficeUrl = pObj.onlyofficeUrl;
-model.docTitle = pObj.config.document.title;
-model.config = JSON.stringify(pObj.config);
+model.docTitle = pObj.editorConfig.document.title;
+model.editorConfig = JSON.stringify(pObj.editorConfig);
+model.folderNode = JSON.stringify(pObj.folderNode);
 model.demo = pObj.demo;
 model.documentType=pObj.documentType;
 model.share = pObj.share;

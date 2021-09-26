@@ -507,4 +507,13 @@ public class Util {
         }
         return url;
     }
+
+    public NodeRef getParentNodeRef (NodeRef node) {
+        ChildAssociationRef parentAssoc = nodeService.getPrimaryParent(node);
+        if (parentAssoc == null || parentAssoc.getParentRef() == null) {
+            return null;
+        } else {
+            return parentAssoc.getParentRef();
+        }
+    }
 }
