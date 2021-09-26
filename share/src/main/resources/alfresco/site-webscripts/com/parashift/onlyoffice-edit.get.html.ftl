@@ -14,20 +14,114 @@
     <script id="scriptApi" type="text/javascript" src="${onlyofficeUrl}OfficeWeb/apps/api/documents/api.js"></script>
     <link rel="shortcut icon" href="${url.context}/res/components/images/filetypes/${documentType}.ico" type="image/vnd.microsoft.icon" />
     <link rel="icon" href="${url.context}/res/components/images/filetypes/${documentType}.ico" type="image/vnd.microsoft.icon" />
+
+    <!-- Alfresco web framework common resources -->
+    <script type="text/javascript" src="${url.context}/res/js/yui-common.js"></script>
+    <script type="text/javascript" src="${url.context}/noauth/messages.js?locale=${locale}"></script>
+    <script type="text/javascript" src="${url.context}/res/js/bubbling.v2.1.js"></script>
+    <script type="text/javascript">
+        YAHOO.Bubbling.unsubscribe = function(layer, handler, scope) {
+            this.bubble[layer].unsubscribe(handler, scope);
+        };
+    </script>
+    <script type="text/javascript">
+    <!-- Alfresco web framework constants -->
+        Alfresco.constants = Alfresco.constants || {};
+        Alfresco.constants.PROXY_URI = window.location.protocol + "//" + window.location.host + "${url.context?js_string}/proxy/alfresco/";
+        Alfresco.constants.PROXY_URI_RELATIVE = "${url.context?js_string}/proxy/alfresco/";
+        Alfresco.constants.THEME = "${theme}";
+        Alfresco.constants.URL_CONTEXT = "${url.context?js_string}/";
+        Alfresco.constants.URL_RESCONTEXT = "${url.context?js_string}/res/";
+        Alfresco.constants.URL_PAGECONTEXT = "${url.context?js_string}/page/";
+        Alfresco.constants.URL_SERVICECONTEXT = "${url.context?js_string}/service/";
+
+        Alfresco.constants.JS_LOCALE = "${locale}";
+        Alfresco.constants.CSRF_POLICY = {
+            enabled: ${((config.scoped["CSRFPolicy"]["filter"].getChildren("rule")?size > 0)?string)!false},
+            cookie: "${config.scoped["CSRFPolicy"]["client"].getChildValue("cookie")!""}",
+            header: "${config.scoped["CSRFPolicy"]["client"].getChildValue("header")!""}",
+            parameter: "${config.scoped["CSRFPolicy"]["client"].getChildValue("parameter")!""}",
+            properties: {}
+        };
+        <#if config.scoped["CSRFPolicy"]["properties"]??>
+            <#assign csrfProperties = (config.scoped["CSRFPolicy"]["properties"].children)![]>
+            <#list csrfProperties as csrfProperty>
+        Alfresco.constants.CSRF_POLICY.properties["${csrfProperty.name?js_string}"] = "${(csrfProperty.value!"")?js_string}";
+            </#list>
+        </#if>
+
+        Alfresco.constants.IFRAME_POLICY = {
+            sameDomain: "${config.scoped["IFramePolicy"]["same-domain"].value!"allow"}",
+            crossDomainUrls: [<#list (config.scoped["IFramePolicy"]["cross-domain"].childrenMap["url"]![]) as c>
+                "${c.value?js_string}"<#if c_has_next>,</#if>
+            </#list>]
+        };
+    </script>
+    <script type="text/javascript" src="${url.context}/res/js/alfresco.js"></script>
+    <script type="text/javascript" src="${url.context}/res/modules/document-picker/document-picker.js"></script>
+    <script type="text/javascript" src="${url.context}/res/components/object-finder/object-finder.js"></script>
+    <script type="text/javascript" src="${url.context}/res/components/common/common-component-style-filter-chain.js"></script>
+
+    <#if theme = 'default'>
+        <link rel="stylesheet" type="text/css" href="${url.context}/res/yui/assets/skins/default/skin.css" />
+    <#else>
+        <link rel="stylesheet" type="text/css" href="${url.context}/res/themes/${theme}/yui/assets/skin.css" />
+    </#if>
+    <link rel="stylesheet" type="text/css" href="${url.context}/res/css/base.css" />
+    <link rel="stylesheet" type="text/css" href="${url.context}/res/css/yui-layout.css" />
+    <link rel="stylesheet" type="text/css" href="${url.context}/res/themes/${theme}/presentation.css" />
+    <link rel="stylesheet" type="text/css" href="${url.context}/res/modules/document-picker/document-picker.css" />
+    <link rel="stylesheet" type="text/css" href="${url.context}/res/components/object-finder/object-finder.css" />
+    <link rel="stylesheet" type="text/css" href="${url.context}/res/css/yui-fonts-grids.css" group="template-common" />
 </head>
 
-<body>
-    <div>
-        <div id="placeholder"></div>
-    </div>
+<body id="Share" class="yui-skin-${theme} alfresco-share claro">
+    <div id="placeholder"></div>
     <script>
+        var documentPicker = new Alfresco.module.DocumentPicker("onlyoffice-editor-docPicker", Alfresco.ObjectRenderer);
+        documentPicker.setOptions({
+           displayMode: "items",
+           itemFamily: "node",
+           itemType: "cm:content",
+           multipleSelectMode: false,
+           parentNodeRef: ${folderNode},
+           restrictParentNavigationToDocLib: true
+        });
+        documentPicker.onComponentsLoaded(); // Need to force the component loaded call to ensure setup gets completed.
+
+        YAHOO.Bubbling.on("onDocumentsSelected", function(eventName, payload) {
+            if (payload && payload[1].items) {
+                var items = [];
+
+                for (var i = 0; i < payload[1].items.length; i++) {
+                    items.push(payload[1].items[i].nodeRef);
+                }
+
+                if (items.length > 0) {
+                    Alfresco.util.Ajax.jsonPost({
+                        url: Alfresco.constants.PROXY_URI + "parashift/onlyoffice/editor-api/insert",
+                        dataObj: {
+                             command: documentPicker.docEditorCommand,
+                             nodes: items
+                        },
+                        successCallback: {
+                            fn: function(response) {
+                                documentPicker.docEditorEvent(response.json[0]);
+                            },
+                            scope: this
+                        }
+                    });
+                }
+            }
+        });
+
         var linkWithoutNewParameter = null;
         var onAppReady = function (event) {
             if (${demo?c}) {
                  docEditor.showMessage("${msg("alfresco.document.onlyoffice.action.edit.msg.demo")}");
             }
             linkWithoutNewParameter = document.location.href.substring(0, document.location.href.lastIndexOf("nodeRef")) + "nodeRef=workspace://SpacesStore/"
-                + config.document.key.substring(0, config.document.key.lastIndexOf("_"));
+                + editorConfig.document.key.substring(0, editorConfig.document.key.lastIndexOf("_"));
             window.history.pushState({}, {}, linkWithoutNewParameter);
         };
 
@@ -87,30 +181,54 @@
             }
         };
 
+        var onRequestInsertImage = function (event) {
+            documentPicker.singleSelectedItem = null;
+            documentPicker.docEditorCommand = event.data.c;
+            documentPicker.docEditorEvent = docEditor.insertImage;
+            documentPicker.onShowPicker();
+        };
+
+        var onRequestMailMergeRecipients = function () {
+            documentPicker.singleSelectedItem = null;
+            documentPicker.docEditorCommand = null;
+            documentPicker.docEditorEvent = docEditor.setMailMergeRecipients;
+            documentPicker.onShowPicker();
+        };
+
+        var onRequestCompareFile = function () {
+            documentPicker.singleSelectedItem = null;
+            documentPicker.docEditorCommand = null;
+            documentPicker.docEditorEvent = docEditor.setRevisedFile;
+            documentPicker.onShowPicker();
+        };
+
         var onRequestSaveAs = function (event) {
 
         };
 
-        var config = ${config};
+        var editorConfig = ${editorConfig};
 
-        config.events = {
+        editorConfig.events = {
             "onAppReady": onAppReady,
             "onMetaChange": onMetaChange,
             "onRequestHistoryClose": onRequestHistoryClose,
             "onRequestHistory": onRequestHistory,
             "onRequestHistoryData": onRequestHistoryData,
+            "onRequestInsertImage": onRequestInsertImage,
+            "onRequestMailMergeRecipients": onRequestMailMergeRecipients,
+            "onRequestCompareFile": onRequestCompareFile,
             "onRequestSaveAs": onRequestSaveAs
         };
 
         if (/android|avantgo|playbook|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od|ad)|iris|kindle|lge |maemo|midp|mmp|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\\|plucker|pocket|psp|symbian|treo|up\\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i
             .test(navigator.userAgent)) {
-            config.type='mobile';
+            editorConfig.type='mobile';
         }
 
-        var docEditor = new DocsAPI.DocEditor("placeholder", config);
-        if(config.document.info.favorite){
+        var docEditor = new DocsAPI.DocEditor("placeholder", editorConfig);
+        if(editorConfig.document.info.favorite){
             var title = document.title.replace(/^\☆/g, "");
-            document.title = (config.document.info.favorite ? "☆" : "") + title;
+            document.title = (editorConfig.document.info.favorite ? "☆" : "") + title;
         }
     </script>
 </body>
