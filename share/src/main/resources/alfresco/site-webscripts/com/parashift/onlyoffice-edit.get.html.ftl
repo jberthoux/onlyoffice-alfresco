@@ -180,7 +180,6 @@
                 }
             }
         };
-        var config = ${config};
 
         var onRequestInsertImage = function (event) {
             documentPicker.singleSelectedItem = null;
@@ -197,7 +196,10 @@
         };
 
         var onRequestCompareFile = function () {
-
+            documentPicker.singleSelectedItem = null;
+            documentPicker.docEditorCommand = null;
+            documentPicker.docEditorEvent = docEditor.setRevisedFile;
+            documentPicker.onShowPicker();
         };
 
         var editorConfig = ${editorConfig};
