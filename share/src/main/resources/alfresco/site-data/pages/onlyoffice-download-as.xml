@@ -1,9 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<page>
-   <title>Download as</title>
-   <title-id>page.onlyoffice-download-as.title</title-id>
-   <description>Download as</description>
-   <description-id>page.onlyoffice-download-as.description</description-id>
-   <template-instance>onlyoffice-download-as</template-instance>
-   <authentication>user</authentication>
-</page>
