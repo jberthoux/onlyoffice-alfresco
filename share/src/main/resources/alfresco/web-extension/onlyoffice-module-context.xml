@@ -128,7 +128,9 @@
         </property>
     </bean>
 
-    <bean id="evaluator.doclib.action.IsCorrectDownloadAs" class="com.onlyoffice.web.evaluator.IsCorrectDownloadAs"/>
+    <bean id="evaluator.doclib.action.IsCorrectDownloadAs" class="com.onlyoffice.web.evaluator.IsCorrectDownloadAs">
+        <property name="onlyofficeSettings" ref="slingshot.scriptprocessor.OnlyofficeSettingsQuery" />
+    </bean>
     <bean id="evaluator.doclib.action.isOnlyEdit" class="com.onlyoffice.web.evaluator.IsOnlyEditEvaluator" />
     <bean id="evaluator.doclib.action.isNotOnlyEdit" parent="evaluator.doclib.action.isOnlyEdit">
         <property name="negateOutput" value="true" />

@@ -1,97 +1,86 @@
 (function () {
-    var textInputType = ["doc", "docm", "docx", "dot", "dotm", "dotx", "epub", "fb2", "fodt", "html", "mht", "odt", "ott", "pdf", "rtf", "txt", "xps", "xml"];
-    var cellInputType = ["csv", "fods", "ods", "ots", "xls", "xlsm", "xlsx", "xlt", "xltm", "xltx"];
-    var slideInputType = ["fodp", "odp", "otp", "pot", "potm", "potx", "pps", "ppsm", "ppsx", "ppt", "pptm", "pptx"];
+    var supportedFormats = null;
 
-    var textOutputType = ["docx", "bmp", "epub", "fb2", "gif", "html", "jpg", "odt", "pdf", "pdfa", "png", "rtf", "txt"];
-    var cellOutputType = ["xlsx", "bmp", "csv", "gif", "jpg", "ods", "pdf", "pdfa", "png"];
-    var slideOutputType = ["pptx", "bmp", "gif", "jpg", "odp", "pdf", "pdfa", "png"];
+    Alfresco.util.Ajax.jsonGet({
+        url: Alfresco.constants.PROXY_URI + "parashift/onlyoffice/onlyoffice-settings",
+        successCallback: {
+            fn: function(response) {
+                supportedFormats = response.json.supportedFormats;
+            },
+            scope: this
+        },
+    });
 
-    var outputType = null;
+    var getOutputTypes = function (docExt) {
+        var outputTypes = null;
 
-    var getConvertTypes = function (docExt) {
-        if (textInputType.includes(docExt)) {
-            switch (docExt) {
-                case "mht": {
-                    outputType = textOutputType.splice(textOutputType.indexOf("html"), 1);
-                    break;
-                }
-                case "pdf": {
-                    outputType = ["bmp", "gif", "jpg", "png"];
-                }
-                case "xps": {
-                    outputType = ["bmp", "gif", "jpg", "pdf", "pdfa", "png"];
-                }
-                default: {
-                    outputType = textOutputType;
+        if (supportedFormats) {
+            for (var format of supportedFormats) {
+                if (format.name == docExt) {
+                    outputTypes = format.convertTo;
                 }
             }
-        } else if (cellInputType.includes(docExt)) {
-            outputType = cellOutputType;
-        } else if (slideInputType.includes(docExt)) {
-            outputType = slideOutputType;
-        }
 
-        if (outputType != null) {
-            if (outputType.includes(docExt)) {
-                outputType.splice(outputType.indexOf(docExt), 1);
+            if (outputTypes != null) {
+                if (outputTypes.includes(docExt)) {
+                    outputTypes.splice(outputTypes.indexOf(docExt), 1);
+                }
+                outputTypes.unshift(docExt);
             }
-            outputType.unshift(docExt);
         }
 
-        return outputType;
+        return outputTypes;
+    };
+
+    var multipleDownloadPost = function (requestData) {
+        var waitDialog = Alfresco.util.PopupManager.displayMessage({
+            text : "",
+            spanClass : "wait",
+            displayTime : 0
+        });
+
+        Alfresco.util.Ajax.jsonPost({
+            url: Alfresco.constants.PROXY_URI + "parashift/onlyoffice/download-as",
+            responseContentType: "application/json",
+            dataObj: requestData,
+            successMessage: Alfresco.util.message("alfresco.document.onlyoffice.action.download-as.msg.success-multi"),
+            failureMessage: Alfresco.util.message("alfresco.document.onlyoffice.action.download-as.msg.failure-multi"),
+            successCallback: {
+                fn: function (response) {
+                    waitDialog.destroy()
+
+                    var form = document.createElement("form");
+                    form.method = "GET";
+                    form.action = Alfresco.constants.PROXY_URI + response.json.downloadUrl;
+                    document.body.appendChild(form);
+
+                    var d = form.ownerDocument;
+                    var iframe = d.createElement("iframe");
+                    iframe.style.display = "none";
+                    YAHOO.util.Dom.generateId(iframe, "downloadArchive");
+                    iframe.name = iframe.id;
+                    document.body.appendChild(iframe);
+
+                    // makes it possible to target the frame properly in IE.
+                    window.frames[iframe.name].name = iframe.name;
+
+                    form.target = iframe.name;
+                    form.submit();
+                },
+                scope: this
+            },
+            failureCallback: {
+                fn: function exampleFailure() {
+                    waitDialog.destroy()
+                },
+                scope: this
+            }
+        });
     };
 
     YAHOO.Bubbling.fire("registerAction", {
         actionName: "onOnlyofficeDownloadAs",
         fn: function (record, owner) {
-            var multipleDownloadPost = function (requestData) {
-                var waitDialog = Alfresco.util.PopupManager.displayMessage({
-                    text : "",
-                    spanClass : "wait",
-                    displayTime : 0
-                });
-
-                Alfresco.util.Ajax.jsonPost({
-                    url: Alfresco.constants.PROXY_URI + "parashift/onlyoffice/download-as",
-                    responseContentType: "application/json",
-                    dataObj: requestData,
-                    successMessage: Alfresco.util.message("alfresco.document.onlyoffice.action.download-as.msg.success-multi"),
-                    failureMessage: Alfresco.util.message("alfresco.document.onlyoffice.action.download-as.msg.failure-multi"),
-                    successCallback: {
-                        fn: function (response) {
-                            waitDialog.destroy()
-
-                            var form = document.createElement("form");
-                            form.method = "GET";
-                            form.action = Alfresco.constants.PROXY_URI + response.json.downloadUrl;
-                            document.body.appendChild(form);
-
-                            var d = form.ownerDocument;
-                            var iframe = d.createElement("iframe");
-                            iframe.style.display = "none";
-                            YAHOO.util.Dom.generateId(iframe, "downloadArchive");
-                            iframe.name = iframe.id;
-                            document.body.appendChild(iframe);
-
-                            // makes it possible to target the frame properly in IE.
-                            window.frames[iframe.name].name = iframe.name;
-
-                            form.target = iframe.name;
-                            form.submit();
-                        },
-                        scope: this
-                    },
-                    failureCallback: {
-                        fn: function exampleFailure() {
-                            waitDialog.destroy()
-                        },
-                        obj: record,
-                        scope: this
-                    }
-                });
-            };
-
             var nodeList = [];
             if (Array.isArray(record)) {
                 for (var node of record) {
@@ -107,11 +96,12 @@
                 "<div class='download-as-main'>"
             );
 
+            var showCheckbox = nodeList.length == 1 ? "hidden" : "";
             for (var node of nodeList) {
                 var ext = node.displayName.substring(node.displayName.lastIndexOf(".") + 1);
-                var showCheckbox = nodeList.length == 1 ? "hidden" : "";
+                var outputTypes = getOutputTypes(ext);
 
-                if (node.jsNode.mimetype != undefined && getConvertTypes(ext) != null) {
+                if (node.jsNode.mimetype != undefined && outputTypes != null) {
                     body.push(
                         "<div class='download-as-file'>",
                         "<input type='checkbox' class='download-as-checkbox " + showCheckbox + "' checked='true' value='" + node.nodeRef + "'>",
@@ -120,8 +110,7 @@
                         "<select class='download-as-select'>"
                     );
 
-                    var convertTypes = getConvertTypes(ext);
-                    for (var type of convertTypes) {
+                    for (var type of outputTypes) {
                         body.push("<option>" + type + "</option>");
                     }
 
