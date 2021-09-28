@@ -2,6 +2,7 @@
 
 #
 ## Added
+- add action "download as" from document manager
 - changing document editor view
 - add history of file changes, highlighting changes between versions 
 - changing favorite flag of the file from document editor

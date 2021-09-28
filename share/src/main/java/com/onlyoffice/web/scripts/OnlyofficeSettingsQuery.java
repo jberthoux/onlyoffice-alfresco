@@ -18,6 +18,7 @@ import java.util.Set;
 public class OnlyofficeSettingsQuery {
     private static Set<String> editableMimetypes = new HashSet<String>();
     private static Boolean convertOriginal = false;
+    private static JSONArray supportedFormats = new JSONArray();
     private static long timeLastRequest = 0;
     private ScriptRemote remote;
 
@@ -41,6 +42,7 @@ public class OnlyofficeSettingsQuery {
                     }
                     this.editableMimetypes = editableMimetypes;
                     this.convertOriginal = (Boolean) json.get("convertOriginal");
+                    this.supportedFormats = (JSONArray) json.get("supportedFormats");
                 } catch (Exception err) {
                     throw new AlfrescoRuntimeException("Failed to parse response from Alfresco: " + err.getMessage());
                 }
@@ -60,5 +62,10 @@ public class OnlyofficeSettingsQuery {
     public Boolean getConvertOriginal() {
         requestOnlyofficeSettingsFromRepo();
         return convertOriginal;
+    }
+
+    public JSONArray getSupportedFormats() {
+        requestOnlyofficeSettingsFromRepo();
+        return supportedFormats;
     }
 }
