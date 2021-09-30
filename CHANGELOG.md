@@ -2,6 +2,7 @@
 
 #
 ## Added
+- save copy as from document editor
 - compare file from storage
 - add history of file changes, highlighting changes between versions 
 - changing favorite flag of the file from document editor
