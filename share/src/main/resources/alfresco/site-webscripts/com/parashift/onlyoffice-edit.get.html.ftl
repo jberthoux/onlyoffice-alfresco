@@ -267,8 +267,57 @@
             insertFileNameInput();
 
             copyMoveTo.onOK = function () {
-                console.log(this.selectedNode.data.nodeRef);
-                // TO DO
+                title = document.getElementById("fileNameInput").value;
+
+                if (!title) {
+                    document.getElementById("fileNameInput").classList.add("invalid");
+                    return;
+                }
+
+                if (this.selectedNode) {
+                    var requestData = {
+                        title: title,
+                        ext: ext,
+                        url: url,
+                        saveNode: this.selectedNode.data.nodeRef
+                    };
+
+                    copyMoveTo.widgets.escapeListener.disable();
+                    copyMoveTo.widgets.dialog.hide();
+
+                    var waitDialog = Alfresco.util.PopupManager.displayMessage({
+                        text : "",
+                        spanClass : "wait",
+                        displayTime : 0
+                    });
+
+                    Alfresco.util.Ajax.jsonPost({
+                        url: Alfresco.constants.PROXY_URI + "parashift/onlyoffice/editor-api/save-as",
+                        dataObj: requestData,
+                        successMessage: "${msg('onlyoffice.editor.dialog.save-as.message.success')}",
+                        successCallback: {
+                            fn: function () {
+                                waitDialog.destroy();
+                            },
+                            scope: this
+                        },
+                        failureCallback: {
+                            fn: function (response) {
+                                var errorMessage = "";
+                                if (response.serverResponse.status == 403) {
+                                    errorMessage = "${msg('onlyoffice.editor.dialog.save-as.message.error.forbidden')}";
+                                } else {
+                                    errorMessage = "${msg('onlyoffice.editor.dialog.save-as.message.error.unknown')}";
+                                }
+                                waitDialog.destroy();
+                                Alfresco.util.PopupManager.displayMessage({
+                                    text: errorMessage
+                                });
+                            },
+                            scope: this
+                        }
+                    });
+                }
             };
         };
 
