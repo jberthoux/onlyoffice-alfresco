@@ -30,6 +30,8 @@
         Alfresco.constants.PROXY_URI = window.location.protocol + "//" + window.location.host + "${url.context?js_string}/proxy/alfresco/";
         Alfresco.constants.PROXY_URI_RELATIVE = "${url.context?js_string}/proxy/alfresco/";
         Alfresco.constants.THEME = "${theme}";
+        Alfresco.constants.USERNAME = "${(user.name!"")?js_string}";
+        Alfresco.constants.SITE = "<#if page??>${(page.url.templateArgs.site!"")?url?js_string}</#if>";
         Alfresco.constants.URL_CONTEXT = "${url.context?js_string}/";
         Alfresco.constants.URL_RESCONTEXT = "${url.context?js_string}/res/";
         Alfresco.constants.URL_PAGECONTEXT = "${url.context?js_string}/page/";
@@ -56,12 +58,23 @@
                 "${c.value?js_string}"<#if c_has_next>,</#if>
             </#list>]
         };
+
+        Alfresco.constants.HIDDEN_PICKER_VIEW_MODES = [
+            <#list config.scoped["DocumentLibrary"]["hidden-picker-view-modes"].children as viewMode>
+                <#if viewMode.name?js_string == "mode">"${viewMode.value?js_string}"<#if viewMode_has_next>,</#if></#if>
+            </#list>
+        ];
     </script>
     <script type="text/javascript" src="${url.context}/res/js/alfresco.js"></script>
     <script type="text/javascript" src="${url.context}/res/modules/document-picker/document-picker.js"></script>
     <script type="text/javascript" src="${url.context}/res/components/object-finder/object-finder.js"></script>
     <script type="text/javascript" src="${url.context}/res/components/common/common-component-style-filter-chain.js"></script>
+    <script type="text/javascript" src="${url.context}/res/components/documentlibrary/tree.js"></script>
+    <script type="text/javascript" src="${url.context}/res/modules/documentlibrary/global-folder.js"></script>
+    <script type="text/javascript" src="${url.context}/res/modules/documentlibrary/copy-move-to.js"></script>
+    <script type="text/javascript" src="${url.context}/res/modules/documentlibrary/doclib-actions.js"></script>
 
+    <link rel="stylesheet" type="text/css" href="${url.context}/res/css/yui-fonts-grids.css" />
     <#if theme = 'default'>
         <link rel="stylesheet" type="text/css" href="${url.context}/res/yui/assets/skins/default/skin.css" />
     <#else>
@@ -70,9 +83,10 @@
     <link rel="stylesheet" type="text/css" href="${url.context}/res/css/base.css" />
     <link rel="stylesheet" type="text/css" href="${url.context}/res/css/yui-layout.css" />
     <link rel="stylesheet" type="text/css" href="${url.context}/res/themes/${theme}/presentation.css" />
+    <link rel="stylesheet" type="text/css" href="${page.url.context}/res/modules/documentlibrary/global-folder.css" />
+    <link rel="stylesheet" type="text/css" href="${url.context}/res/components/documentlibrary/tree.css">
     <link rel="stylesheet" type="text/css" href="${url.context}/res/modules/document-picker/document-picker.css" />
     <link rel="stylesheet" type="text/css" href="${url.context}/res/components/object-finder/object-finder.css" />
-    <link rel="stylesheet" type="text/css" href="${url.context}/res/css/yui-fonts-grids.css" group="template-common" />
 </head>
 
 <body id="Share" class="yui-skin-${theme} alfresco-share claro">
@@ -113,6 +127,19 @@
                     });
                 }
             }
+        });
+
+        var copyMoveTo = new Alfresco.module.DoclibCopyMoveTo("onlyoffice-editor-copyMoveTo");
+        copyMoveTo.setOptions({
+            mode: "move",
+            siteId: Alfresco.constants.SITE,
+            path: "/",
+            files: {
+                "node": {}
+            },
+            parentId: ${folderNode},
+            title: "${msg("onlyoffice.editor.dialog.save-as.title")}",
+            zIndex: 1000
         });
 
         var linkWithoutNewParameter = null;
@@ -203,7 +230,46 @@
         };
 
         var onRequestSaveAs = function (event) {
+            var title = event.data.title.substring(0, event.data.title.lastIndexOf("."));
+            var ext = event.data.title.split(".").pop();
+            var url = event.data.url;
+            var time = 600;
 
+            function insertFileNameInput () {
+                if (!copyMoveTo.widgets.dialog && time > 0) {
+                    time--;
+                    setTimeout(insertFileNameInput, 100);
+                } else if (!copyMoveTo.fileNameInput) {
+                    copyMoveTo.widgets.dialog.hide();
+                    copyMoveTo.widgets.okButton.set("label", "${msg('button.save')}");
+
+                    var fileNameDiv = document.createElement("div");
+                        fileNameDiv.classList.add("fileName");
+                    var fileNameLabel = document.createElement("label");
+                        fileNameLabel.htmlFor = "fileNameInput";
+                        fileNameLabel.innerHTML = "${msg('label.name')}:";
+                    var fileNameInput = document.createElement("input");
+                        fileNameInput.id = "fileNameInput";
+                        fileNameInput.name = "fileNameInput";
+                        fileNameInput.type = "text";
+                        fileNameInput.value = title;
+
+                    fileNameDiv.append(fileNameLabel);
+                    fileNameDiv.append(fileNameInput);
+                    copyMoveTo.widgets.dialog.body.prepend(fileNameDiv);
+
+                    copyMoveTo.fileNameInput = true;
+                    copyMoveTo.widgets.dialog.show();
+                }
+            };
+
+            copyMoveTo.showDialog();
+            insertFileNameInput();
+
+            copyMoveTo.onOK = function () {
+                console.log(this.selectedNode.data.nodeRef);
+                // TO DO
+            };
         };
 
         var editorConfig = ${editorConfig};
