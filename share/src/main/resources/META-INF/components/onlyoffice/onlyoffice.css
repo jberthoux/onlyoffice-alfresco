@@ -29,8 +29,8 @@ div {
     padding: 0;
 }
 
-.fileName{
-    padding: 1em 0.5em 0.5em;
+.fileNameLabel {
+    display: inline-block;
 }
 
 #fileNameInput {

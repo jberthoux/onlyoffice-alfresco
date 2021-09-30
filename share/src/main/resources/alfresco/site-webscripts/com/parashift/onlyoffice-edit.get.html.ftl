@@ -244,9 +244,9 @@
                     copyMoveTo.widgets.okButton.set("label", "${msg('button.save')}");
 
                     var fileNameDiv = document.createElement("div");
-                        fileNameDiv.classList.add("fileName");
-                    var fileNameLabel = document.createElement("label");
-                        fileNameLabel.htmlFor = "fileNameInput";
+                        fileNameDiv.classList.add("wrapper");
+                    var fileNameLabel = document.createElement("h3");
+                        fileNameLabel.classList.add("fileNameLabel");
                         fileNameLabel.innerHTML = "${msg('label.name')}:";
                     var fileNameInput = document.createElement("input");
                         fileNameInput.id = "fileNameInput";
@@ -260,6 +260,11 @@
 
                     copyMoveTo.fileNameInput = true;
                     copyMoveTo.widgets.dialog.show();
+                }
+
+                if (copyMoveTo.fileNameInput) {
+                    document.getElementById("fileNameInput").value = title;
+                    document.getElementById("fileNameInput").classList.remove("invalid");
                 }
             };
 
