@@ -2,6 +2,7 @@
 
 #
 ## Added
+- compare file from storage
 - mail merge from storage
 - insert image from storage
 - add action "download as" from document manager

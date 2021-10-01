@@ -193,7 +193,14 @@
             documentPicker.docEditorCommand = null;
             documentPicker.docEditorEvent = docEditor.setMailMergeRecipients;
             documentPicker.onShowPicker();
-        }
+        };
+
+        var onRequestCompareFile = function () {
+            documentPicker.singleSelectedItem = null;
+            documentPicker.docEditorCommand = null;
+            documentPicker.docEditorEvent = docEditor.setRevisedFile;
+            documentPicker.onShowPicker();
+        };
 
         var editorConfig = ${editorConfig};
 
@@ -204,7 +211,8 @@
             "onRequestHistory": onRequestHistory,
             "onRequestHistoryData": onRequestHistoryData,
             "onRequestInsertImage": onRequestInsertImage,
-            "onRequestMailMergeRecipients": onRequestMailMergeRecipients
+            "onRequestMailMergeRecipients": onRequestMailMergeRecipients,
+            "onRequestCompareFile": onRequestCompareFile
         };
 
         if (/android|avantgo|playbook|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od|ad)|iris|kindle|lge |maemo|midp|mmp|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\\|plucker|pocket|psp|symbian|treo|up\\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i
