@@ -122,6 +122,12 @@ public class UtilDocConfig {
         JSONObject goBack = new JSONObject();
         goBack.put("url", util.getBackUrl(nodeRef));
         customizationObject.put("goback",goBack);
+        customizationObject.put("chat", configManager.getAsBoolean("chat", "true"));
+        customizationObject.put("help", configManager.getAsBoolean("help", "true"));
+        customizationObject.put("compactHeader", configManager.getAsBoolean("compactHeader", "false"));
+        customizationObject.put("toolbarNoTabs", configManager.getAsBoolean("toolbarNoTabs", "false"));
+        customizationObject.put("feedback", configManager.getAsBoolean("feedback", "false"));
+        customizationObject.put("reviewDisplay", configManager.getOrDefault("reviewDisplay", "original"));
 
         JSONObject userObject = new JSONObject();
         editorConfigObject.put("user", userObject);

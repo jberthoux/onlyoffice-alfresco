@@ -82,6 +82,13 @@ public class ConfigCallback extends AbstractWebScript {
             configManager.set("webpreview", data.getString("webpreview"));
             configManager.set("convertOriginal", data.getString("convertOriginal"));
 
+            configManager.set("chat", data.getString("chat"));
+            configManager.set("help", data.getString("help"));
+            configManager.set("compactHeader", data.getString("compactHeader"));
+            configManager.set("toolbarNoTabs", data.getString("toolbarNoTabs"));
+            configManager.set("feedback", data.getString("feedback"));
+            configManager.set("reviewDisplay", data.getString("reviewDisplay"));
+
             JSONObject formats = (JSONObject) data.get("formats");
             configManager.set("formatODT", formats.getString("odt"));
             configManager.set("formatODS", formats.getString("ods"));
