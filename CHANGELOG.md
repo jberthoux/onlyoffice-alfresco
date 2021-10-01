@@ -2,6 +2,7 @@
 
 #
 ## Added
+- mail merge from storage
 - insert image from storage
 - add action "download as" from document manager
 - changing document editor view
