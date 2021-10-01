@@ -459,7 +459,7 @@ public class Util {
     }
 
     public String getCorrectName(NodeRef nodeFolder, String title, String ext) {
-        String name = title + "." + ext;
+        String name = (title + "." + ext).replaceAll("[*?:\"<>/|\\\\]","_");
         NodeRef node = nodeService.getChildByName(nodeFolder, ContentModel.ASSOC_CONTAINS, name);
 
         Integer i = 0;

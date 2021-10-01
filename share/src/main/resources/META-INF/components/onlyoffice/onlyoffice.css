@@ -28,3 +28,16 @@ div {
     margin: 0;
     padding: 0;
 }
+
+.fileNameLabel {
+    display: inline-block;
+}
+
+#fileNameInput {
+    margin-left: 0.5em;
+    width: 28em;
+}
+
+.invalid {
+    background-color: #faecee;
+}
