@@ -164,9 +164,10 @@ public class Prepare extends AbstractWebScript {
 
                 JSONObject configJson = utilDocConfig.getConfigJson(nodeRef, null, username, documentType, docTitle,
                         docExt, preview, isReadOnly);
-                responseJson.put("config", configJson);
+                responseJson.put("editorConfig", configJson);
                 responseJson.put("onlyofficeUrl", util.getEditorUrl());
                 responseJson.put("mime", mimetypeService.getMimetype(docExt));
+                responseJson.put("folderNode", util.getParentNodeRef(nodeRef));
                 responseJson.put("demo", configManager.demoActive());
                 responseJson.put("documentType", documentType);
                 responseJson.put("historyUrl", util.getHistoryUrl(nodeRef));
