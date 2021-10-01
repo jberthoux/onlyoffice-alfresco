@@ -83,7 +83,7 @@
     <link rel="stylesheet" type="text/css" href="${url.context}/res/css/base.css" />
     <link rel="stylesheet" type="text/css" href="${url.context}/res/css/yui-layout.css" />
     <link rel="stylesheet" type="text/css" href="${url.context}/res/themes/${theme}/presentation.css" />
-    <link rel="stylesheet" type="text/css" href="${page.url.context}/res/modules/documentlibrary/global-folder.css" />
+    <link rel="stylesheet" type="text/css" href="${url.context}/res/modules/documentlibrary/global-folder.css" />
     <link rel="stylesheet" type="text/css" href="${url.context}/res/components/documentlibrary/tree.css">
     <link rel="stylesheet" type="text/css" href="${url.context}/res/modules/document-picker/document-picker.css" />
     <link rel="stylesheet" type="text/css" href="${url.context}/res/components/object-finder/object-finder.css" />
