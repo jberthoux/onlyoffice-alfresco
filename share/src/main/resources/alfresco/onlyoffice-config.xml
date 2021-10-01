@@ -91,8 +91,10 @@
 
     <config evaluator="string-compare" condition="DocLibCustom">
         <dependencies>
+            <css src="components/documentlibrary/css/download-as.css"/>
             <js src="components/documentlibrary/onlyoffice-doclib-actions.js" />
             <js src="components/documentlibrary/onlyoffice-doclib-lock-banner.js" />
+            <js src="components/documentlibrary/onlyoffice-doclib-multi-download-as.js" />
         </dependencies>
     </config>
 </alfresco-config>

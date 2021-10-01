@@ -4,6 +4,10 @@
 ## Added
 - save copy as from document editor
 - compare file from storage
+- mail merge from storage
+- insert image from storage
+- add action "download as" from document manager
+- changing document editor view
 - add history of file changes, highlighting changes between versions 
 - changing favorite flag of the file from document editor
 - add goBack url for document editor
