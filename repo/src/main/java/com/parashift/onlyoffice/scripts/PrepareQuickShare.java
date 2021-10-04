@@ -1,5 +1,8 @@
-package com.parashift.onlyoffice;
+package com.parashift.onlyoffice.scripts;
 
+import com.parashift.onlyoffice.util.ConfigManager;
+import com.parashift.onlyoffice.util.Util;
+import com.parashift.onlyoffice.util.UtilDocConfig;
 import org.alfresco.model.ContentModel;
 import org.alfresco.model.QuickShareModel;
 import org.alfresco.repo.tenant.TenantUtil;

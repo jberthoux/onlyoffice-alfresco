@@ -1,5 +1,6 @@
-package com.parashift.onlyoffice;
+package com.parashift.onlyoffice.scripts;
 
+import com.parashift.onlyoffice.util.ConfigManager;
 import com.parashift.onlyoffice.constants.Formats;
 import org.json.JSONException;
 import org.json.JSONObject;

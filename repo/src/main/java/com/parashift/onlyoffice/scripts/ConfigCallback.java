@@ -1,5 +1,9 @@
-package com.parashift.onlyoffice;
+package com.parashift.onlyoffice.scripts;
 
+import com.parashift.onlyoffice.util.ConfigManager;
+import com.parashift.onlyoffice.util.ConvertManager;
+import com.parashift.onlyoffice.util.JwtManager;
+import com.parashift.onlyoffice.util.Util;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -21,7 +25,6 @@ import org.springframework.extensions.webscripts.WebScriptResponse;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
@@ -44,7 +47,7 @@ public class ConfigCallback extends AbstractWebScript {
     Properties globalProp;
 
     @Autowired
-    Converter converter;
+    ConvertManager converter;
 
     @Autowired
     Util util;

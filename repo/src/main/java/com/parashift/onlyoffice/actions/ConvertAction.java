@@ -1,10 +1,13 @@
-package com.parashift.onlyoffice;
+package com.parashift.onlyoffice.actions;
 
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.parashift.onlyoffice.util.ConfigManager;
+import com.parashift.onlyoffice.util.ConvertManager;
+import com.parashift.onlyoffice.util.Util;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.action.executer.ActionExecuterAbstractBase;
@@ -37,7 +40,7 @@ public class ConvertAction extends ActionExecuterAbstractBase {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    Converter converterService;
+    ConvertManager converterService;
 
     @Autowired
     NodeService nodeService;

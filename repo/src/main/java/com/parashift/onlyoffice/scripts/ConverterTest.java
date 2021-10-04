@@ -1,4 +1,4 @@
-package com.parashift.onlyoffice;
+package com.parashift.onlyoffice.scripts;
 
 import java.io.IOException;
 

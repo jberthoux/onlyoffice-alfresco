@@ -1,5 +1,9 @@
-package com.parashift.onlyoffice;
+package com.parashift.onlyoffice.scripts;
 
+import com.parashift.onlyoffice.util.ConfigManager;
+import com.parashift.onlyoffice.util.ConvertManager;
+import com.parashift.onlyoffice.util.JwtManager;
+import com.parashift.onlyoffice.util.Util;
 import org.alfresco.model.ContentModel;
 import org.alfresco.model.RenditionModel;
 import org.alfresco.repo.policy.BehaviourFilter;
@@ -37,7 +41,6 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -80,7 +83,7 @@ public class CallBack extends AbstractWebScript {
     MimetypeService mimetypeService;
 
     @Autowired
-    Converter converterService;
+    ConvertManager converterService;
 
     @Autowired
     TransactionService transactionService;

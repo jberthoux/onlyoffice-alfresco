@@ -1,4 +1,4 @@
-package com.parashift.onlyoffice;
+package com.parashift.onlyoffice.util;
 
 import org.alfresco.service.cmr.attributes.AttributeService;
 import org.springframework.beans.factory.annotation.Autowired;
