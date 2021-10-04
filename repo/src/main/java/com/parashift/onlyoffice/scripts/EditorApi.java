@@ -4,6 +4,8 @@ import com.parashift.onlyoffice.JwtManager;
 import com.parashift.onlyoffice.Util;
 
 import org.alfresco.model.ContentModel;
+import org.alfresco.repo.security.authentication.AuthenticationUtil;
+import org.alfresco.service.cmr.favourites.FavouritesService;
 import org.alfresco.service.cmr.repository.*;
 import org.alfresco.service.cmr.security.AccessStatus;
 import org.alfresco.service.cmr.security.PermissionService;
@@ -49,6 +51,9 @@ public class EditorApi extends AbstractWebScript {
     MimetypeService mimetypeService;
 
     @Autowired
+    FavouritesService favouritesService;
+
+    @Autowired
     Util util;
 
     @Autowired
@@ -66,6 +71,9 @@ public class EditorApi extends AbstractWebScript {
                 break;
             case "save-as":
                 saveAs(request, response);
+                break;
+            case "favorite":
+                favorite(request, response);
                 break;
             default:
                 throw new WebScriptException(Status.STATUS_NOT_FOUND, "API Not Found");
@@ -154,6 +162,21 @@ public class EditorApi extends AbstractWebScript {
             }
         } catch (JSONException e) {
             throw new WebScriptException(Status.STATUS_BAD_REQUEST, "Could not parse JSON from request", e);
+        }
+    }
+
+    private void favorite(WebScriptRequest request, WebScriptResponse response) throws IOException {
+        if (request.getParameter("nodeRef") != null) {
+            NodeRef nodeRef = new NodeRef(request.getParameter("nodeRef"));
+            String username = AuthenticationUtil.getFullyAuthenticatedUser();
+
+            if (favouritesService.isFavourite(username, nodeRef)) {
+                favouritesService.removeFavourite(username, nodeRef);
+            } else {
+                favouritesService.addFavourite(username, nodeRef);
+            }
+        } else {
+            throw new WebScriptException(Status.STATUS_BAD_REQUEST, "Required query parameters not found");
         }
     }
 }

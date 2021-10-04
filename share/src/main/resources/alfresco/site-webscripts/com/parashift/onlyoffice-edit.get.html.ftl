@@ -143,6 +143,7 @@
         });
 
         var linkWithoutNewParameter = null;
+
         var onAppReady = function (event) {
             if (${demo?c}) {
                  docEditor.showMessage("${msg("alfresco.document.onlyoffice.action.edit.msg.demo")}");
@@ -152,26 +153,18 @@
             window.history.pushState({}, {}, linkWithoutNewParameter);
         };
 
-        var getCookie = function (name) {
-            var value = document.cookie;
-            var parts = value.split(name);
-            if (parts.length === 2) return parts.pop().split(';').shift().substring(1);
-        };
-
         var onMetaChange = function (event) {
-            var favorite = !!event.data.favorite;
-                        fetch("${favorite} ", {
-                            method: "POST",
-                            headers: new Headers({
-                                'Content-Type': 'application/json',
-                                'Alfresco-CSRFToken': decodeURIComponent(getCookie('Alfresco-CSRFToken'))
-                            })
-                        })
-                        .then(response => {
-                            var title = document.title.replace(/^\☆/g, "");
-                            document.title = (favorite ? "☆" : "") + title;
-                            docEditor.setFavorite(favorite);
-                        });
+            var favorite = event.data.favorite;
+
+            Alfresco.util.Ajax.jsonPost({
+                url:  Alfresco.constants.PROXY_URI + "${favorite}",
+                successCallback: {
+                    fn: function () {
+                        docEditor.setFavorite(favorite);
+                    },
+                    scope: this
+                }
+            });
         };
 
         var onRequestHistoryClose = function () {
@@ -179,33 +172,34 @@
         };
 
         var onRequestHistory = function () {
-            var xhr = new XMLHttpRequest();
-            var historyUri = "${historyUrl}";
-            xhr.open("GET", historyUri + "&alf_ticket=" + "${ticket}", false);
-            xhr.send();
-            if (xhr.status == 200) {
-                var hist = JSON.parse(xhr.responseText);
-                docEditor.refreshHistory({
-                    currentVersion: hist[0].version,
-                    history: hist.reverse()
-                });
-            }
+            Alfresco.util.Ajax.jsonGet({
+                url:  Alfresco.constants.PROXY_URI + "${historyUrl}",
+                successCallback: {
+                    fn: function (response) {
+                        var hist = response.json;
+                        docEditor.refreshHistory({
+                            currentVersion: hist[0].version,
+                            history: hist.reverse()
+                        });
+                    },
+                    scope: this
+                }
+            });
         };
 
         var onRequestHistoryData = function (event) {
-            var xhr = new XMLHttpRequest();
-            var historyUri = "${historyUrl}";
             var version = event.data;
-            xhr.open("GET", historyUri + "&version=" + version + "&alf_ticket=" + "${ticket}", false);
-            xhr.send();
-            if (xhr.status == 200) {
-                var response = JSON.parse(xhr.responseText);
-                if (response !== null) {
-                    docEditor.setHistoryData(response);
-                } else {
-                    docEditor.setHistoryData([]);
+
+            Alfresco.util.Ajax.jsonGet({
+                url:  Alfresco.constants.PROXY_URI + "${historyUrl}" + "&version=" + version,
+                successCallback: {
+                    fn: function (response) {
+                        var hist = response.json;
+                        docEditor.setHistoryData(response.json);
+                    },
+                    scope: this
                 }
-            }
+            });
         };
 
         var onRequestInsertImage = function (event) {
@@ -346,10 +340,6 @@
         }
 
         var docEditor = new DocsAPI.DocEditor("placeholder", editorConfig);
-        if(editorConfig.document.info.favorite){
-            var title = document.title.replace(/^\☆/g, "");
-            document.title = (editorConfig.document.info.favorite ? "☆" : "") + title;
-        }
     </script>
 </body>
 </html>
