@@ -303,7 +303,7 @@ public class Util {
     }
 
     public String getFavoriteUrl(NodeRef nodeRef){
-        return "parashift/onlyoffice/favourite?nodeRef=" + nodeRef.toString();
+        return "parashift/onlyoffice/editor-api/favorite?nodeRef=" + nodeRef.toString();
     }
 
     public String getHistoryUrl(NodeRef nodeRef) {
