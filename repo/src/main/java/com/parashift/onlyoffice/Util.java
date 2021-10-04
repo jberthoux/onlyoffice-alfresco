@@ -302,17 +302,12 @@ public class Util {
         return getShareUrl() + "page/onlyoffice-edit?nodeRef=" + folderNodeRef + "&new=" + docExtMime;
     }
 
-    public String getFavouriteUrl(NodeRef nodeRef){
-        try {
-            return getAlfrescoUrl() + "s/parashift/onlyoffice/favourite?nodeRef=" + java.net.URLEncoder.encode( nodeRef.toString(), String.valueOf(StandardCharsets.UTF_8));
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        return null;
+    public String getFavoriteUrl(NodeRef nodeRef){
+        return "parashift/onlyoffice/favourite?nodeRef=" + nodeRef.toString();
     }
 
     public String getHistoryUrl(NodeRef nodeRef) {
-        return getAlfrescoUrl() + "s/parashift/onlyoffice/history?nodeRef=" + nodeRef.toString();
+        return "parashift/onlyoffice/history?nodeRef=" + nodeRef.toString();
     }
 
     private String getContentUrlWithoutJWTCheck(NodeRef nodeRef) {

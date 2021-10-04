@@ -15,7 +15,5 @@ model.editorConfig = JSON.stringify(pObj.editorConfig);
 model.folderNode = JSON.stringify(pObj.folderNode);
 model.demo = pObj.demo;
 model.documentType=pObj.documentType;
-model.share = pObj.share;
 model.favorite = pObj.favorite;
 model.historyUrl = pObj.historyUrl;
-model.ticket = pObj.ticket;
