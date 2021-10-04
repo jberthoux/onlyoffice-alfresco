@@ -169,7 +169,6 @@ public class Prepare extends AbstractWebScript {
                 responseJson.put("mime", mimetypeService.getMimetype(docExt));
                 responseJson.put("folderNode", util.getParentNodeRef(nodeRef));
                 responseJson.put("demo", configManager.demoActive());
-                responseJson.put("documentType", documentType);
                 responseJson.put("historyUrl", util.getHistoryUrl(nodeRef));
                 responseJson.put("favorite", util.getFavoriteUrl(nodeRef));
 
