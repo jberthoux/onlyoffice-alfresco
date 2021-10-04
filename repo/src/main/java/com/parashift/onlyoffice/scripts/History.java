@@ -1,6 +1,7 @@
-package com.parashift.onlyoffice;
+package com.parashift.onlyoffice.scripts;
 
 
+import com.parashift.onlyoffice.util.Util;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.security.AccessStatus;
 import org.alfresco.service.cmr.security.PermissionService;

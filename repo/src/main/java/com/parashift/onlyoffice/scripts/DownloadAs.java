@@ -1,5 +1,7 @@
-package com.parashift.onlyoffice;
+package com.parashift.onlyoffice.scripts;
 
+import com.parashift.onlyoffice.util.ConvertManager;
+import com.parashift.onlyoffice.util.Util;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.download.DownloadModel;
 import org.alfresco.repo.download.DownloadStatusUpdateService;
@@ -45,7 +47,7 @@ public class DownloadAs extends AbstractWebScript {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    Converter converterService;
+    ConvertManager converterService;
 
     @Autowired
     Util util;

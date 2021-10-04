@@ -1,4 +1,4 @@
-package com.parashift.onlyoffice;
+package com.parashift.onlyoffice.util;
 
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.admin.SysAdminParams;

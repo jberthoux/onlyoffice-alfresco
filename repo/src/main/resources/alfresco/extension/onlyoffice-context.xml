@@ -10,7 +10,7 @@
     <context:component-scan base-package="com.parashift.onlyoffice" />
 
     <bean id="onlyoffice-convert"
-        class="com.parashift.onlyoffice.ConvertAction"
+        class="com.parashift.onlyoffice.actions.ConvertAction"
         parent="action-executer">
     </bean>
 

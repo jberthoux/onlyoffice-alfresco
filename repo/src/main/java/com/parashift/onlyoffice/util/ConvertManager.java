@@ -1,4 +1,4 @@
-package com.parashift.onlyoffice;
+package com.parashift.onlyoffice.util;
 
 import org.alfresco.service.cmr.repository.*;
 import org.apache.commons.httpclient.HttpStatus;
@@ -35,7 +35,7 @@ import javax.net.ssl.SSLSession;
     http://www.onlyoffice.com
 */
 @Service
-public class Converter {
+public class ConvertManager {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 

@@ -1,5 +1,6 @@
-package com.parashift.onlyoffice;
+package com.parashift.onlyoffice.scripts;
 
+import com.parashift.onlyoffice.util.ConfigManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.extensions.webscripts.DeclarativeWebScript;
 import org.springframework.extensions.webscripts.WebScriptRequest;

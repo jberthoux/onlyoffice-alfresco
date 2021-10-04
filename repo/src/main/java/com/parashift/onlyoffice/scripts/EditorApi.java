@@ -1,7 +1,7 @@
 package com.parashift.onlyoffice.scripts;
 
-import com.parashift.onlyoffice.JwtManager;
-import com.parashift.onlyoffice.Util;
+import com.parashift.onlyoffice.util.JwtManager;
+import com.parashift.onlyoffice.util.Util;
 
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;

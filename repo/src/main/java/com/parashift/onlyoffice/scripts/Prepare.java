@@ -1,5 +1,8 @@
-package com.parashift.onlyoffice;
+package com.parashift.onlyoffice.scripts;
 
+import com.parashift.onlyoffice.util.ConfigManager;
+import com.parashift.onlyoffice.util.Util;
+import com.parashift.onlyoffice.util.UtilDocConfig;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.i18n.MessageService;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
