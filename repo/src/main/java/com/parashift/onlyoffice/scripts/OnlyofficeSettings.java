@@ -25,8 +25,8 @@ public class OnlyofficeSettings extends AbstractWebScript {
     public void execute(WebScriptRequest request, WebScriptResponse response) throws IOException {
         JSONObject responseJson = new JSONObject();
         try {
-            Set<String> editableMimetypes = configManager.getCustomizableEditableSet();
-            responseJson.put("editableMimetypes", editableMimetypes);
+            Set<String> editableFormats = configManager.getCustomizableEditableSet();
+            responseJson.put("editableFormats", editableFormats);
             responseJson.put("convertOriginal", configManager.getAsBoolean("convertOriginal", "false"));
             responseJson.put("supportedFormats", Formats.getSupportedFormats());
 

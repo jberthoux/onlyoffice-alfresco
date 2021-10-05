@@ -12,7 +12,7 @@ public class Formats {
         add(new Format("djvu", Type.WORD, Arrays.asList("bmp", "gif", "jpg", "png")));
         add(new Format("doc", Type.WORD, Arrays.asList("bmp", "docx", "dotx", "epub", "fb2", "gif", "html", "jpg", "odt", "ott", "pdf", "pdfa", "png", "rtf", "txt")));
         add(new Format("docm", Type.WORD, Arrays.asList("bmp", "docx", "dotx", "epub", "fb2", "gif", "html", "jpg", "odt", "ott", "pdf", "pdfa", "png", "rtf", "txt")));
-        add(new Format("docx", Type.WORD, Arrays.asList("bmp", "dotx", "epub", "fb2", "gif", "html", "jpg", "odt", "ott", "pdf", "pdfa", "png", "rtf", "txt")));
+        add(new Format("docx", Type.WORD, true, Arrays.asList("bmp", "dotx", "epub", "fb2", "gif", "html", "jpg", "odt", "ott", "pdf", "pdfa", "png", "rtf", "txt")));
         add(new Format("dot", Type.WORD, Arrays.asList("bmp", "docx", "dotx", "epub", "fb2", "gif", "html", "jpg", "odt", "ott", "pdf", "pdfa", "png", "rtf", "txt")));
         add(new Format("dotm", Type.WORD, Arrays.asList("bmp", "docx", "dotx", "epub", "fb2", "gif", "html", "jpg", "odt", "ott", "pdf", "pdfa", "png", "rtf", "txt")));
         add(new Format("dotx", Type.WORD, Arrays.asList("bmp", "docx", "epub", "fb2", "gif", "html", "jpg", "odt", "ott", "pdf", "pdfa", "png", "rtf", "txt")));
@@ -35,7 +35,7 @@ public class Formats {
         add(new Format("ots", Type.CELL, Arrays.asList("bmp", "csv", "gif", "jpg", "ods", "pdf", "pdfa", "png", "xlsx", "xltx")));
         add(new Format("xls", Type.CELL, Arrays.asList("bmp", "csv", "gif", "jpg", "ods", "ots", "pdf", "pdfa", "png", "xlsx", "xltx")));
         add(new Format("xlsm", Type.CELL, Arrays.asList("bmp", "csv", "gif", "jpg", "ods", "ots", "pdf", "pdfa", "png", "xlsx", "xltx")));
-        add(new Format("xlsx", Type.CELL, Arrays.asList("bmp", "csv", "gif", "jpg", "ods", "ots", "pdf", "pdfa", "png", "xltx")));
+        add(new Format("xlsx", Type.CELL, true, Arrays.asList("bmp", "csv", "gif", "jpg", "ods", "ots", "pdf", "pdfa", "png", "xltx")));
         add(new Format("xlt", Type.CELL, Arrays.asList("bmp", "csv", "gif", "jpg", "ods", "ots", "pdf", "pdfa", "png", "xlsx", "xltx")));
         add(new Format("xltm", Type.CELL, Arrays.asList("bmp", "csv", "gif", "jpg", "ods", "ots", "pdf", "pdfa", "png", "xlsx", "xltx")));
         add(new Format("xltx", Type.CELL, Arrays.asList("bmp", "csv", "gif", "jpg", "ods", "ots", "pdf", "pdfa", "png", "xlsx")));
@@ -51,7 +51,7 @@ public class Formats {
         add(new Format("ppsx", Type.SLIDE, Arrays.asList("bmp", "gif", "jpg", "odp", "otp", "pdf", "pdfa", "png", "potx", "pptx")));
         add(new Format("ppt", Type.SLIDE, Arrays.asList("bmp", "gif", "jpg", "odp", "otp", "pdf", "pdfa", "png", "potx", "pptx")));
         add(new Format("pptm", Type.SLIDE, Arrays.asList("bmp", "gif", "jpg", "odp", "otp", "pdf", "pdfa", "png", "potx", "pptx")));
-        add(new Format("pptx", Type.SLIDE, Arrays.asList("bmp", "gif", "jpg", "odp", "otp", "pdf", "pdfa", "png", "potx")));
+        add(new Format("pptx", Type.SLIDE, true, Arrays.asList("bmp", "gif", "jpg", "odp", "otp", "pdf", "pdfa", "png", "potx")));
     }};
 
     public static List<Format> getSupportedFormats() {

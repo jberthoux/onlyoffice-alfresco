@@ -16,7 +16,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class OnlyofficeSettingsQuery {
-    private static Set<String> editableMimetypes = new HashSet<String>();
+    private static Set<String> editableFormats = new HashSet<String>();
     private static Boolean convertOriginal = false;
     private static JSONArray supportedFormats = new JSONArray();
     private static long timeLastRequest = 0;
@@ -28,7 +28,7 @@ public class OnlyofficeSettingsQuery {
 
     private void requestOnlyofficeSettingsFromRepo() {
         if ((System.nanoTime() - timeLastRequest)/1000000000 > 10) {
-            Set<String> editableMimetypes = new HashSet<>();
+            Set<String> editableFormats = new HashSet<>();
             Response response = remote.call("/parashift/onlyoffice/onlyoffice-settings");
             if (response.getStatus().getCode() == Status.STATUS_OK) {
                 timeLastRequest = System.nanoTime();
@@ -36,11 +36,11 @@ public class OnlyofficeSettingsQuery {
                     JSONParser parser = new JSONParser();
                     JSONObject json = (JSONObject) parser.parse(response.getResponse());
 
-                    JSONArray mimetypes = (JSONArray) json.get("editableMimetypes");
-                    for (Object mimetype : mimetypes) {
-                        editableMimetypes.add((String) mimetype);
+                    JSONArray formats = (JSONArray) json.get("editableFormats");
+                    for (Object format : formats) {
+                        editableFormats.add((String) format);
                     }
-                    this.editableMimetypes = editableMimetypes;
+                    this.editableFormats = editableFormats;
                     this.convertOriginal = (Boolean) json.get("convertOriginal");
                     this.supportedFormats = (JSONArray) json.get("supportedFormats");
                 } catch (Exception err) {
@@ -54,9 +54,9 @@ public class OnlyofficeSettingsQuery {
         }
     }
 
-    public Set<String> getEditableMimetypes() {
+    public Set<String> getEditableFormats() {
         requestOnlyofficeSettingsFromRepo();
-        return editableMimetypes;
+        return editableFormats;
     }
 
     public Boolean getConvertOriginal() {

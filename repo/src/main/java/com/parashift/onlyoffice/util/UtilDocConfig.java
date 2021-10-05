@@ -85,7 +85,7 @@ public class UtilDocConfig {
 
         String mimeType = mimetypeService.getMimetype(docExt);
         editorConfigObject.put("createUrl", util.getCreateNewUrl(nodeRef, mimeType));
-        boolean canWrite = util.isEditable(mimeType) && permissionService.hasPermission(nodeRef, PermissionService.WRITE) == AccessStatus.ALLOWED;
+        boolean canWrite = util.isEditable(docExt) && permissionService.hasPermission(nodeRef, PermissionService.WRITE) == AccessStatus.ALLOWED;
 
         editorConfigObject.put("templates", util.getTemplates(nodeRef, docExt, mimeType));
         if (isReadOnly || preview || !canWrite) {

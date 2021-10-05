@@ -488,10 +488,20 @@ public class Util {
         return null;
     }
 
-    public boolean isEditable(String mime) {
-        List<String> defaultEditableMimeTypes = configManager.getListDefaultProperty("docservice.mime.edit");
-        Set<String> customizableEditableMimeTypes = configManager.getCustomizableEditableSet();
-        return defaultEditableMimeTypes.contains(mime) || customizableEditableMimeTypes.contains(mime);
+    public boolean isEditable(String ext) {
+        List<Format> supportedFormats = Formats.getSupportedFormats();
+        Set<String> customizableEditableFormats = configManager.getCustomizableEditableSet();
+
+        boolean defaultEditFormat = false;
+
+        for (Format format : supportedFormats) {
+            if (format.getName().equals(ext)) {
+                defaultEditFormat = format.isEdit();
+                break;
+            }
+        }
+
+        return defaultEditFormat || customizableEditableFormats.contains(ext);
     }
 
     public String replaceDocEditorURLToInternal(String url) {

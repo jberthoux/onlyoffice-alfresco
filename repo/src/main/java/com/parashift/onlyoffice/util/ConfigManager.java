@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.io.InputStream;
 import java.text.ParseException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -71,26 +70,26 @@ public class ConfigManager {
 
     public Set<String> getCustomizableEditableSet() {
         Set<String> editableSet = new HashSet<>();
+
         if (getAsBoolean("formatODT", "false")){
-            editableSet.add("application/vnd.oasis.opendocument.text");
+            editableSet.add("odt");
         }
         if (getAsBoolean("formatODS", "false")){
-            editableSet.add("application/vnd.oasis.opendocument.spreadsheet");
+            editableSet.add("ods");
         }
         if (getAsBoolean("formatODP", "false")){
-            editableSet.add("application/vnd.oasis.opendocument.presentation");
+            editableSet.add("odp");
         }
         if (getAsBoolean("formatCSV", "true")){
-            editableSet.add("text/csv");
+            editableSet.add("csv");
         }
         if (getAsBoolean("formatTXT", "true")){
-            editableSet.add("text/plain");
+            editableSet.add("txt");
         }
         if (getAsBoolean("formatRTF", "false")){
-            editableSet.add("application/rtf");
-            editableSet.add("application/x-rtf");
-            editableSet.add("text/richtext");
+            editableSet.add("rtf");
         }
+
         return editableSet;
     }
 
@@ -143,24 +142,5 @@ public class ConfigManager {
     public String getDemo(String key) {
         return demoData.get(key);
     }
-
-    private Properties getDefaultProperties() {
-        try {
-            Properties properties = new Properties();
-            InputStream inputStream = getClass().getClassLoader().getResourceAsStream("onlyoffice-config.properties");
-            properties.load(inputStream);
-            return properties;
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    public List<String> getListDefaultProperty(String nameProperty) {
-        Properties properties = getDefaultProperties();
-        String property = properties.getProperty(nameProperty);
-
-        return Arrays.asList(property.split("\\|"));
-    }
-
 }
 
