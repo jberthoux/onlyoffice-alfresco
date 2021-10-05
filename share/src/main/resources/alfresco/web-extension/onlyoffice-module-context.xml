@@ -63,36 +63,6 @@
         </property>
      </bean>
 
-    <bean id="evaluator.doclib.action.onlyofficeConvertMimetype" parent="evaluator.doclib.action.isMimetype">
-        <property name="mimetypes">
-            <list>
-                <value>application/vnd.oasis.opendocument.text</value>
-                <value>application/msword</value>
-                <value>application/rtf</value>
-                <value>application/x-rtf</value>
-                <value>text/richtext</value>
-                <value>application/vnd.ms-word.document.macroenabled.12</value>
-                <value>application/vnd.openxmlformats-officedocument.wordprocessingml.template</value>
-                <value>text/html</value>
-                <value>application/vnd.oasis.opendocument.text-template</value>
-                <value>application/vnd.oasis.opendocument.spreadsheet</value>
-                <value>application/vnd.ms-excel</value>
-                <value>application/vnd.oasis.opendocument.spreadsheet-template</value>
-                <value>application/vnd.ms-excel.sheet.macroenabled.12</value>
-                <value>application/vnd.ms-excel.template.macroenabled.12</value>
-                <value>application/vnd.openxmlformats-officedocument.spreadsheetml.template</value>
-                <value>application/vnd.oasis.opendocument.presentation</value>
-                <value>application/vnd.ms-powerpoint</value>
-                <value>application/vnd.oasis.opendocument.presentation-template</value>
-                <value>application/vnd.ms-powerpoint.template.macroenabled.12</value>
-                <value>application/vnd.ms-powerpoint.slideshow.macroenabled.12</value>
-                <value>application/vnd.ms-powerpoint.presentation.macroenabled.12</value>
-                <value>application/vnd.openxmlformats-officedocument.presentationml.template</value>
-                <value>application/vnd.openxmlformats-officedocument.presentationml.slideshow</value>
-            </list>
-        </property>
-    </bean>
-
     <bean id="onlyoffice.custom.config" class="org.springframework.extensions.config.ConfigBootstrap" init-method="register">
         <property name="configService" ref="web.config" />
         <property name="configs">
@@ -136,7 +106,7 @@
         <property name="negateOutput" value="true" />
     </bean>
     <bean id="evaluator.doclib.action.IsWritePermission" class="com.onlyoffice.web.evaluator.IsWritePermission" />
-    <bean id="evaluator.doclib.action.IsConvertPermission" class="com.onlyoffice.web.evaluator.IsConvertPermission">
+    <bean id="evaluator.doclib.action.IsConvertible" class="com.onlyoffice.web.evaluator.IsConvertible">
         <property name="onlyofficeSettings" ref="slingshot.scriptprocessor.OnlyofficeSettingsQuery" />
     </bean>
     <bean id="evaluator.doclib.action.IsReadPermission" parent="evaluator.doclib.action.IsWritePermission">
