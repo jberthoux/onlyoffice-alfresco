@@ -10,8 +10,6 @@ import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.web.evaluator.BaseEvaluator;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -21,13 +19,11 @@ public class IsConvertible extends BaseEvaluator {
     public void setOnlyofficeSettings(OnlyofficeSettingsQuery onlyofficeSettings) {
         this.onlyofficeSettings = onlyofficeSettings;
     }
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
     public boolean evaluate(JSONObject jsonObject) {
         try
         {
-            logger.error(jsonObject.toString());
             return hasPermission(jsonObject) && isConvertibleFormat(jsonObject);
         }
         catch (Exception err)
