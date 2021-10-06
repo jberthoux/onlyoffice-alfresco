@@ -299,7 +299,7 @@ public class Util {
 
     public String getCreateNewUrl(NodeRef nodeRef, String docExtMime){
         String folderNodeRef = this.nodeService.getPrimaryParent(nodeRef).getParentRef().toString();
-        return getShareUrl() + "page/onlyoffice-edit?nodeRef=" + folderNodeRef + "&new=" + docExtMime;
+        return getShareUrl() + "page/onlyoffice-edit?parentNodeRef=" + folderNodeRef + "&new=" + docExtMime;
     }
 
     public String getFavoriteUrl(NodeRef nodeRef){
