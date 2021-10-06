@@ -8,6 +8,12 @@
 
     <title>${docTitle!} - ONLYOFFICE</title>
 
+    <#if doRedirect>
+        <script type="text/javascript">
+           document.location.href = "${page.url.uri}?nodeRef=${nodeRef!}";
+        </script>
+    </#if>
+
     <link href="${url.context}/res/components/onlyoffice/onlyoffice.css" type="text/css" rel="stylesheet">
 
     <!--Change the address on installed ONLYOFFICE™ Online Editors-->
@@ -142,15 +148,10 @@
             zIndex: 1000
         });
 
-        var linkWithoutNewParameter = null;
-
         var onAppReady = function (event) {
             if (${(demo!false)?c}) {
                  docEditor.showMessage("${msg("alfresco.document.onlyoffice.action.edit.msg.demo")}");
             }
-            linkWithoutNewParameter = document.location.href.substring(0, document.location.href.lastIndexOf("nodeRef")) + "nodeRef=workspace://SpacesStore/"
-                + editorConfig.document.key.substring(0, editorConfig.document.key.lastIndexOf("_"));
-            window.history.pushState({}, {}, linkWithoutNewParameter);
         };
 
         var onMetaChange = function (event) {
@@ -168,7 +169,7 @@
         };
 
         var onRequestHistoryClose = function () {
-            document.location.href = linkWithoutNewParameter;
+            document.location.reload();
         };
 
         var onRequestHistory = function () {
