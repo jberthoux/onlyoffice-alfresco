@@ -10,9 +10,12 @@ import org.alfresco.service.cmr.security.AccessStatus;
 import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.cmr.security.PersonService.PersonInfo;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.extensions.webscripts.Status;
+import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.stereotype.Service;
 
 /*
@@ -55,7 +58,7 @@ public class UtilDocConfig {
     FavouritesService favouritesService;
 
     public JSONObject getConfigJson (NodeRef nodeRef, String sharedId, String username, String documentType,
-            String docTitle, String docExt, Boolean preview, Boolean isReadOnly) throws Exception {
+            String docTitle, String docExt, Boolean preview, Boolean isReadOnly) throws JSONException {
         JSONObject configJson = new JSONObject();
 
         configJson.put("type", preview ? "embedded" : "desktop");
@@ -146,7 +149,11 @@ public class UtilDocConfig {
         }
 
         if (jwtManager.jwtEnabled()) {
-            configJson.put("token", jwtManager.createToken(configJson));
+            try {
+                configJson.put("token", jwtManager.createToken(configJson));
+            } catch (Exception e) {
+                throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR, "Token creation error", e);
+            }
         }
 
         return configJson;

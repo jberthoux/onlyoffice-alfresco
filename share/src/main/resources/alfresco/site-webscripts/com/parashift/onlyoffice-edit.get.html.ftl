@@ -6,14 +6,14 @@
 <head>
     <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
 
-    <title>${docTitle} - ONLYOFFICE</title>
+    <title>${docTitle!} - ONLYOFFICE</title>
 
     <link href="${url.context}/res/components/onlyoffice/onlyoffice.css" type="text/css" rel="stylesheet">
 
     <!--Change the address on installed ONLYOFFICE™ Online Editors-->
-    <script id="scriptApi" type="text/javascript" src="${onlyofficeUrl}OfficeWeb/apps/api/documents/api.js"></script>
-    <link rel="shortcut icon" href="${url.context}/res/components/images/filetypes/${documentType}.ico" type="image/vnd.microsoft.icon" />
-    <link rel="icon" href="${url.context}/res/components/images/filetypes/${documentType}.ico" type="image/vnd.microsoft.icon" />
+    <script id="scriptApi" type="text/javascript" src="${onlyofficeUrl!}OfficeWeb/apps/api/documents/api.js"></script>
+    <link rel="shortcut icon" href="${url.context}/res/components/images/filetypes/${documentType!}.ico" type="image/vnd.microsoft.icon" />
+    <link rel="icon" href="${url.context}/res/components/images/filetypes/${documentType!}.ico" type="image/vnd.microsoft.icon" />
 
     <!-- Alfresco web framework common resources -->
     <script type="text/javascript" src="${url.context}/res/js/yui-common.js"></script>
@@ -98,7 +98,7 @@
            itemFamily: "node",
            itemType: "cm:content",
            multipleSelectMode: false,
-           parentNodeRef: ${folderNode},
+           parentNodeRef: "${folderNode!}",
            restrictParentNavigationToDocLib: true
         });
         documentPicker.onComponentsLoaded(); // Need to force the component loaded call to ensure setup gets completed.
@@ -137,7 +137,7 @@
             files: {
                 "node": {}
             },
-            parentId: ${folderNode},
+            parentId: "${folderNode!}",
             title: "${msg("onlyoffice.editor.dialog.save-as.title")}",
             zIndex: 1000
         });
@@ -145,7 +145,7 @@
         var linkWithoutNewParameter = null;
 
         var onAppReady = function (event) {
-            if (${demo?c}) {
+            if (${(demo!false)?c}) {
                  docEditor.showMessage("${msg("alfresco.document.onlyoffice.action.edit.msg.demo")}");
             }
             linkWithoutNewParameter = document.location.href.substring(0, document.location.href.lastIndexOf("nodeRef")) + "nodeRef=workspace://SpacesStore/"
@@ -157,7 +157,7 @@
             var favorite = event.data.favorite;
 
             Alfresco.util.Ajax.jsonPost({
-                url:  Alfresco.constants.PROXY_URI + "${favorite}",
+                url:  Alfresco.constants.PROXY_URI + "${favorite!}",
                 successCallback: {
                     fn: function () {
                         docEditor.setFavorite(favorite);
@@ -173,7 +173,7 @@
 
         var onRequestHistory = function () {
             Alfresco.util.Ajax.jsonGet({
-                url:  Alfresco.constants.PROXY_URI + "${historyUrl}",
+                url:  Alfresco.constants.PROXY_URI + "${historyUrl!}",
                 successCallback: {
                     fn: function (response) {
                         var hist = response.json;
@@ -191,7 +191,7 @@
             var version = event.data;
 
             Alfresco.util.Ajax.jsonGet({
-                url:  Alfresco.constants.PROXY_URI + "${historyUrl}" + "&version=" + version,
+                url:  Alfresco.constants.PROXY_URI + "${historyUrl!}" + "&version=" + version,
                 successCallback: {
                     fn: function (response) {
                         var hist = response.json;
@@ -320,7 +320,7 @@
             };
         };
 
-        var editorConfig = ${editorConfig};
+        var editorConfig = ${editorConfig!};
 
         editorConfig.events = {
             "onAppReady": onAppReady,
