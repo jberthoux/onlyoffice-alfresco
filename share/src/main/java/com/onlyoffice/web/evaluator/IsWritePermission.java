@@ -13,24 +13,21 @@ public class IsWritePermission extends BaseEvaluator {
 
     @Override
     public boolean evaluate(JSONObject jsonObject) {
-        try
-        {
+        try {
             JSONObject node = (JSONObject)jsonObject.get("node");
-            if (node == null)
-            {
-                return false;
-            }
-            else
-            {
+            if (node != null && node.containsKey("permissions")){
                 JSONObject perm = (JSONObject)node.get("permissions");
-                JSONObject user = (JSONObject)perm.get("user");
-                return (boolean)user.getOrDefault("Write", false);
+                if (perm != null && perm.containsKey("user")) {
+                    JSONObject user = (JSONObject) perm.get("user");
+                    if (user != null && (boolean) user.getOrDefault("Write", false)) {
+                        return true;
+                    }
+                }
             }
-        }
-        catch (Exception err)
-        {
+
+            return false;
+        } catch (Exception err) {
             throw new AlfrescoRuntimeException("Failed to run action evaluator", err);
         }
     }
-
 }
