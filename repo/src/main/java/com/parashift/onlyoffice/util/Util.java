@@ -301,7 +301,7 @@ public class Util {
 
     public String getCreateNewUrl(NodeRef nodeRef, String docExtMime){
         String folderNodeRef = this.nodeService.getPrimaryParent(nodeRef).getParentRef().toString();
-        return getShareUrl() + "page/onlyoffice-edit?nodeRef=" + folderNodeRef + "&new=" + docExtMime;
+        return getShareUrl() + "page/onlyoffice-edit?parentNodeRef=" + folderNodeRef + "&new=" + docExtMime;
     }
 
     public String getFavoriteUrl(NodeRef nodeRef){
@@ -419,7 +419,7 @@ public class Util {
                 JSONObject template = new JSONObject();
                 String image = getShareUrl() + "proxy/alfresco/api/node/workspace/SpacesStore/" + assoc.getChildRef().toString().split("/SpacesStore/")[1] + "/content/thumbnails/doclib?ph=true";
                 String title = nodeService.getProperty(assoc.getChildRef(), ContentModel.PROP_NAME).toString();
-                String url = getCreateNewUrl(nodeRef, mimeType) + "&parentNodeRef=" + assoc.getChildRef();
+                String url = getCreateNewUrl(nodeRef, mimeType) + "&templateNodeRef=" + assoc.getChildRef();
                 try {
                     template.put("image", image);
                     template.put("title", title);
