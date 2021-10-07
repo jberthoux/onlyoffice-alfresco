@@ -1,5 +1,7 @@
 package com.parashift.onlyoffice.util;
 
+import com.parashift.onlyoffice.constants.Format;
+import com.parashift.onlyoffice.constants.Formats;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.admin.SysAdminParams;
 import org.alfresco.service.cmr.coci.CheckOutCheckInService;
@@ -475,21 +477,31 @@ public class Util {
     }
 
     public String getDocType(String ext) {
-        List<String> wordFormats = configManager.getListDefaultProperty("docservice.type.word");
-        List<String> cellFormats = configManager.getListDefaultProperty("docservice.type.cell");
-        List<String> slideFormats = configManager.getListDefaultProperty("docservice.type.slide");
+        List<Format> supportedFormats = Formats.getSupportedFormats();
 
-        if (wordFormats.contains(ext)) return "word";
-        if (cellFormats.contains(ext)) return "cell";
-        if (slideFormats.contains(ext)) return "slide";
+        for (Format format : supportedFormats) {
+            if (format.getName().equals(ext)) {
+                return format.getType().name().toLowerCase();
+            }
+        }
 
         return null;
     }
 
-    public boolean isEditable(String mime) {
-        List<String> defaultEditableMimeTypes = configManager.getListDefaultProperty("docservice.mime.edit");
-        Set<String> customizableEditableMimeTypes = configManager.getCustomizableEditableSet();
-        return defaultEditableMimeTypes.contains(mime) || customizableEditableMimeTypes.contains(mime);
+    public boolean isEditable(String ext) {
+        List<Format> supportedFormats = Formats.getSupportedFormats();
+        Set<String> customizableEditableFormats = configManager.getCustomizableEditableSet();
+
+        boolean defaultEditFormat = false;
+
+        for (Format format : supportedFormats) {
+            if (format.getName().equals(ext)) {
+                defaultEditFormat = format.isEdit();
+                break;
+            }
+        }
+
+        return defaultEditFormat || customizableEditableFormats.contains(ext);
     }
 
     public String replaceDocEditorURLToInternal(String url) {
