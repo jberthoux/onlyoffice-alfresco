@@ -26,7 +26,7 @@ public class IsOnlyEditEvaluator extends BaseEvaluator {
 
             return false;
         } catch (Exception err) {
-            throw new AlfrescoRuntimeException("Failed to run action evaluator: " + err.getMessage());
+            throw new AlfrescoRuntimeException("Failed to run action evaluator", err);
         }
     }
 

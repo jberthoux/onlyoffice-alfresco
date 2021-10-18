@@ -25,7 +25,7 @@ public class IsCorrectDownloadAs extends BaseEvaluator {
             String docExt = docName.substring(docName.lastIndexOf(".") + 1);
             return isSuppotredFormats(docExt);
         } catch (Exception err) {
-            throw new AlfrescoRuntimeException("Failed to run action evaluator: " + err.getMessage(), err);
+            throw new AlfrescoRuntimeException("Failed to run action evaluator", err);
         }
     }
 

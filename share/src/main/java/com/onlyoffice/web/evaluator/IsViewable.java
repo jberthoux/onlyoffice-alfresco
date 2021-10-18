@@ -39,7 +39,7 @@ public class IsViewable extends BaseEvaluator {
                 return canView && !onlyofficeSettings.getEditableFormats().contains(docExt);
             }
         } catch (Exception err) {
-            throw new AlfrescoRuntimeException("Failed to run action evaluator: " + err.getMessage());
+            throw new AlfrescoRuntimeException("Failed to run action evaluator", err);
         }
 
         return false;
