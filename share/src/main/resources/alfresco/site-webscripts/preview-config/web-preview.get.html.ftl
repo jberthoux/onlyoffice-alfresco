@@ -8,10 +8,10 @@
         <script id="scriptApi" type="text/javascript" src="${onlyofficeUrl}OfficeWeb/apps/api/documents/api.js"></script>
         <script>
             var docEditor;
-            var config = ${configOnlyoffice};
+            var editorConfig = ${editorConfig};
 
             var connectEditor = function () {
-                docEditor = new DocsAPI.DocEditor("embeddedView", config);
+                docEditor = new DocsAPI.DocEditor("embeddedView", editorConfig);
             }
 
             YAHOO.Bubbling.on("webPreviewSetupComplete", connectEditor, this);
