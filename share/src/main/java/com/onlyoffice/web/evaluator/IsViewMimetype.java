@@ -58,7 +58,7 @@ public class IsViewMimetype extends BaseEvaluator {
         }
         catch (Exception err)
         {
-            throw new AlfrescoRuntimeException("Failed to run action evaluator: " + err.getMessage());
+            throw new AlfrescoRuntimeException("Failed to run action evaluator", err);
         }
 
         return true;

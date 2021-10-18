@@ -19,38 +19,34 @@ public class IsConvertPermission extends BaseEvaluator {
 
     @Override
     public boolean evaluate(JSONObject jsonObject) {
-        try
-        {
+        try {
             if (onlyofficeSettings.getConvertOriginal()) {
                 JSONObject node = (JSONObject)jsonObject.get("node");
-                if (node == null)
-                {
-                    return false;
-                }
-                else
-                {
+                if (node != null && node.containsKey("permissions")) {
                     JSONObject perm = (JSONObject)node.get("permissions");
-                    JSONObject user = (JSONObject)perm.get("user");
-                    return (boolean)user.getOrDefault("Write", false);
+                    if (perm != null && perm.containsKey("user")) {
+                        JSONObject user = (JSONObject)perm.get("user");
+                        if (user != null && (boolean)user.getOrDefault("Write", false)) {
+                            return true;
+                        }
+                    }
                 }
             } else {
                 JSONObject parent = (JSONObject)jsonObject.get("parent");
-                if (parent == null)
-                {
-                    return false;
-                }
-                else
-                {
+                if (parent != null && parent.containsKey("permissions")) {
                     JSONObject perm = (JSONObject)parent.get("permissions");
-                    JSONObject user = (JSONObject)perm.get("user");
-                    return (boolean)user.getOrDefault("CreateChildren", false);
+                    if (perm != null && perm.containsKey("user")) {
+                        JSONObject user = (JSONObject)perm.get("user");
+                        if (user != null && (boolean)user.getOrDefault("CreateChildren", false)) {
+                            return true;
+                        }
+                    }
                 }
             }
-        }
-        catch (Exception err)
-        {
-            throw new AlfrescoRuntimeException("Failed to run action evaluator: " + err.getMessage());
+
+            return false;
+        } catch (Exception err) {
+            throw new AlfrescoRuntimeException("Failed to run action evaluator", err);
         }
     }
-
 }
