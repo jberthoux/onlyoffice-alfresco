@@ -16,6 +16,9 @@
 - detecting mobile browser
 - creating new file from document editor by document template
 
+## Fixed
+- bug when System user was document modifier
+
 # 5.0.1
 ## Fixed
 - error on the "Document Details" page when the "Convert with ONLYOFFICE" button is displayed [#121](https://github.com/ONLYOFFICE/onlyoffice-alfresco/issues/121)
