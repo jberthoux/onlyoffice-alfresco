@@ -214,7 +214,7 @@ public class CallBack extends AbstractWebScript {
                 case 2:
                     logger.debug("Document Updated, changing content");
                     downloadUrl = util.replaceDocEditorURLToInternal(callBackJSon.getString("url"));
-                    updateNode(wc, downloadUrl, AuthenticationUtil.getFullyAuthenticatedUser());
+                    updateNode(wc, downloadUrl);
 
                     logger.info("removing prop");
                     nodeService.removeProperty(wc, Util.EditingHashAspect);
@@ -240,7 +240,7 @@ public class CallBack extends AbstractWebScript {
 
                     logger.debug("Forcesave request (type: " + callBackJSon.getInt("forcesavetype") + ")");
                     downloadUrl = util.replaceDocEditorURLToInternal(callBackJSon.getString("url"));
-                    updateNode(wc, downloadUrl, AuthenticationUtil.getFullyAuthenticatedUser());
+                    updateNode(wc, downloadUrl);
 
                     String hash = (String) nodeService.getProperty(wc, Util.EditingHashAspect);
                     String key = (String) nodeService.getProperty(wc, Util.EditingKeyAspect);
@@ -259,15 +259,17 @@ public class CallBack extends AbstractWebScript {
         }
     }
 
-    private void updateNode(final NodeRef nodeRef, String url, final String user) throws Exception {
+    private void updateNode(final NodeRef nodeRef, String url) throws Exception {
         logger.debug("Retrieving URL:" + url);
+
+        final String currentUser = AuthenticationUtil.getFullyAuthenticatedUser();
 
         AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Void>() {
             public Void doWork() {
                 NodeRef sourcesNodeRef = cociService.getCheckedOut(nodeRef);
-                nodeService.setProperty(sourcesNodeRef, ContentModel.PROP_LOCK_OWNER, user);
-                ownableService.setOwner(nodeRef, user);
-                nodeService.setProperty(nodeRef, ContentModel.PROP_WORKING_COPY_OWNER, user);
+                nodeService.setProperty(sourcesNodeRef, ContentModel.PROP_LOCK_OWNER, currentUser);
+                ownableService.setOwner(nodeRef, currentUser);
+                nodeService.setProperty(nodeRef, ContentModel.PROP_WORKING_COPY_OWNER, currentUser);
                 return null;
             }
         }, AuthenticationUtil.getSystemUserName());
