@@ -6,11 +6,13 @@ import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.tenant.TenantContextHolder;
 import org.alfresco.repo.transaction.RetryingTransactionHelper.RetryingTransactionCallback;
 import org.alfresco.service.cmr.coci.CheckOutCheckInService;
-import org.alfresco.service.cmr.repository.ContentData;
-import org.alfresco.service.cmr.repository.ContentService;
-import org.alfresco.service.cmr.repository.MimetypeService;
-import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.cmr.repository.*;
+import org.alfresco.service.cmr.security.OwnableService;
+import org.alfresco.service.cmr.version.Version;
+import org.alfresco.service.cmr.version.VersionService;
+import org.alfresco.service.cmr.version.VersionType;
+import org.alfresco.service.namespace.NamespaceService;
+import org.alfresco.service.namespace.QName;
 import org.alfresco.service.transaction.TransactionService;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.json.JSONArray;
@@ -67,6 +69,9 @@ public class CallBack extends AbstractWebScript {
 
     @Autowired
     NodeService nodeService;
+
+    @Autowired
+    OwnableService ownableService;
 
     @Autowired
     MimetypeService mimetypeService;
@@ -195,7 +200,6 @@ public class CallBack extends AbstractWebScript {
         @Override
         public Object execute() throws Throwable {
             NodeRef wc = cociService.getWorkingCopy(nodeRef);
-            String lockOwner = (String)nodeService.getProperty(wc, ContentModel.PROP_WORKING_COPY_OWNER);
             String downloadUrl = null;
             //Status codes from here: https://api.onlyoffice.com/editors/editor
             switch(callBackJSon.getInt("status")) {
@@ -210,13 +214,12 @@ public class CallBack extends AbstractWebScript {
                 case 2:
                     logger.debug("Document Updated, changing content");
                     downloadUrl = util.replaceDocEditorURLToInternal(callBackJSon.getString("url"));
-                    updateNode(wc, downloadUrl);
+                    updateNode(wc, downloadUrl, AuthenticationUtil.getFullyAuthenticatedUser());
 
                     logger.info("removing prop");
                     nodeService.removeProperty(wc, Util.EditingHashAspect);
                     nodeService.removeProperty(wc, Util.EditingKeyAspect);
 
-                    AuthenticationUtil.setRunAsUser(AuthenticationUtil.getSystemUserName());
                     cociService.checkin(wc, null, null);
                     break;
                 case 3:
@@ -237,7 +240,7 @@ public class CallBack extends AbstractWebScript {
 
                     logger.debug("Forcesave request (type: " + callBackJSon.getInt("forcesavetype") + ")");
                     downloadUrl = util.replaceDocEditorURLToInternal(callBackJSon.getString("url"));
-                    updateNode(wc, downloadUrl);
+                    updateNode(wc, downloadUrl, AuthenticationUtil.getFullyAuthenticatedUser());
 
                     String hash = (String) nodeService.getProperty(wc, Util.EditingHashAspect);
                     String key = (String) nodeService.getProperty(wc, Util.EditingKeyAspect);
@@ -245,12 +248,7 @@ public class CallBack extends AbstractWebScript {
                     nodeService.removeProperty(wc, Util.EditingHashAspect);
                     nodeService.removeProperty(wc, Util.EditingKeyAspect);
 
-                    AuthenticationUtil.setRunAsUser(AuthenticationUtil.getSystemUserName());
                     cociService.checkin(wc, null, null, true);
-
-                    AuthenticationUtil.clearCurrentSecurityContext();
-                    TenantContextHolder.setTenantDomain(AuthenticationUtil.getUserTenant(lockOwner).getSecond());
-                    AuthenticationUtil.setRunAsUser(lockOwner);
 
                     nodeService.setProperty(wc, Util.EditingHashAspect, hash);
                     nodeService.setProperty(wc, Util.EditingKeyAspect, key);
@@ -261,8 +259,19 @@ public class CallBack extends AbstractWebScript {
         }
     }
 
-    private void updateNode(NodeRef nodeRef, String url) throws Exception {
+    private void updateNode(final NodeRef nodeRef, String url, final String user) throws Exception {
         logger.debug("Retrieving URL:" + url);
+
+        AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Void>() {
+            public Void doWork() {
+                NodeRef sourcesNodeRef = cociService.getCheckedOut(nodeRef);
+                nodeService.setProperty(sourcesNodeRef, ContentModel.PROP_LOCK_OWNER, user);
+                ownableService.setOwner(nodeRef, user);
+                nodeService.setProperty(nodeRef, ContentModel.PROP_WORKING_COPY_OWNER, user);
+                return null;
+            }
+        }, AuthenticationUtil.getSystemUserName());
+
         ContentData contentData = (ContentData) nodeService.getProperty(nodeRef, ContentModel.PROP_CONTENT);
         String mimeType = contentData.getMimetype();
 
