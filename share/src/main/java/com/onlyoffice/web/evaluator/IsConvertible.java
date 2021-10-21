@@ -11,8 +11,6 @@ import org.alfresco.web.evaluator.BaseEvaluator;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import java.util.List;
-
 public class IsConvertible extends BaseEvaluator {
     private OnlyofficeSettingsQuery onlyofficeSettings;
 
@@ -22,38 +20,39 @@ public class IsConvertible extends BaseEvaluator {
 
     @Override
     public boolean evaluate(JSONObject jsonObject) {
-        try
-        {
+        try {
             return hasPermission(jsonObject) && isConvertibleFormat(jsonObject);
-        }
-        catch (Exception err)
-        {
-            throw new AlfrescoRuntimeException("Failed to run action evaluator: " + err.getMessage());
+        } catch (Exception err) {
+            throw new AlfrescoRuntimeException("Failed to run action evaluator", err);
         }
     }
 
     private boolean hasPermission (JSONObject jsonObject) {
         if (onlyofficeSettings.getConvertOriginal()) {
-            JSONObject node = (JSONObject)jsonObject.get("node");
-            if (node == null) {
-                return false;
-            }
-            else {
-                JSONObject perm = (JSONObject)node.get("permissions");
-                JSONObject user = (JSONObject)perm.get("user");
-                return (boolean) user.getOrDefault("Write", false);
+            JSONObject node = (JSONObject) jsonObject.get("node");
+            if (node != null && node.containsKey("permissions")) {
+                JSONObject perm = (JSONObject) node.get("permissions");
+                if (perm != null && perm.containsKey("user")) {
+                    JSONObject user = (JSONObject) perm.get("user");
+                    if (user != null && (boolean) user.getOrDefault("Write", false)) {
+                        return true;
+                    }
+                }
             }
         } else {
-            JSONObject parent = (JSONObject)jsonObject.get("parent");
-            if (parent == null) {
-                return false;
-            }
-            else {
-                JSONObject perm = (JSONObject)parent.get("permissions");
-                JSONObject user = (JSONObject)perm.get("user");
-                return (boolean) user.getOrDefault("CreateChildren", false);
+            JSONObject parent = (JSONObject) jsonObject.get("parent");
+            if (parent != null && parent.containsKey("permissions")) {
+                JSONObject perm = (JSONObject) parent.get("permissions");
+                if (perm != null && perm.containsKey("user")) {
+                    JSONObject user = (JSONObject) perm.get("user");
+                    if (user != null && (boolean) user.getOrDefault("CreateChildren", false)) {
+                        return true;
+                    }
+                }
             }
         }
+
+        return false;
     }
 
 
