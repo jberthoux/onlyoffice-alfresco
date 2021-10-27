@@ -13,6 +13,7 @@ import org.alfresco.repo.transaction.RetryingTransactionHelper.RetryingTransacti
 import org.alfresco.repo.version.VersionModel;
 import org.alfresco.service.cmr.coci.CheckOutCheckInService;
 import org.alfresco.service.cmr.repository.*;
+import org.alfresco.service.cmr.security.OwnableService;
 import org.alfresco.service.cmr.version.Version;
 import org.alfresco.service.cmr.version.VersionService;
 import org.alfresco.service.cmr.version.VersionType;
@@ -78,6 +79,9 @@ public class CallBack extends AbstractWebScript {
 
     @Autowired
     NodeService nodeService;
+
+    @Autowired
+    OwnableService ownableService;
 
     @Autowired
     MimetypeService mimetypeService;
@@ -209,7 +213,6 @@ public class CallBack extends AbstractWebScript {
         @Override
         public Object execute() throws Throwable {
             NodeRef wc = cociService.getWorkingCopy(nodeRef);
-            String lockOwner = (String)nodeService.getProperty(wc, ContentModel.PROP_WORKING_COPY_OWNER);
             String downloadUrl = null;
             //Status codes from here: https://api.onlyoffice.com/editors/editor
             switch(callBackJSon.getInt("status")) {
@@ -230,9 +233,8 @@ public class CallBack extends AbstractWebScript {
                     nodeService.removeProperty(wc, Util.EditingHashAspect);
                     nodeService.removeProperty(wc, Util.EditingKeyAspect);
 
-                    AuthenticationUtil.setRunAsUser(AuthenticationUtil.getSystemUserName());
                     cociService.checkin(wc, null, null);
-                    saveHistoryToChildNode(nodeRef, callBackJSon,false);
+                    saveHistoryToChildNode(nodeRef, callBackJSon, false);
                     break;
                 case 3:
                     logger.error("ONLYOFFICE has reported that saving the document has failed");
@@ -260,16 +262,13 @@ public class CallBack extends AbstractWebScript {
                     nodeService.removeProperty(wc, Util.EditingHashAspect);
                     nodeService.removeProperty(wc, Util.EditingKeyAspect);
 
-                    AuthenticationUtil.setRunAsUser(AuthenticationUtil.getSystemUserName());
                     cociService.checkin(wc, null, null, true);
-                    saveHistoryToChildNode(nodeRef, callBackJSon, true);
-
-                    AuthenticationUtil.clearCurrentSecurityContext();
-                    TenantContextHolder.setTenantDomain(AuthenticationUtil.getUserTenant(lockOwner).getSecond());
-                    AuthenticationUtil.setRunAsUser(lockOwner);
 
                     nodeService.setProperty(wc, Util.EditingHashAspect, hash);
                     nodeService.setProperty(wc, Util.EditingKeyAspect, key);
+
+                    saveHistoryToChildNode(nodeRef, callBackJSon, true);
+
                     logger.debug("Forcesave complete");
                     break;
             }
@@ -277,35 +276,40 @@ public class CallBack extends AbstractWebScript {
         }
     }
 
-    private void saveHistoryToChildNode(NodeRef nodeRef, JSONObject changes, Boolean forceSave) {
-        Map<QName, Serializable> props = new HashMap<>();
-        NodeRef jsonNode = null;
-        NodeRef zipNode = null;
-        for(ChildAssociationRef assoc : nodeService.getChildAssocs(nodeRef)) {
-            if (nodeService.getProperty(assoc.getChildRef(), ContentModel.PROP_NAME).equals("changes.json")) {
-                jsonNode = assoc.getChildRef();
-            } else if (nodeService.getProperty(assoc.getChildRef(), ContentModel.PROP_NAME).equals("diff.zip")) {
-                zipNode = assoc.getChildRef();
+    private void saveHistoryToChildNode(final NodeRef nodeRef, final JSONObject changes, final Boolean forceSave) {
+        AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Void>() {
+            public Void doWork() {
+                Map<QName, Serializable> props = new HashMap<>();
+                NodeRef jsonNode = null;
+                NodeRef zipNode = null;
+                for (ChildAssociationRef assoc : nodeService.getChildAssocs(nodeRef)) {
+                    if (nodeService.getProperty(assoc.getChildRef(), ContentModel.PROP_NAME).equals("changes.json")) {
+                        jsonNode = assoc.getChildRef();
+                    } else if (nodeService.getProperty(assoc.getChildRef(), ContentModel.PROP_NAME).equals("diff.zip")) {
+                        zipNode = assoc.getChildRef();
+                    }
+                }
+                if (jsonNode == null && zipNode == null) {
+                    props.put(ContentModel.PROP_NAME, "diff.zip");
+                    NodeRef historyNodeRefZip = nodeService.createNode(nodeRef, RenditionModel.ASSOC_RENDITION,
+                            QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, "diff.zip"),
+                            ContentModel.TYPE_CONTENT, props).getChildRef();
+
+                    props.clear();
+                    props.put(ContentModel.PROP_NAME, "changes.json");
+                    NodeRef historyNodeRefJson = nodeService.createNode(nodeRef, RenditionModel.ASSOC_RENDITION,
+                            QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, "changes.json"),
+                            ContentModel.TYPE_CONTENT, props).getChildRef();
+                    writeContent(historyNodeRefZip, historyNodeRefJson, changes, forceSave, nodeRef);
+
+                    util.ensureVersioningEnabled(historyNodeRefZip);
+                    util.ensureVersioningEnabled(historyNodeRefJson);
+                } else {
+                    writeContent(zipNode, jsonNode, changes, forceSave, nodeRef);
+                }
+                return null;
             }
-        }
-        if (jsonNode == null && zipNode == null) {
-            props.put(ContentModel.PROP_NAME, "diff.zip");
-            NodeRef historyNodeRefZip = this.nodeService.createNode(nodeRef, RenditionModel.ASSOC_RENDITION,
-                    QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, "diff.zip"),
-                    ContentModel.TYPE_CONTENT, props).getChildRef();
-
-            props.clear();
-            props.put(ContentModel.PROP_NAME, "changes.json");
-            NodeRef historyNodeRefJson = this.nodeService.createNode(nodeRef, RenditionModel.ASSOC_RENDITION,
-                    QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, "changes.json"),
-                    ContentModel.TYPE_CONTENT, props).getChildRef();
-            writeContent(historyNodeRefZip, historyNodeRefJson, changes, forceSave, nodeRef);
-
-            util.ensureVersioningEnabled(historyNodeRefZip);
-            util.ensureVersioningEnabled(historyNodeRefJson);
-        } else {
-            writeContent(zipNode, jsonNode, changes, forceSave, nodeRef);
-        }
+        }, AuthenticationUtil.getSystemUserName());
     }
     private void writeContent(NodeRef zipNode, NodeRef jsonNode, JSONObject changes, Boolean forceSave, NodeRef nodeRef) {
         try {
@@ -336,8 +340,21 @@ public class CallBack extends AbstractWebScript {
         }
     }
 
-    private void updateNode(NodeRef nodeRef, String url) throws Exception {
+    private void updateNode(final NodeRef nodeRef, String url) throws Exception {
         logger.debug("Retrieving URL:" + url);
+
+        final String currentUser = AuthenticationUtil.getFullyAuthenticatedUser();
+
+        AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Void>() {
+            public Void doWork() {
+                NodeRef sourcesNodeRef = cociService.getCheckedOut(nodeRef);
+                nodeService.setProperty(sourcesNodeRef, ContentModel.PROP_LOCK_OWNER, currentUser);
+                ownableService.setOwner(nodeRef, currentUser);
+                nodeService.setProperty(nodeRef, ContentModel.PROP_WORKING_COPY_OWNER, currentUser);
+                return null;
+            }
+        }, AuthenticationUtil.getSystemUserName());
+
         ContentData contentData = (ContentData) nodeService.getProperty(nodeRef, ContentModel.PROP_CONTENT);
         String mimeType = contentData.getMimetype();
 

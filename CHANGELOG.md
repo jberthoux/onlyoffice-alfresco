@@ -8,7 +8,7 @@
 - insert image from storage
 - add action "download as" from document manager
 - changing document editor view
-- add history of file changes, highlighting changes between versions 
+- add history of file changes, highlighting changes between versions
 - changing favorite flag of the file from document editor
 - add goBack url for document editor
 - creating new file from document editor
@@ -17,6 +17,7 @@
 - creating new file from document editor by document template
 
 ## Fixed
+- bug when System user was document modifier
 - loading preview on document-details page
 
 # 5.0.1
