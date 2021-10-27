@@ -18,7 +18,7 @@ if (model.widgets) {
 
             if (pObj && pObj.previewEnabled && pObj.onlyofficeUrl && pObj.mime) {
                 model.onlyofficeUrl = pObj.onlyofficeUrl;
-                model.configOnlyoffice = JSON.stringify(pObj.config);
+                model.editorConfig = JSON.stringify(pObj.editorConfig);
 
                 widget.options.pluginConditions = jsonUtils.toJSONString([{
                     attributes: {
