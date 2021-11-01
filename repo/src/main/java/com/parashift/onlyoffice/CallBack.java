@@ -71,9 +71,6 @@ public class CallBack extends AbstractWebScript {
     NodeService nodeService;
 
     @Autowired
-    OwnableService ownableService;
-
-    @Autowired
     MimetypeService mimetypeService;
 
     @Autowired
@@ -268,7 +265,6 @@ public class CallBack extends AbstractWebScript {
             public Void doWork() {
                 NodeRef sourcesNodeRef = cociService.getCheckedOut(nodeRef);
                 nodeService.setProperty(sourcesNodeRef, ContentModel.PROP_LOCK_OWNER, currentUser);
-                ownableService.setOwner(nodeRef, currentUser);
                 nodeService.setProperty(nodeRef, ContentModel.PROP_WORKING_COPY_OWNER, currentUser);
                 return null;
             }
