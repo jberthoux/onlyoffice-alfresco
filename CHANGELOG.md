@@ -19,6 +19,7 @@
 ## Fixed
 - bug when System user was document modifier
 - loading preview on document-details page
+- bug when user with role CONTRIBUTOR can't join to editing
 
 # 5.0.1
 ## Fixed

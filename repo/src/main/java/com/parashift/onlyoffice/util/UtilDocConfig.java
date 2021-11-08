@@ -7,6 +7,7 @@ import org.alfresco.service.cmr.repository.MimetypeService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.AccessStatus;
+import org.alfresco.service.cmr.security.OwnableService;
 import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.cmr.security.PersonService.PersonInfo;
@@ -44,6 +45,9 @@ public class UtilDocConfig {
 
     @Autowired
     PersonService personService;
+
+    @Autowired
+    OwnableService ownableService;
 
     @Autowired
     ConfigManager configManager;
@@ -97,6 +101,7 @@ public class UtilDocConfig {
         } else {
             if (!cociService.isCheckedOut(nodeRef)) {
                 NodeRef copyRef = cociService.checkout(nodeRef);
+                ownableService.setOwner(copyRef, ownableService.getOwner(nodeRef));
                 nodeService.setProperty(copyRef, Util.EditingKeyAspect, documentObject.getString("key"));
                 nodeService.setProperty(copyRef, Util.EditingHashAspect, util.generateHash());
             }
