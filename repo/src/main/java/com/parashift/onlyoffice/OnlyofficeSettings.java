@@ -1,5 +1,6 @@
 package com.parashift.onlyoffice;
 
+import com.parashift.onlyoffice.constants.Formats;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,9 +24,10 @@ public class OnlyofficeSettings extends AbstractWebScript {
     public void execute(WebScriptRequest request, WebScriptResponse response) throws IOException {
         JSONObject responseJson = new JSONObject();
         try {
-            Set<String> editableMimetypes = configManager.getCustomizableEditableSet();
-            responseJson.put("editableMimetypes", editableMimetypes);
+            Set<String> editableFormats = configManager.getCustomizableEditableSet();
+            responseJson.put("editableFormats", editableFormats);
             responseJson.put("convertOriginal", configManager.getAsBoolean("convertOriginal", "false"));
+            responseJson.put("supportedFormats", Formats.getSupportedFormats());
 
             response.setContentType("application/json; charset=utf-8");
             response.setContentEncoding("UTF-8");
