@@ -87,7 +87,7 @@
                 <param name="action">onlyoffice-convert</param>
                 <param name="successMessage">alfresco.document.onlyoffice.action.convert.msg.success</param>
                 <param name="failureMessage">alfresco.document.onlyoffice.action.convert.msg.failure</param>
-                <evaluator>evaluator.doclib.action.onlyofficeIsEditable</evaluator>
+                <evaluator>evaluator.doclib.action.isOnlyofficeDocxfExtension</evaluator>
                 <evaluator>evaluator.doclib.action.IsConvertPermission</evaluator>
                 <evaluator>evaluator.doclib.action.isNotWorkingCopy</evaluator>
                 <evaluator>evaluator.doclib.action.notLocked</evaluator>

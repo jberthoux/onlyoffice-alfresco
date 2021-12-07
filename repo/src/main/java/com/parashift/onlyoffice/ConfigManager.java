@@ -72,24 +72,22 @@ public class ConfigManager {
     public Set<String> getCustomizableEditableSet() {
         Set<String> editableSet = new HashSet<>();
         if (getAsBoolean("formatODT", "false")){
-            editableSet.add("application/vnd.oasis.opendocument.text");
+            editableSet.add("odt");
         }
         if (getAsBoolean("formatODS", "false")){
-            editableSet.add("application/vnd.oasis.opendocument.spreadsheet");
+            editableSet.add("ods");
         }
         if (getAsBoolean("formatODP", "false")){
-            editableSet.add("application/vnd.oasis.opendocument.presentation");
+            editableSet.add("odp");
         }
         if (getAsBoolean("formatCSV", "true")){
-            editableSet.add("text/csv");
+            editableSet.add("csv");
         }
         if (getAsBoolean("formatTXT", "true")){
-            editableSet.add("text/plain");
+            editableSet.add("txt");
         }
         if (getAsBoolean("formatRTF", "false")){
-            editableSet.add("application/rtf");
-            editableSet.add("application/x-rtf");
-            editableSet.add("text/richtext");
+            editableSet.add("rtf");
         }
         return editableSet;
     }
