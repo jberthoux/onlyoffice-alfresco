@@ -34,6 +34,18 @@
             <list>
                 <ref bean="evaluator.doclib.action.onlyofficeFillForm" />
                 <ref bean="evaluator.doclib.action.IsWritePermission" />
+                <ref bean="evaluator.doclib.action.isNotWorkingCopy" />
+                <ref bean="evaluator.doclib.action.notLocked" />
+            </list>
+        </property>
+    </bean>
+
+    <bean id="evaluator.doclib.action.displayJoinFillForm" parent="evaluator.doclib.action.chainedMatchAll">
+        <property name="evaluators">
+            <list>
+                <ref bean="evaluator.doclib.action.onlyofficeFillForm" />
+                <ref bean="evaluator.doclib.action.isOnlyEdit" />
+                <ref bean="evaluator.doclib.action.IsWritePermission" />
             </list>
         </property>
     </bean>
