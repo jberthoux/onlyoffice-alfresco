@@ -215,7 +215,16 @@
         "onRequestSaveAs": onRequestSaveAs
     };
 
-    var docEditor = new DocsAPI.DocEditor("placeholder", config);
+     if ((config.document.fileType === "docxf" || config.document.fileType === "oform")
+         && DocsAPI.DocEditor.version().split(".")[0] < 7) {
+         Alfresco.util.PopupManager.displayMessage({
+             text : Alfresco.util.message("onlyoffice.editor.old-version-for-docxf-and-oform"),
+             spanClass : "",
+             displayTime : 0
+         });
+     } else {
+         var docEditor = new DocsAPI.DocEditor("placeholder", config);
+     }
 
     </script>
 </body>
