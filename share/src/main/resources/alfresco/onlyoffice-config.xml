@@ -124,6 +124,8 @@
 
     <config evaluator="string-compare" condition="DocLibCustom">
         <dependencies>
+            <js src="modules/document-picker/document-picker.js"/>
+            <css src="modules/document-picker/document-picker.css"/>
             <js src="components/documentlibrary/extensions/custom-documentlist.js" />
             <js src="components/documentlibrary/onlyoffice-doclib-actions.js" />
             <js src="components/documentlibrary/onlyoffice-doclib-lock-banner.js" />

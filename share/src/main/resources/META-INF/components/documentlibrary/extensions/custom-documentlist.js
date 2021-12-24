@@ -1,21 +1,10 @@
-var script = document.createElement('script');
-script.type = 'text/javascript';
-script.src = Alfresco.constants.URL_CONTEXT + "res/modules/document-picker/document-picker.js";
-var link = document.createElement('link');
-link.type = 'text/css';
-link.href = Alfresco.constants.URL_CONTEXT + "res/modules/document-picker/document-picker.css";
-link.rel = 'stylesheet';
-
-document.head.appendChild(script);
-document.head.appendChild(link);
-
 window.onload = function () {
     var elem = document.getElementsByClassName("document-onlyoffice-create-docxf-file")[0];
     var li = elem.parentElement.parentElement;
     elem.parentElement.classList += " yuimenuitem-hassubmenu";
     li.classList += " yuimenuitem-hassubmenu";
 
-    var left = 4 + elem.parentElement.parentElement.offsetWidth;
+    var left = 4 + (elem.parentElement.parentElement.offsetWidth || 298);
     var submenu =
         '<div id = "onlyoffice-new-form-submenu" class = "yui-module yui-overlay yuimenu yui-overlay-hidden" style = "position: absolute; visibility: hidden; z-index: 1; left: ' + left + 'px ; top: 30px">' +
         '<div class= "bd">' +

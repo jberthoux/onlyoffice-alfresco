@@ -262,13 +262,4 @@ public class Util {
             return parentAssoc.getParentRef();
         }
     }
-
-    public String replaceDocEditorURLToInternal(String url) {
-        String innerDocEditorUrl = getEditorInnerUrl();
-        String publicDocEditorUrl = getEditorUrl();
-        if (!publicDocEditorUrl.equals(innerDocEditorUrl)) {
-            url = url.replace(publicDocEditorUrl, innerDocEditorUrl);
-        }
-        return url;
-    }
 }
