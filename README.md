@@ -2,8 +2,6 @@
 
 This plugin enables users to edit office documents from Alfresco Share using ONLYOFFICE Docs packaged as Document Server - [Community or Enterprise Edition](#onlyoffice-docs-editions).
 
-Tested with [Alfresco 6.\*](https://github.com/keensoft/alfresco-docker-template/tree/master/templates/201806-GA)
-
 ## Features
 
 * Create and edit text documents, spreadsheets, and presentations.
