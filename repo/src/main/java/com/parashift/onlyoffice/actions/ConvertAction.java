@@ -90,7 +90,7 @@ public class ConvertAction extends ActionExecuterAbstractBase {
                     Boolean deleteNode = false;
                     Boolean checkoutNode = false;
 
-                    if (configManager.getAsBoolean("convertOriginal", "false")) {
+                    if (configManager.getAsBoolean("convertOriginal", "false") && !targetExt.equals("oform")) {
                         logger.debug("Updating node");
                         if (permissionService.hasPermission(actionedUponNodeRef, PermissionService.WRITE) == AccessStatus.ALLOWED) {
                             util.ensureVersioningEnabled(actionedUponNodeRef);

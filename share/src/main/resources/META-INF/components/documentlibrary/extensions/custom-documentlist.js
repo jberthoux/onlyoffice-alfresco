@@ -1,0 +1,118 @@
+window.onload = function () {
+    var elem = document.getElementsByClassName("document-onlyoffice-create-docxf-file")[0];
+    var li = elem.parentElement.parentElement;
+    elem.parentElement.classList += " yuimenuitem-hassubmenu";
+    li.classList += " yuimenuitem-hassubmenu";
+
+    var left = 4 + (elem.parentElement.parentElement.offsetWidth || 298);
+    var submenu =
+        '<div id = "onlyoffice-new-form-submenu" class = "yui-module yui-overlay yuimenu yui-overlay-hidden" style = "position: absolute; visibility: hidden; z-index: 1; left: ' + left + 'px ; top: 30px">' +
+        '<div class= "bd">' +
+        '<ul class= "first-of-type">' +
+        '<li class= "yuimenuitem first-of-type" id="onlyoffice-newform-blank">' +
+        '<a href = "#" class = "yuimenuitemlabel"><span title = "">' + Alfresco.util.message("actions.document.onlyoffice-create-docxf.blank") + '</span><a>' +
+        '</li>' +
+        '<li class= "yuimenuitem" id="onlyoffice-newform-docx">' +
+        '<a href = "#" class = "yuimenuitemlabel"><span title = "">' + Alfresco.util.message("actions.document.onlyoffice-create-docxf.form-exs") + '</span><a>' +
+        '</li></ul></div></div>';
+
+    li.innerHTML += submenu;
+
+  setTimeout(function() {
+      var formDiv = document.getElementById("onlyoffice-new-form-submenu");
+      if (formDiv.getBoundingClientRect().right + formDiv.offsetWidth >= document.documentElement.clientWidth) {
+          formDiv.style.left = (-formDiv.offsetWidth + 4) + "px";
+      }
+
+      $("#onlyoffice-new-form-submenu li").bind("mouseover", function () {
+          $(this).addClass("yuimenuitem-selected");
+          $(this).children("a").addClass("yuimenuitemlabel-selected");
+      });
+      $("#onlyoffice-new-form-submenu li").bind("mouseout", function (event) {
+          $(this).removeClass("yuimenuitem-selected");
+          $(this).children("a").addClass("yuimenuitemlabel-selected");
+      });
+
+      $(li).bind("mouseover", function() {
+          $(this).addClass("yuimenuitem-selected yuimenuitem-hassubmenu-selected");
+          formDiv.style.visibility = "visible";
+          formDiv.classList = "yui-module yui-overlay yuimenu visible";
+      });
+      $(li).bind("mouseout", function() {
+          $(this).removeClass("yuimenuitem-selected yuimenuitem-hassubmenu-selected");
+          formDiv.style.visibility = "hidden";
+          formDiv.classList = "yui-module yui-overlay yuimenu yui-overlay-hidden";
+      });
+
+      var documentPicker = new Alfresco.module.DocumentPicker("onlyoffice-docx-docPicker", Alfresco.ObjectRenderer);
+      documentPicker.setOptions({
+          selectableMimeType: ['application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+          displayMode: "items",
+          itemFamily: "node",
+          itemType: "cm:content",
+          multipleSelectMode: false,
+          parentNodeRef: YAHOO.Bubbling.bubble.ready.scope.docListToolbar.doclistMetadata.container,
+          restrictParentNavigationToDocLib: true
+      });
+      documentPicker.onComponentsLoaded();
+
+      YAHOO.Bubbling.on("onDocumentsSelected", function (eventName, payload) {
+          var waitDialog = Alfresco.util.PopupManager.displayMessage({
+              text: "",
+              spanClass: "wait",
+              displayTime: 0
+          });
+
+          if (payload && payload[1].items) {
+              var items = [];
+              for (var i = 0; i < payload[1].items.length; i++) {
+                  items.push(payload[1].items[i].nodeRef);
+              }
+
+              if (items.length > 0) {
+                  Alfresco.util.Ajax.jsonPost({
+                      url: Alfresco.constants.PROXY_URI + "parashift/onlyoffice/editor-api/from-docx",
+                      dataObj: {
+                          parentNode: YAHOO.Bubbling.bubble.ready.scope.docListToolbar.doclistMetadata.parent.nodeRef,
+                          nodes: items
+                      },
+                      successCallback: {
+                          fn: function (response) {
+                              waitDialog.destroy();
+                              window.open("onlyoffice-edit?nodeRef=" + response.json.nodeRef);
+                              setTimeout(function () {
+                                  location.reload();
+                              }, 1000);
+                          },
+                          scope: this
+                      },
+                      failureCallback: {
+                          fn: function () {
+                              documentPicker.options.currentValue='';
+                              delete documentPicker.singleSelectedItem;
+                              waitDialog.destroy();
+                              Alfresco.util.PopupManager.displayMessage({
+                                  text: Alfresco.util.message("actions.document.onlyoffice-create-docxf.form-exs-failure")
+                              });
+                          },
+                          scope: this
+                      }
+                  });
+              }
+          }
+      });
+
+      $("#onlyoffice-newform-blank").on("mousedown", function () {
+          window.open("onlyoffice-edit?parentNodeRef=" + YAHOO.Bubbling.bubble.ready.scope.docListToolbar.doclistMetadata.parent.nodeRef
+              + "&new=application/vnd.openxmlformats-officedocument.wordprocessingml.document.docxf");
+          setTimeout(function () {
+              location.reload();
+          }, 1000);
+      });
+      $("#onlyoffice-newform-docx").on("mousedown", function () {
+          documentPicker.onShowPicker();
+      });
+  }, 150);
+
+};
+

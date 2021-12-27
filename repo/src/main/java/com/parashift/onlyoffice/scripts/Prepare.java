@@ -3,6 +3,7 @@ package com.parashift.onlyoffice.scripts;
 import com.parashift.onlyoffice.util.ConfigManager;
 import com.parashift.onlyoffice.util.Util;
 import com.parashift.onlyoffice.util.UtilDocConfig;
+import com.parashift.onlyoffice.constants.Type;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.i18n.MessageService;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
@@ -132,6 +133,9 @@ public class Prepare extends AbstractWebScript {
                 String docTitle = (String) properties.get(ContentModel.PROP_NAME);
                 String docExt = docTitle.substring(docTitle.lastIndexOf(".") + 1).trim().toLowerCase();
                 String documentType = util.getDocType(docExt);
+                if (docExt.equals("docxf") || docExt.equals("oform")) {
+                    documentType = Type.WORD.name().toLowerCase();
+                }
 
                 if (documentType == null) {
                     responseJson.put("error", "File type is not supported");

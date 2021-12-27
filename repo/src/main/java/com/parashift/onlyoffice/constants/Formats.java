@@ -12,7 +12,9 @@ public class Formats {
         add(new Format("djvu", Type.WORD, Arrays.asList("bmp", "gif", "jpg", "png")));
         add(new Format("doc", Type.WORD, Arrays.asList("bmp", "docx", "dotx", "epub", "fb2", "gif", "html", "jpg", "odt", "ott", "pdf", "pdfa", "png", "rtf", "txt")));
         add(new Format("docm", Type.WORD, Arrays.asList("bmp", "docx", "dotx", "epub", "fb2", "gif", "html", "jpg", "odt", "ott", "pdf", "pdfa", "png", "rtf", "txt")));
-        add(new Format("docx", Type.WORD, true, Arrays.asList("bmp", "dotx", "epub", "fb2", "gif", "html", "jpg", "odt", "ott", "pdf", "pdfa", "png", "rtf", "txt")));
+        add(new Format("docx", Type.WORD, true, Arrays.asList("bmp", "dotx", "docxf", "epub", "fb2", "gif", "html", "jpg", "odt", "ott", "pdf", "pdfa", "png", "rtf", "txt")));
+        add(new Format("docxf", Type.FORM, true, Arrays.asList("bmp", "dotx", "oform", "epub", "fb2", "gif", "html", "jpg", "odt", "ott", "pdf", "pdfa", "png", "rtf", "txt")));
+        add(new Format("oform", Type.WORD, true, Arrays.asList("bmp", "pdf")));
         add(new Format("dot", Type.WORD, Arrays.asList("bmp", "docx", "dotx", "epub", "fb2", "gif", "html", "jpg", "odt", "ott", "pdf", "pdfa", "png", "rtf", "txt")));
         add(new Format("dotm", Type.WORD, Arrays.asList("bmp", "docx", "dotx", "epub", "fb2", "gif", "html", "jpg", "odt", "ott", "pdf", "pdfa", "png", "rtf", "txt")));
         add(new Format("dotx", Type.WORD, Arrays.asList("bmp", "docx", "epub", "fb2", "gif", "html", "jpg", "odt", "ott", "pdf", "pdfa", "png", "rtf", "txt")));

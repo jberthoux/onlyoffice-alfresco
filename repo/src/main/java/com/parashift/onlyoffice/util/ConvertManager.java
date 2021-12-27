@@ -67,6 +67,9 @@ public class ConvertManager {
         for (Format format : supportedFormats) {
             if (format.getName().equals(ext)) {
                 switch(format.getType()) {
+                    case FORM:
+                        if (format.getConvertTo().contains("oform")) return "oform";
+                        break;
                     case WORD:
                         if (format.getConvertTo().contains("docx")) return "docx";
                         break;

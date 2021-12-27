@@ -12,6 +12,7 @@
         <property name="remote" ref="webframework.webscripts.scriptremote" />
     </bean>
 
+    <bean id="evaluator.doclib.action.onlyofficeFillForm" class="com.onlyoffice.web.evaluator.IsFillForm"/>
     <bean id="evaluator.doclib.action.onlyofficeIsEditable" class="com.onlyoffice.web.evaluator.IsEditable" >
         <property name="onlyofficeSettings" ref="slingshot.scriptprocessor.OnlyofficeSettingsQuery" />
     </bean>
@@ -22,6 +23,27 @@
 
     <bean id="evaluator.doclib.action.notLocked" parent="evaluator.doclib.metadata.isLocked">
         <property name="negateOutput" value="true" />
+    </bean>
+
+    <bean id="evaluator.doclib.action.displayFillForm" parent="evaluator.doclib.action.chainedMatchAll">
+        <property name="evaluators">
+            <list>
+                <ref bean="evaluator.doclib.action.onlyofficeFillForm" />
+                <ref bean="evaluator.doclib.action.IsWritePermission" />
+                <ref bean="evaluator.doclib.action.isNotWorkingCopy" />
+                <ref bean="evaluator.doclib.action.notLocked" />
+            </list>
+        </property>
+    </bean>
+
+    <bean id="evaluator.doclib.action.displayJoinFillForm" parent="evaluator.doclib.action.chainedMatchAll">
+        <property name="evaluators">
+            <list>
+                <ref bean="evaluator.doclib.action.onlyofficeFillForm" />
+                <ref bean="evaluator.doclib.action.isOnlyEdit" />
+                <ref bean="evaluator.doclib.action.IsWritePermission" />
+            </list>
+        </property>
     </bean>
 
     <bean id="evaluator.doclib.action.displayEdit" parent="evaluator.doclib.action.chainedMatchAll">
@@ -98,6 +120,10 @@
         </property>
     </bean>
 
+    <bean id="evaluator.doclib.action.isOnlyofficeDocxfExtension" class="com.onlyoffice.web.evaluator.IsDocxfExtension" />
+    <bean id="evaluator.doclib.action.isNotOnlyofficeDocxfExtension" class="com.onlyoffice.web.evaluator.IsDocxfExtension" >
+        <property name="negateOutput" value="true"/>
+    </bean>
     <bean id="evaluator.doclib.action.IsCorrectDownloadAs" class="com.onlyoffice.web.evaluator.IsCorrectDownloadAs">
         <property name="onlyofficeSettings" ref="slingshot.scriptprocessor.OnlyofficeSettingsQuery" />
     </bean>

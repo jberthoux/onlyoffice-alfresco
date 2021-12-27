@@ -1,5 +1,6 @@
 package com.parashift.onlyoffice.scripts;
 
+import com.parashift.onlyoffice.util.ConvertManager;
 import com.parashift.onlyoffice.util.JwtManager;
 import com.parashift.onlyoffice.util.Util;
 
@@ -58,6 +59,9 @@ public class EditorApi extends AbstractWebScript {
 
     @Autowired
     JwtManager jwtManager;
+
+    @Autowired
+    ConvertManager converterService;
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -120,6 +124,52 @@ public class EditorApi extends AbstractWebScript {
         }
     }
 
+    private void docxToDocxf(WebScriptRequest request, WebScriptResponse response) throws IOException {
+        try {
+            JSONObject requestData = new JSONObject(request.getContent().getContent());
+            JSONArray docxNode = requestData.getJSONArray("nodes");
+            String folder = requestData.getString("parentNode");
+
+            if (docxNode.length() == 0) {
+                throw new WebScriptException(Status.STATUS_BAD_REQUEST, "Selected docx template not found");
+            }
+
+            NodeRef folderNode = new NodeRef(folder);
+
+            if (permissionService.hasPermission(folderNode, PermissionService.CREATE_CHILDREN) != AccessStatus.ALLOWED) {
+                throw new WebScriptException(Status.STATUS_FORBIDDEN, "User don't have the permissions to create child node");
+            }
+
+            NodeRef node = new NodeRef(docxNode.getString(0));
+            JSONObject data = new JSONObject();
+
+            if (permissionService.hasPermission(node, PermissionService.READ) == AccessStatus.ALLOWED) {
+                Map<QName, Serializable> properties = nodeService.getProperties(node);
+                String docTitle = (String) properties.get(ContentModel.PROP_NAME);
+                String fileType = docTitle.substring(docTitle.lastIndexOf(".") + 1).trim().toLowerCase();
+                if (!mimetypeService.getMimetype(fileType).equals("application/vnd.openxmlformats-officedocument.wordprocessingml.document")) {
+                    throw new WebScriptException(Status.STATUS_BAD_REQUEST, "Selected file is not docx extension");
+                }
+
+                try {
+                    String downloadUrl = converterService.convert(util.getKey(node), fileType, "docxf", util.getContentUrl(node));
+                    docTitle = docTitle.substring(0, docTitle.lastIndexOf("."));
+                    String newNode = createNode(folderNode, docTitle, "docxf", downloadUrl);
+                    data.put("nodeRef", newNode);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw new WebScriptException(Status.STATUS_BAD_REQUEST, "Could not convert docx file to docxf", e);
+                }
+            }
+
+            response.setContentType("application/json; charset=utf-8");
+            response.getWriter().write(data.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+            throw new WebScriptException(Status.STATUS_BAD_REQUEST, "Could not parse JSON from request", e);
+        }
+    }
+
     private void saveAs(WebScriptRequest request, WebScriptResponse response) throws IOException {
         try {
             JSONObject requestData = new JSONObject(request.getContent().getContent());
@@ -139,32 +189,36 @@ public class EditorApi extends AbstractWebScript {
                 throw new WebScriptException(Status.STATUS_FORBIDDEN, "User don't have the permissions to create child node");
             }
 
-            String fileName = util.getCorrectName(folderNode, title, ext);
-
-            NodeRef nodeRef = nodeService.createNode(
-                    folderNode,
-                    ContentModel.ASSOC_CONTAINS,
-                    QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, fileName),
-                    ContentModel.TYPE_CONTENT,
-                    Collections.<QName, Serializable> singletonMap(ContentModel.PROP_NAME, fileName)).getChildRef();
-
-            ContentWriter writer = contentService.getWriter(nodeRef, ContentModel.PROP_CONTENT, true);
-            writer.setMimetype(mimetypeService.getMimetype(ext));
-
-            url = util.replaceDocEditorURLToInternal(url);
-            HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-
-            try (InputStream in = connection.getInputStream()) {
-                writer.putContent(in);
-                util.ensureVersioningEnabled(nodeRef);
-            } finally {
-                connection.disconnect();
-            }
+            createNode(folderNode, title, ext, url);
         } catch (JSONException e) {
             throw new WebScriptException(Status.STATUS_BAD_REQUEST, "Could not parse JSON from request", e);
         }
     }
 
+    private String createNode(NodeRef folderNode, String title, String ext, String url) throws IOException {
+        url = util.replaceDocEditorURLToInternal(url);
+        String fileName = util.getCorrectName(folderNode, title, ext);
+
+        NodeRef nodeRef = nodeService.createNode(
+                folderNode,
+                ContentModel.ASSOC_CONTAINS,
+                QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, fileName),
+                ContentModel.TYPE_CONTENT,
+                Collections.<QName, Serializable> singletonMap(ContentModel.PROP_NAME, fileName)).getChildRef();
+
+        ContentWriter writer = contentService.getWriter(nodeRef, ContentModel.PROP_CONTENT, true);
+        writer.setMimetype(mimetypeService.getMimetype(ext));
+
+        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+
+        try (InputStream in = connection.getInputStream()) {
+            writer.putContent(in);
+            util.ensureVersioningEnabled(nodeRef);
+        } finally {
+            connection.disconnect();
+        }
+        return nodeRef.toString();
+    }
     private void favorite(WebScriptRequest request, WebScriptResponse response) throws IOException {
         if (request.getParameter("nodeRef") != null) {
             NodeRef nodeRef = new NodeRef(request.getParameter("nodeRef"));

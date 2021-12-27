@@ -133,7 +133,7 @@ public class UtilDocConfig {
         customizationObject.put("compactHeader", configManager.getAsBoolean("compactHeader", "false"));
         customizationObject.put("toolbarNoTabs", configManager.getAsBoolean("toolbarNoTabs", "false"));
         customizationObject.put("feedback", configManager.getAsBoolean("feedback", "false"));
-        customizationObject.put("reviewDisplay", configManager.getOrDefault("reviewDisplay", "original"));
+        customizationObject.put("review", configManager.getOrDefault("reviewDisplay", "original"));
 
         JSONObject userObject = new JSONObject();
         editorConfigObject.put("user", userObject);
