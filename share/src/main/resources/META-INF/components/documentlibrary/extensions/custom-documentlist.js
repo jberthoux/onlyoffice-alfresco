@@ -46,6 +46,7 @@ window.onload = function () {
 
       var documentPicker = new Alfresco.module.DocumentPicker("onlyoffice-docx-docPicker", Alfresco.ObjectRenderer);
       documentPicker.setOptions({
+          selectableMimeType: ['application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
           displayMode: "items",
           itemFamily: "node",
           itemType: "cm:content",
