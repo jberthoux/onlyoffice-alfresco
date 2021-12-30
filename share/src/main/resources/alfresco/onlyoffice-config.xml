@@ -25,7 +25,7 @@
             <action id="document-onlyoffice-read" type="link" label="actions.document.onlyoffice-read">
                 <param name="href">onlyoffice-edit?readonly=1&amp;nodeRef={node.nodeRef}</param>
                 <param name="target">_blank</param>
-                <evaluator>evaluator.doclib.action.onlyofficeIsViewable</evaluator>
+                <evaluator>evaluator.doclib.action.displayRead</evaluator>
             </action>
         </actions>
         <actionGroups>
