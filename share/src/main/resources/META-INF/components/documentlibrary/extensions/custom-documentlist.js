@@ -1,7 +1,6 @@
-window.onload = function () {
+var addSubMenu = function () {
     var elem = document.getElementsByClassName("document-onlyoffice-create-docxf-file")[0];
     var li = elem.parentElement.parentElement;
-    elem.parentElement.classList += " yuimenuitem-hassubmenu";
     li.classList += " yuimenuitem-hassubmenu";
 
     var left = 4 + (elem.parentElement.parentElement.offsetWidth || 298);
@@ -115,4 +114,18 @@ window.onload = function () {
   }, 150);
 
 };
+
+var waitElemLoading = function(){
+    if ($(".document-onlyoffice-create-docxf-file").length) {
+        addSubMenu();
+    } else {
+        setTimeout(function () {
+            waitElemLoading();
+        }, 100);
+    }
+};
+
+window.addEventListener("load", function () {
+    waitElemLoading();
+});
 
