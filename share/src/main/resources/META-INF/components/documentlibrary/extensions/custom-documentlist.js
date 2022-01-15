@@ -3,9 +3,8 @@ var addSubMenu = function () {
     var li = elem.parentElement.parentElement;
     li.classList += " yuimenuitem-hassubmenu";
 
-    var left = 4 + (elem.parentElement.parentElement.offsetWidth || 298);
     var submenu =
-        '<div id = "onlyoffice-new-form-submenu" class = "yui-module yui-overlay yuimenu yui-overlay-hidden" style = "position: absolute; visibility: hidden; z-index: 1; left: ' + left + 'px ; top: 30px">' +
+        '<div id = "onlyoffice-new-form-submenu" class = "yui-module yui-overlay yuimenu yui-overlay-hidden" style = "position: absolute; visibility: hidden; z-index: 1; left: 0; top: 30px">' +
         '<div class= "bd">' +
         '<ul class= "first-of-type">' +
         '<li class= "yuimenuitem first-of-type" id="onlyoffice-newform-blank">' +
@@ -19,20 +18,23 @@ var addSubMenu = function () {
 
   setTimeout(function() {
       var formDiv = document.getElementById("onlyoffice-new-form-submenu");
-      if (formDiv.getBoundingClientRect().right + formDiv.offsetWidth >= document.documentElement.clientWidth) {
-          formDiv.style.left = (-formDiv.offsetWidth + 4) + "px";
-      }
 
       $("#onlyoffice-new-form-submenu li").bind("mouseover", function () {
           $(this).addClass("yuimenuitem-selected");
           $(this).children("a").addClass("yuimenuitemlabel-selected");
       });
-      $("#onlyoffice-new-form-submenu li").bind("mouseout", function (event) {
+      $("#onlyoffice-new-form-submenu li").bind("mouseout", function () {
           $(this).removeClass("yuimenuitem-selected");
           $(this).children("a").addClass("yuimenuitemlabel-selected");
       });
 
       $(li).bind("mouseover", function() {
+          let left = 4 + li.offsetWidth;
+          if (li.parentElement.parentElement.parentElement.getBoundingClientRect().right + formDiv.offsetWidth > document.documentElement.clientWidth) {
+              left = -formDiv.offsetWidth + 4;
+          }
+
+          $(this).children("#onlyoffice-new-form-submenu")[0].style.left = left + "px";
           $(this).addClass("yuimenuitem-selected yuimenuitem-hassubmenu-selected");
           formDiv.style.visibility = "visible";
           formDiv.classList = "yui-module yui-overlay yuimenu visible";
