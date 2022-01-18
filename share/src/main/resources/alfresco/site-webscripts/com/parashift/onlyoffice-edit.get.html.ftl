@@ -79,6 +79,9 @@
     <script type="text/javascript" src="${url.context}/res/modules/documentlibrary/global-folder.js"></script>
     <script type="text/javascript" src="${url.context}/res/modules/documentlibrary/copy-move-to.js"></script>
     <script type="text/javascript" src="${url.context}/res/modules/documentlibrary/doclib-actions.js"></script>
+    <script type="text/javascript" src="${url.context}/res/modules/documentlibrary/permissions.js"></script>
+    <script type="text/javascript" src="${url.context}/res/templates/manage-permissions/template.manage-permissions.js"></script>
+    <script type="text/javascript" src="${url.context}/res/components/manage-permissions/manage-permissions.js"></script>
 
     <link rel="stylesheet" type="text/css" href="${url.context}/res/css/yui-fonts-grids.css" />
     <#if theme = 'default'>
@@ -86,6 +89,7 @@
     <#else>
         <link rel="stylesheet" type="text/css" href="${url.context}/res/themes/${theme}/yui/assets/skin.css" />
     </#if>
+    <link rel="stylesheet" type="text/css" href="${url.context}/res/components/manage-permissions/manage-permissions.css" />
     <link rel="stylesheet" type="text/css" href="${url.context}/res/css/base.css" />
     <link rel="stylesheet" type="text/css" href="${url.context}/res/css/yui-layout.css" />
     <link rel="stylesheet" type="text/css" href="${url.context}/res/themes/${theme}/presentation.css" />
@@ -96,6 +100,33 @@
 </head>
 
 <body id="Share" class="yui-skin-${theme} alfresco-share claro">
+<#--    <div id="manage-permissions">-->
+<#--        <@templateBody>-->
+<#--        <@markup id="alf-hd">-->
+<#--            <div id="alf-hd">-->
+<#--                <@region scope="global" id="share-header" chromeless="true"/>-->
+<#--            </div>-->
+<#--        </@>-->
+<#--        <@markup id="bd">-->
+<#--            <div id="bd" class="manage-permissions">-->
+<#--                <@region id="path" scope="template" />-->
+<#--                <@region id="manage-permissions" scope="template" />-->
+<#--            </div>-->
+<#--        </@>-->
+<#--        <@markup id="manage-permissions">-->
+<#--            <script type="text/javascript">//<![CDATA[-->
+<#--                new Alfresco.template.ManagePermissions().setOptions(-->
+<#--                    {-->
+<#--                        // nodeRef: new Alfresco.util.NodeRef(window.location.search.split("?nodeRef=")[1]),-->
+<#--                        nodeRef: new Alfresco.util.NodeRef("workspace://SpacesStore/7b349ab8-200b-4067-88d6-9fae4c3fd944"),-->
+<#--                        &lt;#&ndash;siteId: "${page.url.templateArgs.site!""}",&ndash;&gt;-->
+<#--                        &lt;#&ndash;rootNode: "${folderNode}"&ndash;&gt;-->
+<#--                    });-->
+<#--                //]]></script>-->
+<#--        </@>-->
+<#--        </@>-->
+<#--    </div>-->
+
     <div id="placeholder"></div>
     <script>
         var documentPicker = new Alfresco.module.DocumentPicker("onlyoffice-editor-docPicker", Alfresco.ObjectRenderer);
@@ -147,6 +178,32 @@
             title: "${msg("onlyoffice.editor.dialog.save-as.title")}",
             zIndex: 1000
         });
+
+        debugger
+        var managePermissions = new Alfresco.component.ManagePermissions();
+        managePermissions.setOptions({
+            // nodeRef: new Alfresco.util.NodeRef(window.location.search.split("?nodeRef=")[1]),
+            // nodeRef: new Alfresco.util.NodeRef("workspace://SpacesStore/7b349ab8-200b-4067-88d6-9fae4c3fd944"),
+            <#--siteId: "${page.url.templateArgs.site!""}",-->
+            <#--rootNode: "${folderNode}"-->
+        });
+
+        var mp = new Alfresco.module.DoclibPermissions("onlyoffice-editor-copyMoveTo-permissions");
+
+        mp.setOptions(
+            {
+                siteId:  Alfresco.constants.SITE,
+                // files: {
+                //     "node": {}
+                // },
+                files:
+                    {
+                        node:
+                            {
+                                nodeRef:  new Alfresco.util.NodeRef(window.location.search.split("?nodeRef=")[1])
+                            }
+                    }
+            });
 
         var onAppReady = function (event) {
             if (${(demo!false)?c}) {
@@ -263,7 +320,8 @@
                 }
             };
 
-            copyMoveTo.showDialog();
+            mp.showDialog();
+            //copyMoveTo.showDialog();
             insertFileNameInput();
 
             copyMoveTo.onOK = function () {
