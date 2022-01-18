@@ -1,5 +1,6 @@
 package com.parashift.onlyoffice;
 
+import com.parashift.onlyoffice.constants.Type;
 import org.alfresco.model.ContentModel;
 import org.alfresco.service.cmr.repository.ContentService;
 import org.alfresco.service.cmr.repository.ContentWriter;
@@ -8,6 +9,7 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.AccessStatus;
 import org.alfresco.service.cmr.security.PermissionService;
+import org.alfresco.service.cmr.thumbnail.ThumbnailService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.repo.i18n.MessageService;
@@ -41,6 +43,9 @@ import java.util.Map;
 public class Prepare extends AbstractWebScript {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    ThumbnailService thumbnailService;
 
     @Autowired
     NodeService nodeService;
@@ -128,6 +133,9 @@ public class Prepare extends AbstractWebScript {
                 String docTitle = (String) properties.get(ContentModel.PROP_NAME);
                 String docExt = docTitle.substring(docTitle.lastIndexOf(".") + 1).trim().toLowerCase();
                 String documentType = util.getDocType(docExt);
+                if (docExt.equals("docxf") || docExt.equals("oform")) {
+                    documentType = Type.WORD.name().toLowerCase();
+                }
 
                 if (documentType == null) {
                     responseJson.put("error", "File type is not supported");
@@ -157,6 +165,7 @@ public class Prepare extends AbstractWebScript {
                 responseJson.put("onlyofficeUrl", util.getEditorUrl());
                 responseJson.put("mime", mimetypeService.getMimetype(docExt));
                 responseJson.put("demo", configManager.demoActive());
+                responseJson.put("folderNode", util.getParentNodeRef(nodeRef));
 
                 logger.debug("Sending JSON prepare object");
                 logger.debug(responseJson.toString(3));

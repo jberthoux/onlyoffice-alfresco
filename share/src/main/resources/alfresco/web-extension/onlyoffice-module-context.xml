@@ -12,11 +12,20 @@
         <property name="remote" ref="webframework.webscripts.scriptremote" />
     </bean>
 
-    <bean id="evaluator.doclib.action.onlyofficeEditMimetype" class="com.onlyoffice.web.evaluator.IsEditableMimetype" >
+    <bean id="evaluator.doclib.action.onlyofficeIsEditable" class="com.onlyoffice.web.evaluator.IsEditableMimetype" >
         <property name="onlyofficeSettings" ref="slingshot.scriptprocessor.OnlyofficeSettingsQuery" />
     </bean>
 
-    <bean id="evaluator.doclib.action.onlyofficeViewMimetype" class="com.onlyoffice.web.evaluator.IsViewMimetype">
+    <bean id="evaluator.doclib.action.onlyofficeFillForm" class="com.onlyoffice.web.evaluator.IsFillForm"/>
+    <bean id="evaluator.doclib.action.isNotOnlyofficeFillForm" class="com.onlyoffice.web.evaluator.IsFillForm">
+        <property name="negateOutput" value="true" />
+    </bean>
+
+    <bean id="evaluator.doclib.action.isNotOnlyofficeEditable" parent="evaluator.doclib.action.onlyofficeIsEditable">
+        <property name="negateOutput" value="true" />
+    </bean>
+
+    <bean id="evaluator.doclib.action.onlyofficeIsViewable" class="com.onlyoffice.web.evaluator.IsViewMimetype">
         <property name="onlyofficeSettings" ref="slingshot.scriptprocessor.OnlyofficeSettingsQuery" />
     </bean>
 
@@ -24,71 +33,64 @@
         <property name="negateOutput" value="true" />
     </bean>
 
+    <bean id="evaluator.doclib.action.displayFillForm" parent="evaluator.doclib.action.chainedMatchAll">
+        <property name="evaluators">
+            <list>
+                <ref bean="evaluator.doclib.action.onlyofficeFillForm" />
+                <ref bean="evaluator.doclib.action.IsWritePermission" />
+                <ref bean="evaluator.doclib.action.isNotWorkingCopy" />
+                <ref bean="evaluator.doclib.action.notLocked" />
+            </list>
+        </property>
+    </bean>
+
+    <bean id="evaluator.doclib.action.displayJoinFillForm" parent="evaluator.doclib.action.chainedMatchAll">
+        <property name="evaluators">
+            <list>
+                <ref bean="evaluator.doclib.action.onlyofficeFillForm" />
+                <ref bean="evaluator.doclib.action.isOnlyEdit" />
+                <ref bean="evaluator.doclib.action.IsWritePermission" />
+            </list>
+        </property>
+    </bean>
+
     <bean id="evaluator.doclib.action.displayEdit" parent="evaluator.doclib.action.chainedMatchAll">
         <property name="evaluators">
-           <list>
-              <ref bean="evaluator.doclib.action.onlyofficeEditMimetype" />
-              <ref bean="evaluator.doclib.action.IsWritePermission" />
-              <ref bean="evaluator.doclib.action.isNotWorkingCopy" />
-              <ref bean="evaluator.doclib.action.notLocked" />
-           </list>
-        </property>
-     </bean>
-
-     <bean id="evaluator.doclib.action.displayJoinEdit" parent="evaluator.doclib.action.chainedMatchAll">
-        <property name="evaluators">
-           <list>
-              <ref bean="evaluator.doclib.action.onlyofficeEditMimetype" />
-              <ref bean="evaluator.doclib.action.isOnlyEdit" />
-              <ref bean="evaluator.doclib.action.IsWritePermission" />
-           </list>
-        </property>
-     </bean>
-
-     <bean id="evaluator.doclib.action.readAvailable" parent="evaluator.doclib.action.chainedMatchAll">
-        <property name="evaluators">
-           <list>
-              <ref bean="evaluator.doclib.action.onlyofficeEditMimetype" />
-              <ref bean="evaluator.doclib.action.IsReadPermission" />
-           </list>
-        </property>
-     </bean>
-
-     <bean id="evaluator.doclib.action.displayRead" parent="evaluator.doclib.action.chainedMatchOne">
-        <property name="evaluators">
-           <list>
-              <ref bean="evaluator.doclib.action.onlyofficeViewMimetype"/>
-              <ref bean="evaluator.doclib.action.readAvailable"/>
-           </list>
-        </property>
-     </bean>
-
-    <bean id="evaluator.doclib.action.onlyofficeConvertMimetype" parent="evaluator.doclib.action.isMimetype">
-        <property name="mimetypes">
             <list>
-                <value>application/vnd.oasis.opendocument.text</value>
-                <value>application/msword</value>
-                <value>application/rtf</value>
-                <value>application/x-rtf</value>
-                <value>text/richtext</value>
-                <value>application/vnd.ms-word.document.macroenabled.12</value>
-                <value>application/vnd.openxmlformats-officedocument.wordprocessingml.template</value>
-                <value>text/html</value>
-                <value>application/vnd.oasis.opendocument.text-template</value>
-                <value>application/vnd.oasis.opendocument.spreadsheet</value>
-                <value>application/vnd.ms-excel</value>
-                <value>application/vnd.oasis.opendocument.spreadsheet-template</value>
-                <value>application/vnd.ms-excel.sheet.macroenabled.12</value>
-                <value>application/vnd.ms-excel.template.macroenabled.12</value>
-                <value>application/vnd.openxmlformats-officedocument.spreadsheetml.template</value>
-                <value>application/vnd.oasis.opendocument.presentation</value>
-                <value>application/vnd.ms-powerpoint</value>
-                <value>application/vnd.oasis.opendocument.presentation-template</value>
-                <value>application/vnd.ms-powerpoint.template.macroenabled.12</value>
-                <value>application/vnd.ms-powerpoint.slideshow.macroenabled.12</value>
-                <value>application/vnd.ms-powerpoint.presentation.macroenabled.12</value>
-                <value>application/vnd.openxmlformats-officedocument.presentationml.template</value>
-                <value>application/vnd.openxmlformats-officedocument.presentationml.slideshow</value>
+                <ref bean="evaluator.doclib.action.onlyofficeIsEditable" />
+                <ref bean="evaluator.doclib.action.IsWritePermission" />
+                <ref bean="evaluator.doclib.action.isNotWorkingCopy" />
+                <ref bean="evaluator.doclib.action.notLocked" />
+                <ref bean="evaluator.doclib.action.isNotOnlyofficeFillForm" />
+            </list>
+        </property>
+    </bean>
+
+    <bean id="evaluator.doclib.action.displayJoinEdit" parent="evaluator.doclib.action.chainedMatchAll">
+        <property name="evaluators">
+            <list>
+                <ref bean="evaluator.doclib.action.onlyofficeIsEditable" />
+                <ref bean="evaluator.doclib.action.isOnlyEdit" />
+                <ref bean="evaluator.doclib.action.IsWritePermission" />
+                <ref bean="evaluator.doclib.action.isNotOnlyofficeFillForm" />
+            </list>
+        </property>
+    </bean>
+
+    <bean id="evaluator.doclib.action.readAvailable" parent="evaluator.doclib.action.chainedMatchAll">
+        <property name="evaluators">
+            <list>
+                <ref bean="evaluator.doclib.action.onlyofficeIsEditable" />
+                <ref bean="evaluator.doclib.action.IsReadPermission" />
+            </list>
+        </property>
+    </bean>
+
+    <bean id="evaluator.doclib.action.displayRead" parent="evaluator.doclib.action.chainedMatchOne">
+        <property name="evaluators">
+            <list>
+                <ref bean="evaluator.doclib.action.onlyofficeIsViewable"/>
+                <ref bean="evaluator.doclib.action.readAvailable"/>
             </list>
         </property>
     </bean>
@@ -128,6 +130,10 @@
         </property>
     </bean>
 
+    <bean id="evaluator.doclib.action.isOnlyofficeDocxfExtension" class="com.onlyoffice.web.evaluator.IsDocxfExtension" />
+    <bean id="evaluator.doclib.action.isNotOnlyofficeDocxfExtension" class="com.onlyoffice.web.evaluator.IsDocxfExtension" >
+        <property name="negateOutput" value="true"/>
+    </bean>
     <bean id="evaluator.doclib.action.isOnlyEdit" class="com.onlyoffice.web.evaluator.IsOnlyEditEvaluator" />
     <bean id="evaluator.doclib.action.isNotOnlyEdit" parent="evaluator.doclib.action.isOnlyEdit">
         <property name="negateOutput" value="true" />

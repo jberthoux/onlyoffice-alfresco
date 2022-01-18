@@ -1,10 +1,22 @@
 # Change Log
 
-# 5.0.1
+## 5.1.0
+## Added
+- support docxf and oform formats
+- create blank docxf from creation menu
+- create docxf by tempalte from creation menu
+- create docxf from docx from creation menu
+- create oform from docxf from document manager
+- "save as" in editor
+
+## Fixed
+- bug when System user was document modifier
+
+## 5.0.1
 ## Fixed
 - error on the "Document Details" page when the "Convert with ONLYOFFICE" button is displayed [#121](https://github.com/ONLYOFFICE/onlyoffice-alfresco/issues/121)
 
-# 5.0.0
+## 5.0.0
 ## Added
 - connection to the demo server
 - support alfresco multi tenancy [#83](https://github.com/ONLYOFFICE/onlyoffice-alfresco/issues/83)

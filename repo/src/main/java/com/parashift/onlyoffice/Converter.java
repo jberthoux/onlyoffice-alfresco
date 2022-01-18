@@ -1,5 +1,8 @@
 package com.parashift.onlyoffice;
 
+import com.parashift.onlyoffice.constants.Format;
+import com.parashift.onlyoffice.constants.Formats;
+import org.alfresco.model.ContentModel;
 import org.alfresco.service.cmr.repository.*;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.IOUtils;
@@ -40,7 +43,7 @@ public class Converter {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    MimetypeService mimetypeService;
+    ContentService contentService;
 
     @Autowired
     ConfigManager configManager;
@@ -62,19 +65,28 @@ public class Converter {
         add("text/richtext");
     }};
 
-    public String GetModernMimetype(String mimetype) {
-        List<String> mimeConvertToWord = configManager.getListDefaultProperty("docservice.mime.convert.word");
-        List<String> mimeConvertToCell = configManager.getListDefaultProperty("docservice.mime.convert.cell");
-        List<String> mimeConvertToSlide = configManager.getListDefaultProperty("docservice.mime.convert.slide");
+    public String getTargetExt(String ext) {
+        List<Format> supportedFormats = Formats.getSupportedFormats();
 
-        if (mimeConvertToWord.contains(mimetype)) {
-            return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-        }
-        if (mimeConvertToCell.contains(mimetype)) {
-            return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-        }
-        if (mimeConvertToSlide.contains(mimetype)) {
-            return "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+        for (Format format : supportedFormats) {
+            if (format.getName().equals(ext)) {
+                switch(format.getType()) {
+                    case FORM:
+                        if (format.getConvertTo().contains("oform")) return "oform";
+                        break;
+                    case WORD:
+                        if (format.getConvertTo().contains("docx")) return "docx";
+                        break;
+                    case CELL:
+                        if (format.getConvertTo().contains("xlsx")) return "xlsx";
+                        break;
+                    case SLIDE:
+                        if (format.getConvertTo().contains("pptx")) return "pptx";
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
 
         return null;
@@ -84,16 +96,12 @@ public class Converter {
         return ConvertBackList.contains(mimeType);
     }
 
-    public void transform(ContentReader reader, ContentWriter writer, TransformationOptions options) throws Exception {
-        NodeRef ref = options.getSourceNodeRef();
-        String srcMime = reader.getMimetype();
-        String srcType = mimetypeService.getExtension(srcMime);
-        String outType = mimetypeService.getExtension(writer.getMimetype());
-        String key = util.getKey(ref) + "." + srcType;
+    public void transform(NodeRef sourceNodeRef, String srcType, String outType, ContentWriter writer) throws Exception {
+        String key = util.getKey(sourceNodeRef) + "." + srcType;
         logger.info("Received conversion request from " + srcType + " to " + outType);
 
         try {
-            String url = convert(key, srcType, outType, util.getContentUrl(ref));
+            String url = convert(key, srcType, outType, util.getContentUrl(sourceNodeRef));
             saveFromUrl(url, writer);
         } catch (Exception ex) {
             logger.info("Conversion failed: " + ex.getMessage());
@@ -143,7 +151,7 @@ public class Converter {
                     }
 
                     if (!callBackJSon.isNull("error") && callBackJSon.getInt("error") == -8) throw new SecurityException();
-                    
+
                     if (callBackJSon.isNull("endConvert") || !callBackJSon.getBoolean("endConvert") || callBackJSon.isNull("fileUrl")) {
                         throw new Exception("'endConvert' is false or 'fileUrl' is empty");
                     }

@@ -1,8 +1,11 @@
 package com.parashift.onlyoffice;
 
+import com.parashift.onlyoffice.constants.Format;
+import com.parashift.onlyoffice.constants.Formats;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.admin.SysAdminParams;
 import org.alfresco.service.cmr.coci.CheckOutCheckInService;
+import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.repository.StoreRef;
@@ -226,9 +229,37 @@ public class Util {
         return null;
     }
 
-    public boolean isEditable(String mime) {
-        List<String> defaultEditableMimeTypes = configManager.getListDefaultProperty("docservice.mime.edit");
-        Set<String> customizableEditableMimeTypes = configManager.getCustomizableEditableSet();
-        return defaultEditableMimeTypes.contains(mime) || customizableEditableMimeTypes.contains(mime);
+    public boolean isEditable(String ext) {
+        List<Format> supportedFormats = Formats.getSupportedFormats();
+        Set<String> customizableEditableFormats = configManager.getCustomizableEditableSet();
+
+        boolean defaultEditFormat = false;
+
+        for (Format format : supportedFormats) {
+            if (format.getName().equals(ext)) {
+                defaultEditFormat = format.isEdit();
+                break;
+            }
+        }
+
+        return defaultEditFormat || customizableEditableFormats.contains(ext);
+    }
+
+    public String replaceDocEditorURLToInternal(String url) {
+        String innerDocEditorUrl = getEditorInnerUrl();
+        String publicDocEditorUrl = getEditorUrl();
+        if (!publicDocEditorUrl.equals(innerDocEditorUrl)) {
+            url = url.replace(publicDocEditorUrl, innerDocEditorUrl);
+        }
+        return url;
+    }
+
+    public NodeRef getParentNodeRef (NodeRef node) {
+        ChildAssociationRef parentAssoc = nodeService.getPrimaryParent(node);
+        if (parentAssoc == null || parentAssoc.getParentRef() == null) {
+            return null;
+        } else {
+            return parentAssoc.getParentRef();
+        }
     }
 }

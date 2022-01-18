@@ -8,27 +8,14 @@ package com.onlyoffice.web.evaluator;
 import com.onlyoffice.web.scripts.OnlyofficeSettingsQuery;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.web.evaluator.BaseEvaluator;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+
 import java.util.HashSet;
 import java.util.Set;
 
 public class IsViewMimetype extends BaseEvaluator {
     private OnlyofficeSettingsQuery onlyofficeSettings;
-
-    private static Set<String> baseViewMimetypes = new HashSet<String>() {{
-        add("application/pdf");
-        add("application/vnd.ms-excel");
-        add("application/vnd.ms-powerpoint");
-        add("application/msword");
-        add("application/rtf");
-        add("application/x-rtf");
-        add("text/richtext");
-        add("application/vnd.oasis.opendocument.spreadsheet");
-        add("application/vnd.oasis.opendocument.presentation");
-        add("application/vnd.oasis.opendocument.text");
-        add("text/csv");
-        add("text/plain");
-    }};
 
     public void setOnlyofficeSettings(OnlyofficeSettingsQuery onlyofficeSettings) {
         this.onlyofficeSettings = onlyofficeSettings;
@@ -36,31 +23,28 @@ public class IsViewMimetype extends BaseEvaluator {
 
     @Override
     public boolean evaluate(JSONObject jsonObject) {
-        try
-        {
-            JSONObject node = (JSONObject)jsonObject.get("node");
-            if (node == null)
-            {
-                return false;
-            }
-            else
-            {
-                String mimetype = (String)node.get("mimetype");
+        try {
+            String fileName = (String) jsonObject.get("fileName");
+            if (fileName != null) {
+                String docExt = fileName.substring(fileName.lastIndexOf(".") + 1).trim().toLowerCase();
 
-                Set<String> viewMimetypes = new HashSet<String>();
-                viewMimetypes.addAll(baseViewMimetypes);
-                viewMimetypes.removeAll(onlyofficeSettings.getEditableMimetypes());
-                if (mimetype == null || !viewMimetypes.contains(mimetype))
-                {
-                    return false;
+                JSONArray supportedFormats = onlyofficeSettings.getSupportedFormats();
+                boolean canView = false;
+
+                for (int i = 0; i < supportedFormats.size(); i++) {
+                    JSONObject format = (JSONObject) supportedFormats.get(i);
+                    if (format.get("name").equals(docExt) && !Boolean.parseBoolean(format.get("edit").toString())) {
+                        canView = true;
+                        break;
+                    }
                 }
+
+                return canView && !onlyofficeSettings.getEditableFormats().contains(docExt);
             }
-        }
-        catch (Exception err)
-        {
+        } catch (Exception err) {
             throw new AlfrescoRuntimeException("Failed to run action evaluator", err);
         }
 
-        return true;
+        return false ;
     }
 }

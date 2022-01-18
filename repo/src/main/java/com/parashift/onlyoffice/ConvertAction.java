@@ -66,16 +66,13 @@ public class ConvertAction extends ActionExecuterAbstractBase {
             if (permissionService.hasPermission(actionedUponNodeRef, PermissionService.READ) == AccessStatus.ALLOWED) {
                 if (!checkOutCheckInService.isCheckedOut(actionedUponNodeRef) &&
                         !checkOutCheckInService.isWorkingCopy(actionedUponNodeRef)) {
-                    ContentReader reader = contentService.getReader(actionedUponNodeRef, ContentModel.PROP_CONTENT);
-                    String mime = reader.getMimetype();
-                    String targetMimeParam = converterService.GetModernMimetype(mime);
-                    if (targetMimeParam == null) {
-                        try {
-                            reader.getContentInputStream().close();
-                        } catch (Exception e) {
-                            logger.error("Error close stream", e);
-                        }
-                        logger.debug("Files of " + mime + " MIME-type cannot be converted");
+                    String nodeName = (String) nodeService.getProperty(actionedUponNodeRef, ContentModel.PROP_NAME);
+                    String title = nodeName.substring(0, nodeName.lastIndexOf('.'));
+                    String srcExt = nodeName.substring(title.length() + 1).trim().toLowerCase();
+                    String targetExt = converterService.getTargetExt(srcExt);
+
+                    if (targetExt == null) {
+                        logger.debug("Files of " + srcExt + " format cannot be converted");
                         return;
                     }
 
@@ -86,17 +83,13 @@ public class ConvertAction extends ActionExecuterAbstractBase {
                     }
 
                     NodeRef nodeFolder = parentAssoc.getParentRef();
-                    String nodeName = (String) nodeService.getProperty(actionedUponNodeRef, ContentModel.PROP_NAME);
-                    String title = nodeName.substring(0, nodeName.lastIndexOf('.'));
-                    String ext = mimetypeService.getExtension(targetMimeParam);
-
-                    String newName = util.getCorrectName(nodeFolder, title, ext);
+                    String newName = util.getCorrectName(nodeFolder, title, targetExt);
 
                     NodeRef writeNode = null;
                     Boolean deleteNode = false;
                     Boolean checkoutNode = false;
 
-                    if (configManager.getAsBoolean("convertOriginal", "false")) {
+                    if (configManager.getAsBoolean("convertOriginal", "false") && !targetExt.equals("oform")) {
                         logger.debug("Updating node");
                         if (permissionService.hasPermission(actionedUponNodeRef, PermissionService.WRITE) == AccessStatus.ALLOWED) {
                             util.ensureVersioningEnabled(actionedUponNodeRef);
@@ -127,8 +120,8 @@ public class ConvertAction extends ActionExecuterAbstractBase {
                     try {
                         logger.debug("Invoking .transform()");
                         writer = this.contentService.getWriter(writeNode, ContentModel.PROP_CONTENT, true);
-                        writer.setMimetype(targetMimeParam);
-                        converterService.transform(reader, writer, new TransformationOptions(actionedUponNodeRef, null, writeNode, null));
+                        writer.setMimetype(mimetypeService.getMimetype(targetExt));
+                        converterService.transform(actionedUponNodeRef, srcExt, targetExt, writer);
                         if (checkoutNode) {
                             logger.debug("Checking in node");
                             checkOutCheckInService.checkin(writeNode, null);
@@ -149,14 +142,6 @@ public class ConvertAction extends ActionExecuterAbstractBase {
 
                         throw new AlfrescoRuntimeException("Conversion failed", ex);
                     } finally {
-                        if (!reader.isClosed()) {
-                            try {
-                                reader.getContentInputStream().close();
-                            } catch (Exception e) {
-                                logger.error("Error close stream", e);
-                            }
-                        }
-
                         if (nodeService.exists(writeNode) && checkOutCheckInService.isCheckedOut(writeNode)) {
                             logger.debug("Finally: cancelCheckout()");
                             checkOutCheckInService.cancelCheckout(writeNode);

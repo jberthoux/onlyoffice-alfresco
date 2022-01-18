@@ -8,49 +8,46 @@ package com.onlyoffice.web.evaluator;
 import com.onlyoffice.web.scripts.OnlyofficeSettingsQuery;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.web.evaluator.BaseEvaluator;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+
 import java.util.HashSet;
 import java.util.Set;
 
 public class IsEditableMimetype extends BaseEvaluator {
     private OnlyofficeSettingsQuery onlyofficeSettings;
 
-    private static Set<String> baseMimetypes = new HashSet<String>() {{
-        add("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
-        add("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        add("application/vnd.openxmlformats-officedocument.presentationml.presentation");
-    }};
-
     public void setOnlyofficeSettings(OnlyofficeSettingsQuery onlyofficeSettings) {
         this.onlyofficeSettings = onlyofficeSettings;
     }
 
     @Override
-    public boolean evaluate(JSONObject jsonObject)
-    {
-        try
-        {
-            JSONObject node = (JSONObject)jsonObject.get("node");
-            if (node == null)
-            {
-                return false;
-            }
-            else
-            {
-                String mimetype = (String)node.get("mimetype");
-                if (mimetype == null || !baseMimetypes.contains(mimetype))
-                {
-                    if (!onlyofficeSettings.getEditableMimetypes().contains(mimetype)) {
-                        return false;
+    public boolean evaluate(JSONObject jsonObject) {
+        try {
+            String fileName = (String) jsonObject.get("fileName");
+            if (fileName != null) {
+                String docExt = fileName.substring(fileName.lastIndexOf(".") + 1).trim().toLowerCase();
+
+                JSONArray supportedFormats = onlyofficeSettings.getSupportedFormats();
+                boolean defaultEditFormat = false;
+
+                for (int i = 0; i < supportedFormats.size(); i++) {
+                    JSONObject format = (JSONObject) supportedFormats.get(i);
+
+                    if (format.get("name").equals(docExt)) {
+                        defaultEditFormat = Boolean.parseBoolean(format.get("edit").toString());
+                        break;
                     }
                 }
+
+                if (defaultEditFormat || onlyofficeSettings.getEditableFormats().contains(docExt)) {
+                    return true;
+                }
             }
-        }
-        catch (Exception err)
-        {
+        } catch (Exception err) {
             throw new AlfrescoRuntimeException("Failed to run action evaluator", err);
         }
 
-        return true;
+        return false;
     }
 }
