@@ -135,18 +135,6 @@
             }
         });
 
-        var copyMoveTo = new Alfresco.module.DoclibCopyMoveTo("onlyoffice-editor-copyMoveTo");
-        copyMoveTo.setOptions({
-            mode: "move",
-            siteId: Alfresco.constants.SITE,
-            path: "/",
-            files: {
-                "node": {}
-            },
-            parentId: "${folderNode!}",
-            title: "${msg("onlyoffice.editor.dialog.save-as.title")}",
-            zIndex: 1000
-        });
 
         var onAppReady = function (event) {
             if (${(demo!false)?c}) {
@@ -225,6 +213,19 @@
         };
 
         var onRequestSaveAs = function (event) {
+            var copyMoveTo = new Alfresco.module.DoclibCopyMoveTo("onlyoffice-editor-copyMoveTo");
+            copyMoveTo.setOptions({
+                mode: "move",
+                siteId: Alfresco.constants.SITE,
+                path: "/",
+                files: {
+                    "node": {}
+                },
+                parentId: "${folderNode!}",
+                title: "${msg("onlyoffice.editor.dialog.save-as.title")}",
+                zIndex: 1000
+            });
+
             var title = event.data.title.substring(0, event.data.title.lastIndexOf("."));
             var ext = event.data.title.split(".").pop();
             var url = event.data.url;

@@ -12,9 +12,17 @@
         <property name="remote" ref="webframework.webscripts.scriptremote" />
     </bean>
 
-    <bean id="evaluator.doclib.action.onlyofficeFillForm" class="com.onlyoffice.web.evaluator.IsFillForm"/>
     <bean id="evaluator.doclib.action.onlyofficeIsEditable" class="com.onlyoffice.web.evaluator.IsEditable" >
         <property name="onlyofficeSettings" ref="slingshot.scriptprocessor.OnlyofficeSettingsQuery" />
+    </bean>
+
+    <bean id="evaluator.doclib.action.onlyofficeFillForm" class="com.onlyoffice.web.evaluator.IsFillForm"/>
+    <bean id="evaluator.doclib.action.isNotOnlyofficeFillForm" class="com.onlyoffice.web.evaluator.IsFillForm">
+        <property name="negateOutput" value="true" />
+    </bean>
+
+    <bean id="evaluator.doclib.action.isNotOnlyofficeEditable" parent="evaluator.doclib.action.onlyofficeIsEditable">
+        <property name="negateOutput" value="true" />
     </bean>
 
     <bean id="evaluator.doclib.action.onlyofficeIsViewable" class="com.onlyoffice.web.evaluator.IsViewable">
@@ -48,22 +56,24 @@
 
     <bean id="evaluator.doclib.action.displayEdit" parent="evaluator.doclib.action.chainedMatchAll">
         <property name="evaluators">
-           <list>
-              <ref bean="evaluator.doclib.action.onlyofficeIsEditable" />
-              <ref bean="evaluator.doclib.action.IsWritePermission" />
-              <ref bean="evaluator.doclib.action.isNotWorkingCopy" />
-              <ref bean="evaluator.doclib.action.notLocked" />
-           </list>
+            <list>
+                <ref bean="evaluator.doclib.action.onlyofficeIsEditable" />
+                <ref bean="evaluator.doclib.action.IsWritePermission" />
+                <ref bean="evaluator.doclib.action.isNotWorkingCopy" />
+                <ref bean="evaluator.doclib.action.notLocked" />
+                <ref bean="evaluator.doclib.action.isNotOnlyofficeFillForm" />
+            </list>
         </property>
      </bean>
 
      <bean id="evaluator.doclib.action.displayJoinEdit" parent="evaluator.doclib.action.chainedMatchAll">
         <property name="evaluators">
-           <list>
-              <ref bean="evaluator.doclib.action.onlyofficeIsEditable" />
-              <ref bean="evaluator.doclib.action.isOnlyEdit" />
-              <ref bean="evaluator.doclib.action.IsWritePermission" />
-           </list>
+            <list>
+                <ref bean="evaluator.doclib.action.onlyofficeIsEditable" />
+                <ref bean="evaluator.doclib.action.isOnlyEdit" />
+                <ref bean="evaluator.doclib.action.IsWritePermission" />
+                <ref bean="evaluator.doclib.action.isNotOnlyofficeFillForm" />
+            </list>
         </property>
      </bean>
 
