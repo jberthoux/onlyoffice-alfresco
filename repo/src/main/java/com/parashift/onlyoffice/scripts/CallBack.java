@@ -20,7 +20,6 @@ import org.alfresco.service.cmr.version.VersionType;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.transaction.TransactionService;
-import org.apache.commons.lang.exception.ExceptionUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -369,7 +368,7 @@ public class CallBack extends AbstractWebScript {
             InputStream in = new URL( url ).openStream();
             contentService.getWriter(nodeRef, ContentModel.PROP_CONTENT, true).putContent(in);
         } catch (IOException e) {
-            logger.error(ExceptionUtils.getFullStackTrace(e));
+            e.printStackTrace();
             throw new Exception("Error while downloading new document version: " + e.getMessage(), e);
         }
     }
