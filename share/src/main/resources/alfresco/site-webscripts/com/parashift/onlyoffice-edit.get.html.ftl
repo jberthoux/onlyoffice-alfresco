@@ -2,6 +2,8 @@
     Copyright (c) Ascensio System SIA 2021. All rights reserved.
     http://www.onlyoffice.com
 -->
+<#--<#import "/alfresco/templates/org/alfresco/include/alfresco-template.ftl" as common />-->
+<#--<#import "/alfresco/site-webscripts/org/alfresco/components/manage-permissions/manage-permissions.get.html.ftl" as manage_permissions />-->
 <html>
 <head>
     <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
@@ -42,6 +44,22 @@
         Alfresco.constants.URL_RESCONTEXT = "${url.context?js_string}/res/";
         Alfresco.constants.URL_PAGECONTEXT = "${url.context?js_string}/page/";
         Alfresco.constants.URL_SERVICECONTEXT = "${url.context?js_string}/service/";
+        Alfresco.constants.URI_TEMPLATES =
+            {
+                "remote-site-page": "/site/{site}/{pageid}/p/{pagename}",
+                "remote-page": "/{pageid}/p/{pagename}",
+                "share-site-page": "/site/{site}/{pageid}/ws/{webscript}",
+                "sitedashboardpage": "/site/{site}/dashboard",
+                "contextpage": "/context/{pagecontext}/{pageid}",
+                "sitepage": "/site/{site}/{pageid}",
+                "userdashboardpage": "/user/{userid}/dashboard",
+                "userpage": "/user/{userid}/{pageid}",
+                "userprofilepage": "/user/{userid}/profile",
+                "userdefaultpage": "/user/{pageid}",
+                "consoletoolpage": "/console/{pageid}/{toolid}",
+                "consolepage": "/console/{pageid}",
+                "share-page": "/{pageid}/ws/{webscript}"
+            };
 
         Alfresco.constants.JS_LOCALE = "${locale}";
         Alfresco.constants.CSRF_POLICY = {
@@ -82,6 +100,9 @@
     <script type="text/javascript" src="${url.context}/res/modules/documentlibrary/permissions.js"></script>
     <script type="text/javascript" src="${url.context}/res/templates/manage-permissions/template.manage-permissions.js"></script>
     <script type="text/javascript" src="${url.context}/res/components/manage-permissions/manage-permissions.js"></script>
+    <script type="text/javascript"  src="${url.context}/res/modules/roles-tooltip.js"></script>
+    <script type="text/javascript" src="${url.context}/res/components/people-finder/authority-finder.js"></script>
+    <script type="text/javascript" src="${url.context}/res/components/manage-permissions/manage-permissions.js"></script>
 
     <link rel="stylesheet" type="text/css" href="${url.context}/res/css/yui-fonts-grids.css" />
     <#if theme = 'default'>
@@ -97,36 +118,158 @@
     <link rel="stylesheet" type="text/css" href="${url.context}/res/components/documentlibrary/tree.css">
     <link rel="stylesheet" type="text/css" href="${url.context}/res/modules/document-picker/document-picker.css" />
     <link rel="stylesheet" type="text/css" href="${url.context}/res/components/object-finder/object-finder.css" />
+    <link rel="stylesheet" type="text/css" href="${url.context}/res/modules/roles-tooltip.css" />
+    <link rel="stylesheet" type="text/css" href="${url.context}/res/components/people-finder/authority-finder.css" />
+    <link rel="stylesheet" type="text/css" href="${url.context}/res/components/manage-permissions/manage-permissions.css" />
 </head>
 
 <body id="Share" class="yui-skin-${theme} alfresco-share claro">
+
+<div id="manage-permissions" style="
+    margin: auto;
+    top: calc( 50% - 160px);
+    left: calc(50% - 376px);
+    position: absolute;
+    z-index:0;
+    background-color:white;
+    border: 20px solid rgba(0,0,0,0.3);
+    ">
+  <#assign id="doc-manage-permissions">
+  <div id="${id}-body" class="permissions">
+      <div id="${id}-managepermissions"></div>
+  </div>
+</div>
+
+<script>
+    // var mp = new Alfresco.component.ManagePermissions("doc-manage-permissions").setOptions({
+    //     "site":Alfresco.constants.SITE ,
+    //     "nodeRef":window.location.search.split("?nodeRef=")[1]
+    // });
+    // function onPermissionsTemplateLoaded(response)
+    // {
+    //     var permissionsEl = Dom.get("doc-manage-permissions" + "-managepermissions"),
+    //         permissionsContainerEl = Dom.get("doc-manage-permissions" + "-body"),
+    //         nodeRef = window.location.search.split("?nodeRef=")[1]//Alfresco.util.ComponentManager.get("doc-manage-permissions").options.nodeRef;
+    //
+    //     var url;
+    //     if (nodeRef.uri)
+    //     {
+    //         url = Alfresco.constants.PROXY_URI + 'slingshot/doclib/node/' + nodeRef.uri;
+    //     }
+    //     else
+    //     {
+    //         var nodeRefObj = Alfresco.util.NodeRef(nodeRef);
+    //         url = Alfresco.constants.PROXY_URI + 'slingshot/doclib/node/' + nodeRefObj.storeType + "/" + nodeRefObj.storeId + "/" + nodeRefObj.id;
+    //     }
+    //
+    //     // Write response to DOM and switch to permissions mode (hiding channels UI):
+    //     permissionsEl.innerHTML = response.serverResponse.responseText;
+    //     Dom.addClass(permissionsContainerEl, "managePermissions");
+    //
+    //     Alfresco.util.Ajax.jsonGet(
+    //         {
+    //             url: url,
+    //             successCallback:
+    //                 {
+    //                     fn: function consoleAdmin_getPermissionsDataSuccess(response)
+    //                     {
+    //                         if (response.json !== undefined)
+    //                         {
+    //                             var nodeDetails = response.json.item;
+    //
+    //                             // Fire event to inform any listening components that the data is ready
+    //                             YAHOO.Bubbling.fire("nodeDetailsAvailable",
+    //                                 {
+    //                                     nodeDetails: nodeDetails,
+    //                                     metadata: response.json.metadata
+    //                                 });
+    //                         }
+    //                     },
+    //                     scope: this
+    //                 },
+    //             failureMessage: "Failed to load data for permission details"
+    //         });
+    //
+    //     // Override the default behaviour, ready for when the permissions page is done.
+    //     Alfresco.component.ManagePermissions.prototype._navigateForward = function()
+    //     {
+    //         // reverse the displays, so the permissions Div is hidden and channels div is shown
+    //         Dom.removeClass(permissionsContainerEl, "managePermissions");
+    //
+    //         // empty the permissions container
+    //         permissionsEl.innerHTML = "";
+    //     }
+    //
+    // }
+    // Alfresco.util.Ajax.request(
+    //     {
+    //         url: Alfresco.constants.URL_SERVICECONTEXT + "components/manage-permissions/manage-permissions?nodeRef=" + window.location.search.split("?nodeRef=")[1] + "&htmlid=" + "doc-manage-permissions",
+    //         successCallback:
+    //             {
+    //                 fn: onPermissionsTemplateLoaded,
+    //                 scope: this
+    //             },
+    //         failureMessage: Alfresco.util.message("channelAdmin.template.error", this.name),
+    //         execScripts: true
+    //     });
+
+
+
+
+</script>
+
 <#--    <div id="manage-permissions">-->
-<#--        <@templateBody>-->
-<#--        <@markup id="alf-hd">-->
-<#--            <div id="alf-hd">-->
-<#--                <@region scope="global" id="share-header" chromeless="true"/>-->
+<#--        <#assign id="args.htmlid">-->
+<#--        <div id="${id}-body" class="permissions">-->
+<#--            <div id="${id}-authorityFinder" class="authority-finder-container"></div>-->
+<#--            <div id="${id}-headerBar" class="header-bar flat-button">-->
+<#--                <div class="left">-->
+<#--                    <span id="${id}-title"></span>-->
+<#--                </div>-->
+<#--                <div class="right">-->
+<#--                    <div id="${id}-inheritedButtonContainer" class="inherited">-->
+<#--                     <span id="${id}-inheritedButton" class="yui-button yui-push-button">-->
+<#--                        <span class="first-child">-->
+<#--                           <button>${msg("button.inherited")}</button>-->
+<#--                        </span>-->
+<#--                     </span>-->
+<#--                    </div>-->
+<#--                    <div class="add-user-group">-->
+<#--                     <span id="${id}-addUserGroupButton" class="yui-button yui-push-button">-->
+<#--                        <span class="first-child">-->
+<#--                           <button>${msg("button.addUserGroup")}</button>-->
+<#--                        </span>-->
+<#--                     </span>-->
+<#--                    </div>-->
+<#--                </div>-->
 <#--            </div>-->
-<#--        </@>-->
-<#--        <@markup id="bd">-->
-<#--            <div id="bd" class="manage-permissions">-->
-<#--                <@region id="path" scope="template" />-->
-<#--                <@region id="manage-permissions" scope="template" />-->
+<#--            <div id="${id}-inheritedContainer" class="container hidden">-->
+<#--                <div class="title">${msg("title.inherited")}</div>-->
+<#--                <div id="${id}-inheritedPermissions" class="permissions-list"></div>-->
 <#--            </div>-->
-<#--        </@>-->
-<#--        <@markup id="manage-permissions">-->
-<#--            <script type="text/javascript">//<![CDATA[-->
-<#--                new Alfresco.template.ManagePermissions().setOptions(-->
-<#--                    {-->
-<#--                        // nodeRef: new Alfresco.util.NodeRef(window.location.search.split("?nodeRef=")[1]),-->
-<#--                        nodeRef: new Alfresco.util.NodeRef("workspace://SpacesStore/7b349ab8-200b-4067-88d6-9fae4c3fd944"),-->
-<#--                        &lt;#&ndash;siteId: "${page.url.templateArgs.site!""}",&ndash;&gt;-->
-<#--                        &lt;#&ndash;rootNode: "${folderNode}"&ndash;&gt;-->
-<#--                    });-->
-<#--                //]]></script>-->
-<#--        </@>-->
-<#--        </@>-->
+<#--            <div id="${id}-directContainer" class="container">-->
+<#--                <div class="title">${msg("title.direct")}</div>-->
+<#--                <div id="${id}-directPermissions" class="permissions-list"></div>-->
+<#--            </div>-->
+<#--            <div class="center">-->
+<#--               <span id="${id}-okButton" class="yui-button yui-push-button alf-primary-button">-->
+<#--                  <span class="first-child">-->
+<#--                     <button>${msg("button.save")}</button>-->
+<#--                  </span>-->
+<#--               </span>-->
+<#--                <span id="${id}-cancelButton" class="yui-button yui-push-button">-->
+<#--                  <span class="first-child">-->
+<#--                     <button>${msg("button.cancel")}</button>-->
+<#--                  </span>-->
+<#--               </span>-->
+<#--            </div>-->
+<#--        </div>-->
 <#--    </div>-->
 
+<#--    <script>-->
+
+<#--        //]]></script>-->
+<#--    </script>-->
     <div id="placeholder"></div>
     <script>
         var documentPicker = new Alfresco.module.DocumentPicker("onlyoffice-editor-docPicker", Alfresco.ObjectRenderer);
@@ -179,31 +322,14 @@
             zIndex: 1000
         });
 
-        debugger
-        var managePermissions = new Alfresco.component.ManagePermissions();
-        managePermissions.setOptions({
-            // nodeRef: new Alfresco.util.NodeRef(window.location.search.split("?nodeRef=")[1]),
-            // nodeRef: new Alfresco.util.NodeRef("workspace://SpacesStore/7b349ab8-200b-4067-88d6-9fae4c3fd944"),
-            <#--siteId: "${page.url.templateArgs.site!""}",-->
-            <#--rootNode: "${folderNode}"-->
-        });
+        <#--var managePermissions = new Alfresco.component.ManagePermissions();-->
+        <#--managePermissions.setOptions({-->
+        <#--    // nodeRef: new Alfresco.util.NodeRef(window.location.search.split("?nodeRef=")[1]),-->
+        <#--    // nodeRef: new Alfresco.util.NodeRef("workspace://SpacesStore/7b349ab8-200b-4067-88d6-9fae4c3fd944"),-->
+        <#--    &lt;#&ndash;siteId: "${page.url.templateArgs.site!""}",&ndash;&gt;-->
+        <#--    &lt;#&ndash;rootNode: "${folderNode}"&ndash;&gt;-->
+        <#--});-->
 
-        var mp = new Alfresco.module.DoclibPermissions("onlyoffice-editor-copyMoveTo-permissions");
-
-        mp.setOptions(
-            {
-                siteId:  Alfresco.constants.SITE,
-                // files: {
-                //     "node": {}
-                // },
-                files:
-                    {
-                        node:
-                            {
-                                nodeRef:  new Alfresco.util.NodeRef(window.location.search.split("?nodeRef=")[1])
-                            }
-                    }
-            });
 
         var onAppReady = function (event) {
             if (${(demo!false)?c}) {
@@ -281,47 +407,122 @@
             documentPicker.onShowPicker();
         };
 
+        var onRequestSharingSettings = function (event){
+            var mp = new Alfresco.component.ManagePermissions("doc-manage-permissions").setOptions({
+                "site":Alfresco.constants.SITE ,
+                "nodeRef":window.location.search.split("?nodeRef=")[1]
+            });
+            function onPermissionsTemplateLoaded(response)
+            {
+                var permissionsEl = Dom.get("doc-manage-permissions" + "-managepermissions"),
+                    permissionsContainerEl = Dom.get("doc-manage-permissions" + "-body"),
+                    nodeRef = window.location.search.split("?nodeRef=")[1]//Alfresco.util.ComponentManager.get("doc-manage-permissions").options.nodeRef;
+
+                var url;
+                if (nodeRef.uri)
+                {
+                    url = Alfresco.constants.PROXY_URI + 'slingshot/doclib/node/' + nodeRef.uri;
+                }
+                else
+                {
+                    var nodeRefObj = Alfresco.util.NodeRef(nodeRef);
+                    url = Alfresco.constants.PROXY_URI + 'slingshot/doclib/node/' + nodeRefObj.storeType + "/" + nodeRefObj.storeId + "/" + nodeRefObj.id;
+                }
+
+                // Write response to DOM and switch to permissions mode (hiding channels UI):
+                permissionsEl.innerHTML = response.serverResponse.responseText;
+                Dom.addClass(permissionsContainerEl, "managePermissions");
+
+                Alfresco.util.Ajax.jsonGet(
+                    {
+                        url: url,
+                        successCallback:
+                            {
+                                fn: function consoleAdmin_getPermissionsDataSuccess(response)
+                                {
+                                    if (response.json !== undefined)
+                                    {
+                                        var nodeDetails = response.json.item;
+
+                                        // Fire event to inform any listening components that the data is ready
+                                        YAHOO.Bubbling.fire("nodeDetailsAvailable",
+                                            {
+                                                nodeDetails: nodeDetails,
+                                                metadata: response.json.metadata
+                                            });
+                                    }
+                                    mp.onReady()
+                                },
+                                scope: this
+                            },
+                        failureMessage: "Failed to load data for permission details"
+                    })
+
+                // Override the default behaviour, ready for when the permissions page is done.
+                Alfresco.component.ManagePermissions.prototype._navigateForward = function()
+                {
+                    // reverse the displays, so the permissions Div is hidden and channels div is shown
+                    Dom.removeClass(permissionsContainerEl, "managePermissions");
+
+                    // empty the permissions container
+                    permissionsEl.innerHTML = "";
+                }
+
+            }
+            Alfresco.util.Ajax.request(
+                {
+                    url: Alfresco.constants.URL_SERVICECONTEXT + "components/manage-permissions/manage-permissions?nodeRef=" + window.location.search.split("?nodeRef=")[1] + "&htmlid=" + "doc-manage-permissions",
+                    successCallback:
+                        {
+                            fn: onPermissionsTemplateLoaded,
+                            scope: this
+                        },
+                    failureMessage: Alfresco.util.message("channelAdmin.template.error", this.name),
+                    execScripts: true
+                });
+        }
         var onRequestSaveAs = function (event) {
             var title = event.data.title.substring(0, event.data.title.lastIndexOf("."));
             var ext = event.data.title.split(".").pop();
             var url = event.data.url;
-            var time = 600;
 
+            var time = 600;
             function insertFileNameInput () {
                 if (!copyMoveTo.widgets.dialog && time > 0) {
                     time--;
                     setTimeout(insertFileNameInput, 100);
                 } else if (!copyMoveTo.fileNameInput) {
+
                     copyMoveTo.widgets.dialog.hide();
                     copyMoveTo.widgets.okButton.set("label", "${msg('button.save')}");
-
                     var fileNameDiv = document.createElement("div");
-                        fileNameDiv.classList.add("wrapper");
+                    fileNameDiv.classList.add("wrapper");
                     var fileNameLabel = document.createElement("h3");
-                        fileNameLabel.classList.add("fileNameLabel");
-                        fileNameLabel.innerHTML = "${msg('label.name')}:";
+                    fileNameLabel.classList.add("fileNameLabel");
+                    fileNameLabel.innerHTML = "${msg('label.name')}:";
                     var fileNameInput = document.createElement("input");
-                        fileNameInput.id = "fileNameInput";
-                        fileNameInput.name = "fileNameInput";
-                        fileNameInput.type = "text";
-                        fileNameInput.value = title;
+                    fileNameInput.id = "fileNameInput";
+                    fileNameInput.name = "fileNameInput";
 
+                    fileNameInput.type = "text";
+                    fileNameInput.value = title;
                     fileNameDiv.append(fileNameLabel);
+
                     fileNameDiv.append(fileNameInput);
                     copyMoveTo.widgets.dialog.body.prepend(fileNameDiv);
-
                     copyMoveTo.fileNameInput = true;
+
                     copyMoveTo.widgets.dialog.show();
                 }
-
                 if (copyMoveTo.fileNameInput) {
                     document.getElementById("fileNameInput").value = title;
                     document.getElementById("fileNameInput").classList.remove("invalid");
                 }
+
             };
 
-            mp.showDialog();
-            //copyMoveTo.showDialog();
+            copyMoveTo.showDialog();
+
             insertFileNameInput();
 
             copyMoveTo.onOK = function () {
@@ -390,7 +591,8 @@
             "onRequestInsertImage": onRequestInsertImage,
             "onRequestMailMergeRecipients": onRequestMailMergeRecipients,
             "onRequestCompareFile": onRequestCompareFile,
-            "onRequestSaveAs": onRequestSaveAs
+            "onRequestSaveAs": onRequestSaveAs,
+            "onRequestSharingSettings":onRequestSharingSettings
         };
 
         if (/android|avantgo|playbook|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od|ad)|iris|kindle|lge |maemo|midp|mmp|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\\|plucker|pocket|psp|symbian|treo|up\\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i
