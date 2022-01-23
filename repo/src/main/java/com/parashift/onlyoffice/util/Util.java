@@ -507,7 +507,7 @@ public class Util {
     public String replaceDocEditorURLToInternal(String url) {
         String innerDocEditorUrl = getEditorInnerUrl();
         String publicDocEditorUrl = getEditorUrl();
-        if (!publicDocEditorUrl.equals(innerDocEditorUrl)) {
+        if (!publicDocEditorUrl.equals(innerDocEditorUrl) && !configManager.demoActive()) {
             url = url.replace(publicDocEditorUrl, innerDocEditorUrl);
         }
         return url;
