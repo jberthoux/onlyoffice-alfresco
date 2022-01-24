@@ -157,6 +157,10 @@ public class Prepare extends AbstractWebScript {
                     }
                 }
 
+                boolean isCanSHareRights = ((permissionService.hasPermission(nodeRef , PermissionService.READ_PERMISSIONS) == AccessStatus.ALLOWED) &&
+                        (permissionService.hasPermission(nodeRef, PermissionService.CHANGE_PERMISSIONS) == AccessStatus.ALLOWED));
+
+
                 String username = AuthenticationUtil.getFullyAuthenticatedUser();
 
                 JSONObject configJson = utilDocConfig.getConfigJson(nodeRef, null, username, documentType, docTitle,
@@ -168,6 +172,7 @@ public class Prepare extends AbstractWebScript {
                 responseJson.put("demo", configManager.demoActive());
                 responseJson.put("historyUrl", util.getHistoryUrl(nodeRef));
                 responseJson.put("favorite", util.getFavoriteUrl(nodeRef));
+                responseJson.put("isCanShareRights",  isCanSHareRights);
 
                 logger.debug("Sending JSON prepare object");
                 logger.debug(responseJson.toString(3));

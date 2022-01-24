@@ -131,10 +131,9 @@
     top: calc( 30% - 160px);
     left: calc(50% - 376px);
     position: absolute;
-    z-index:0;
+    z-index:3;
     background-color:white;
-    border: 10px solid rgba(0,0,0,0.3);
-    display: none;
+
     ">
   <#assign id="doc-manage-permissions">
   <div id="${id}-body" class="permissions">
@@ -142,7 +141,7 @@
   </div>
 </div>
 
-
+<div id="f"  ></div>
 
     <div id="placeholder"></div>
     <script>
@@ -273,6 +272,7 @@
         };
 
         var onRequestSharingSettings = function (event){
+            document.getElementById("f").style = "width: 100%; height: 100%; display: block; background-color: black;  opacity:0.2; z-index: 2; position:absolute";
             function getQueryParametr(queryParametr) {
                 var p_url=location.search.substring(1);
                 var parametr=p_url.split("&");
@@ -283,29 +283,9 @@
                 }
                 return values[queryParametr]
             }
-            function UsersRigts( permission , userName ,) {
-                this.user = userName;
-                this.permissions = permission;
 
-            }
 
-            function configRigts(response) {
 
-                    var data = response.json;
-                    var resultDataAboutUsers = [];
-                    for (var dataKey in data) {
-                        if(dataKey == "inherited")
-                            for(var temp of data[dataKey])
-                                resultDataAboutUsers.push(new UsersRigts(temp.role,temp.authority["displayName"]))
-
-                        if(dataKey == "direct")
-                            for(var temp of data[dataKey])
-                                resultDataAboutUsers.push(new UsersRigts(temp.role,temp.authority["displayName"]))
-                    }
-                    docEditor.setSharingSettings({
-                        "sharingSettings": resultDataAboutUsers
-                    });
-                }
 
 
 
@@ -354,11 +334,10 @@
                                             });
                                     }
                                     mp.onReady();
-                                    document.getElementById("manage-permissions").style.display = "block";
                                     document.getElementById("${id}-okButton-button").onclick = hideDisplay;
                                     document.getElementById("${id}-cancelButton-button").onclick = hideDisplay;
                                     function hideDisplay(event){
-                                        document.getElementById("manage-permissions").style.display = "none";
+                                        document.getElementById("f").style.display = "none";
                                     }
                                 },
                                 scope: this
@@ -376,16 +355,7 @@
                     permissionsEl.innerHTML = "";
                 }
             }
-            Alfresco.util.Ajax.jsonGet(
-                {
-                    url: Alfresco.constants.PROXY_URI + 'slingshot/doclib/permissions/' + Alfresco.util.NodeRef(nodeRefFromQueryString).uri,
-                    successCallback:
-                        {
-                            fn: configRigts,
-                            scope: this
 
-                        }
-                });
             Alfresco.util.Ajax.request(
                 {
                     url: Alfresco.constants.URL_SERVICECONTEXT + "components/manage-permissions/manage-permissions?nodeRef=" + nodeRefFromQueryString + "&htmlid=" + "doc-manage-permissions",
