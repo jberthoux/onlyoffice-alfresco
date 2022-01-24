@@ -283,29 +283,29 @@
                 }
                 return values[queryParametr]
             }
-            function UsersRigts( permission , userName ,) {
-                this.user = userName;
-                this.permissions = permission;
+            // function UsersRigts( permission , userName ,) {
+            //     this.user = userName;
+            //     this.permissions = permission;
+            //
+            // }
 
-            }
-
-            function configRigts(response) {
-
-                    var data = response.json;
-                    var resultDataAboutUsers = [];
-                    for (var dataKey in data) {
-                        if(dataKey == "inherited")
-                            for(var temp of data[dataKey])
-                                resultDataAboutUsers.push(new UsersRigts(temp.role,temp.authority["displayName"]))
-
-                        if(dataKey == "direct")
-                            for(var temp of data[dataKey])
-                                resultDataAboutUsers.push(new UsersRigts(temp.role,temp.authority["displayName"]))
-                    }
-                    docEditor.setSharingSettings({
-                        "sharingSettings": resultDataAboutUsers
-                    });
-                }
+            // function configRigts(response) {
+            //
+            //         var data = response.json;
+            //         var resultDataAboutUsers = [];
+            //         for (var dataKey in data) {
+            //             if(dataKey == "inherited")
+            //                 for(var temp of data[dataKey])
+            //                     resultDataAboutUsers.push(new UsersRigts(temp.role,temp.authority["displayName"]))
+            //
+            //             if(dataKey == "direct")
+            //                 for(var temp of data[dataKey])
+            //                     resultDataAboutUsers.push(new UsersRigts(temp.role,temp.authority["displayName"]))
+            //         }
+            //         docEditor.setSharingSettings({
+            //             "sharingSettings": resultDataAboutUsers
+            //         });
+            //     }
 
 
 
@@ -354,12 +354,7 @@
                                             });
                                     }
                                     mp.onReady();
-                                    document.getElementById("manage-permissions").style.display = "block";
-                                    document.getElementById("${id}-okButton-button").onclick = hideDisplay;
-                                    document.getElementById("${id}-cancelButton-button").onclick = hideDisplay;
-                                    function hideDisplay(event){
-                                        document.getElementById("manage-permissions").style.display = "none";
-                                    }
+
                                 },
                                 scope: this
                             },
@@ -374,18 +369,10 @@
 
                     // empty the permissions container
                     permissionsEl.innerHTML = "";
+
                 }
             }
-            Alfresco.util.Ajax.jsonGet(
-                {
-                    url: Alfresco.constants.PROXY_URI + 'slingshot/doclib/permissions/' + Alfresco.util.NodeRef(nodeRefFromQueryString).uri,
-                    successCallback:
-                        {
-                            fn: configRigts,
-                            scope: this
 
-                        }
-                });
             Alfresco.util.Ajax.request(
                 {
                     url: Alfresco.constants.URL_SERVICECONTEXT + "components/manage-permissions/manage-permissions?nodeRef=" + nodeRefFromQueryString + "&htmlid=" + "doc-manage-permissions",
