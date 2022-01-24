@@ -298,7 +298,7 @@
          if (!obj) return;
 
          btn.disabled = true;
-         if (demo.checked) {
+         if (demo.checked && !demo.disabled) {
             doPost(obj);
          } else {
             testDocServiceApi(obj);
