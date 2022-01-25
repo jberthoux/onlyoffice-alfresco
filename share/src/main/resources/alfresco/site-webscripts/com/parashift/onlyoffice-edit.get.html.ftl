@@ -124,8 +124,7 @@
 </head>
 
 <body id="Share" class="yui-skin-${theme} alfresco-share claro">
-
-<div id="manage-permissions" style="
+<div id="manage-permissions" class="yui-panel" style="
     margin: auto;
     top: calc( 30% - 160px);
     left: calc(50% - 376px);
@@ -133,7 +132,10 @@
     z-index:3;
     background-color:white;
     border-radius: 5px;
+    display: none;
     ">
+    <a class="container-close" id="clouseShare" href="#"></a>
+    <div id="shareHeader" class="hd" style="cursor: move;"></div>
   <#assign id="doc-manage-permissions">
   <div id="${id}-body" class="permissions">
       <div id="${id}-managepermissions"></div>
@@ -331,8 +333,15 @@
                                     document.getElementsByClassName("center")[0].style = "padding-bottom: 1em;";
                                     document.getElementById("${id}-okButton-button").onclick = hideDisplay;
                                     document.getElementById("${id}-cancelButton-button").onclick = hideDisplay;
+                                    document.getElementById("shareHeader").innerText = Alfresco.util.message("onlyoffice.editor.dialog.share-rights.title");
+                                    document.getElementById("manage-permissions").style.display = "block";
+                                    document.getElementById("clouseShare").onclick = function (event) {
+                                        document.getElementById("${id}-cancelButton-button").click()
+                                    }
+
                                     function hideDisplay(event){
                                         document.getElementById("popup").style.display = "none";
+                                        document.getElementById("manage-permissions").style.display = "none";
                                     }
                                 },
                                 scope: this
