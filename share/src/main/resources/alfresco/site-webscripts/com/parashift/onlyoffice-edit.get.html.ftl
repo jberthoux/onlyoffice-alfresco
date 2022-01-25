@@ -2,8 +2,6 @@
     Copyright (c) Ascensio System SIA 2021. All rights reserved.
     http://www.onlyoffice.com
 -->
-<#--<#import "/alfresco/templates/org/alfresco/include/alfresco-template.ftl" as common />-->
-<#--<#import "/alfresco/site-webscripts/org/alfresco/components/manage-permissions/manage-permissions.get.html.ftl" as manage_permissions />-->
 <html>
 <head>
     <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
