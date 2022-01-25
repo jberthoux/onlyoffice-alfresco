@@ -1,3 +1,7 @@
+/*
+   Copyright (c) Ascensio System SIA 2022. All rights reserved.
+   http://www.onlyoffice.com
+*/
 package com.onlyoffice.web.evaluator;
 
 import org.alfresco.error.AlfrescoRuntimeException;

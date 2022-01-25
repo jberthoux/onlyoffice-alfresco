@@ -1,3 +1,8 @@
+/*
+    Copyright (c) Ascensio System SIA 2022. All rights reserved.
+    http://www.onlyoffice.com
+*/
+
 var addSubMenu = function () {
     var elem = document.getElementsByClassName("document-onlyoffice-create-docxf-file")[0];
     var li = elem.parentElement.parentElement;

@@ -18,7 +18,7 @@ import java.io.*;
 import java.util.Map;
 
 /*
-    Copyright (c) Ascensio System SIA 2021. All rights reserved.
+    Copyright (c) Ascensio System SIA 2022. All rights reserved.
     http://www.onlyoffice.com
 */
 @Component(value = "webscript.onlyoffice.download.get")

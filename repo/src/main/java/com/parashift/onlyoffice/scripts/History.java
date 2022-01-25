@@ -19,7 +19,7 @@ import org.alfresco.repo.security.permissions.AccessDeniedException;
 import java.io.IOException;
 
 /*
-    Copyright (c) Ascensio System SIA 2021. All rights reserved.
+    Copyright (c) Ascensio System SIA 2022. All rights reserved.
     http://www.onlyoffice.com
 */
 @Component(value = "webscript.onlyoffice.history.get")
