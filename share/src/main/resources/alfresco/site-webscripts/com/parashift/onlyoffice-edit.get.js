@@ -19,6 +19,7 @@ if (url.args.sample) query +="&sample=" + url.args.sample;
     model.demo = pObj.demo;
     model.favorite = pObj.favorite;
     model.historyUrl = pObj.historyUrl;
+    model.isCanShareRights = pObj.isCanShareRights;
 } else {
     var query = "parentNodeRef=" + url.args.parentNodeRef;
     query += "&new=" + url.args.new;
