@@ -333,7 +333,7 @@
                                     document.getElementsByClassName("center")[0].style = "padding-bottom: 1em;";
                                     document.getElementById("${id}-okButton-button").onclick = hideDisplay;
                                     document.getElementById("${id}-cancelButton-button").onclick = hideDisplay;
-                                    document.getElementById("shareHeader").innerText = Alfresco.util.message("onlyoffice.editor.dialog.share-rights.title");
+                                    document.getElementById("shareHeader").innerText = Alfresco.util.message("page.managePermissions.title");
                                     document.getElementById("manage-permissions").style.display = "block";
                                     document.getElementById("clouseShare").onclick = function (event) {
                                         document.getElementById("${id}-cancelButton-button").click()
