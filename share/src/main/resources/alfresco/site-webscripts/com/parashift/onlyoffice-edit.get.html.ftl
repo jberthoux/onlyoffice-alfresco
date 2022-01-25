@@ -126,14 +126,13 @@
 <body id="Share" class="yui-skin-${theme} alfresco-share claro">
 
 <div id="manage-permissions" style="
-    max-width: 700px;
     margin: auto;
     top: calc( 30% - 160px);
     left: calc(50% - 376px);
     position: absolute;
     z-index:3;
     background-color:white;
-
+    border-radius: 5px;
     ">
   <#assign id="doc-manage-permissions">
   <div id="${id}-body" class="permissions">
@@ -141,7 +140,7 @@
   </div>
 </div>
 
-<div id="f"  ></div>
+<div id="popup"></div>
 
     <div id="placeholder"></div>
     <script>
@@ -272,7 +271,7 @@
         };
 
         var onRequestSharingSettings = function (event){
-            document.getElementById("f").style = "width: 100%; height: 100%; display: block; background-color: black;  opacity:0.2; z-index: 2; position:absolute";
+            document.getElementById("popup").style = "width: 100%; height: 100%; display: block; background-color: black;  opacity:0.2; z-index: 2; position:absolute";
             function getQueryParametr(queryParametr) {
                 var p_url=location.search.substring(1);
                 var parametr=p_url.split("&");
@@ -284,20 +283,15 @@
                 return values[queryParametr]
             }
 
-
-
-
-
-
             var nodeRefFromQueryString = getQueryParametr("nodeRef");
-            var mp = new Alfresco.component.ManagePermissions("doc-manage-permissions").setOptions({
+            var mp = new Alfresco.component.ManagePermissions("${id}").setOptions({
                 "site":Alfresco.constants.SITE ,
                 "nodeRef":nodeRefFromQueryString
             });
             function onPermissionsTemplateLoaded(response)
             {
-                var permissionsEl = Dom.get("doc-manage-permissions" + "-managepermissions"),
-                    permissionsContainerEl = Dom.get("doc-manage-permissions" + "-body"),
+                var permissionsEl = Dom.get("${id}" + "-managepermissions"),
+                    permissionsContainerEl = Dom.get("${id}" + "-body"),
                     nodeRef = nodeRefFromQueryString;
 
                 var url;
@@ -334,10 +328,11 @@
                                             });
                                     }
                                     mp.onReady();
+                                    document.getElementsByClassName("center")[0].style = "padding-bottom: 1em;";
                                     document.getElementById("${id}-okButton-button").onclick = hideDisplay;
                                     document.getElementById("${id}-cancelButton-button").onclick = hideDisplay;
                                     function hideDisplay(event){
-                                        document.getElementById("f").style.display = "none";
+                                        document.getElementById("popup").style.display = "none";
                                     }
                                 },
                                 scope: this
@@ -358,7 +353,7 @@
 
             Alfresco.util.Ajax.request(
                 {
-                    url: Alfresco.constants.URL_SERVICECONTEXT + "components/manage-permissions/manage-permissions?nodeRef=" + nodeRefFromQueryString + "&htmlid=" + "doc-manage-permissions",
+                    url: Alfresco.constants.URL_SERVICECONTEXT + "components/manage-permissions/manage-permissions?nodeRef=" + nodeRefFromQueryString + "&htmlid=" + "${id}",
                     successCallback:
                         {
                             fn: onPermissionsTemplateLoaded,
@@ -367,11 +362,6 @@
                     failureMessage: Alfresco.util.message("channelAdmin.template.error", this.name),
                     execScripts: true
                 });
-
-
-
-
-
 
         }
 
