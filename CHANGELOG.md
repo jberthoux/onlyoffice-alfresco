@@ -1,12 +1,6 @@
 # Change Log
 
-## 5.1.0
 ## Added
-- support docxf and oform formats
-- create blank docxf from creation menu
-- create docxf by tempalte from creation menu
-- create docxf from docx from creation menu
-- create oform from docxf from document manager
 - save copy as from document editor
 - compare file from storage
 - mail merge from storage
@@ -22,11 +16,18 @@
 - creating new file from document editor by document template
 
 ## Fixed
-- bug when System user was document modifier
 - loading preview on document-details page
 - bug when user with role CONTRIBUTOR can't join to editing
 
-# 5.0.1
+## 5.1.0
+## Added
+- support docxf and oform formats
+- create blank docxf from creation menu
+- create docxf by tempalte from creation menu
+- create docxf from docx from creation menu
+- create oform from docxf from document manager
+- "save as" in editor
+
 ## Fixed
 - bug when System user was document modifier
 

@@ -24,7 +24,6 @@ public class IsEditable extends BaseEvaluator {
             String fileName = (String) jsonObject.get("fileName");
             if (fileName != null) {
                 String docExt = fileName.substring(fileName.lastIndexOf(".") + 1).trim().toLowerCase();
-                if (docExt.equals("oform")) return false;
 
                 JSONArray supportedFormats = onlyofficeSettings.getSupportedFormats();
                 boolean defaultEditFormat = false;
