@@ -5,7 +5,7 @@
 
 <#if onlyofficeUrl??>
     <@markup id="onlyoffice-preview" target="js" action="after" scope="global">
-        <script id="scriptApi" type="text/javascript" src="${onlyofficeUrl}OfficeWeb/apps/api/documents/api.js"></script>
+        <script id="scriptApi" type="text/javascript" src="${onlyofficeUrl}web-apps/apps/api/documents/api.js"></script>
         <script>
             var docEditor;
             var editorConfig = ${editorConfig};
