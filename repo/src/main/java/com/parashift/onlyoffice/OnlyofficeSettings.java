@@ -27,7 +27,7 @@ public class OnlyofficeSettings extends AbstractWebScript {
             Set<String> editableFormats = configManager.getCustomizableEditableSet();
             responseJson.put("editableFormats", editableFormats);
             responseJson.put("convertOriginal", configManager.getAsBoolean("convertOriginal", "false"));
-            responseJson.put("supportedFormats", Formats.getSupportedFormats());
+            responseJson.put("supportedFormats", Formats.getSupportedFormatsAsJson());
 
             response.setContentType("application/json; charset=utf-8");
             response.setContentEncoding("UTF-8");
