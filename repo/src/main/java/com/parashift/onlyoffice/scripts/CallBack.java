@@ -6,14 +6,17 @@ import com.parashift.onlyoffice.util.JwtManager;
 import com.parashift.onlyoffice.util.Util;
 import org.alfresco.model.ContentModel;
 import org.alfresco.model.RenditionModel;
+import org.alfresco.repo.activities.ActivityType;
 import org.alfresco.repo.policy.BehaviourFilter;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.tenant.TenantContextHolder;
 import org.alfresco.repo.transaction.RetryingTransactionHelper.RetryingTransactionCallback;
 import org.alfresco.repo.version.VersionModel;
+import org.alfresco.service.cmr.activities.ActivityPostService;
 import org.alfresco.service.cmr.coci.CheckOutCheckInService;
 import org.alfresco.service.cmr.repository.*;
 import org.alfresco.service.cmr.security.OwnableService;
+import org.alfresco.service.cmr.site.SiteService;
 import org.alfresco.service.cmr.version.Version;
 import org.alfresco.service.cmr.version.VersionService;
 import org.alfresco.service.cmr.version.VersionType;
@@ -93,6 +96,12 @@ public class CallBack extends AbstractWebScript {
 
     @Autowired
     Util util;
+
+    @Autowired
+    ActivityPostService activityPostService;
+
+    @Autowired
+    SiteService siteService;
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -231,6 +240,10 @@ public class CallBack extends AbstractWebScript {
 
                     cociService.checkin(wc, null, null);
                     saveHistoryToChildNode(nodeRef, callBackJSon, false);
+
+                    activityPostService.postActivity(ActivityType.FILE_UPDATED, siteService.getSiteShortName(nodeRef), "",
+                            "{ title: \"" + (String) nodeService.getProperties(nodeRef).get(ContentModel.PROP_NAME) + "\" , " +
+                                    "page: \"document-details?nodeRef=" + nodeRef + "\"}");
                     break;
                 case 3:
                     logger.error("ONLYOFFICE has reported that saving the document has failed");
@@ -264,6 +277,10 @@ public class CallBack extends AbstractWebScript {
                     nodeService.setProperty(wc, Util.EditingKeyAspect, key);
 
                     saveHistoryToChildNode(nodeRef, callBackJSon, true);
+
+                    activityPostService.postActivity(ActivityType.FILE_UPDATED, siteService.getSiteShortName(nodeRef), "",
+                            "{ title: \"" + (String) nodeService.getProperties(nodeRef).get(ContentModel.PROP_NAME) + "\" , " +
+                                    "page: \"document-details?nodeRef=" + nodeRef + "\"}");
 
                     logger.debug("Forcesave complete");
                     break;

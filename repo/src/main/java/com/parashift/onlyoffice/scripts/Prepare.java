@@ -5,11 +5,14 @@ import com.parashift.onlyoffice.util.Util;
 import com.parashift.onlyoffice.util.UtilDocConfig;
 import com.parashift.onlyoffice.constants.Type;
 import org.alfresco.model.ContentModel;
+import org.alfresco.repo.activities.ActivityType;
 import org.alfresco.repo.i18n.MessageService;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
+import org.alfresco.service.cmr.activities.ActivityPostService;
 import org.alfresco.service.cmr.repository.*;
 import org.alfresco.service.cmr.security.AccessStatus;
 import org.alfresco.service.cmr.security.PermissionService;
+import org.alfresco.service.cmr.site.SiteService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.json.JSONException;
@@ -62,6 +65,12 @@ public class Prepare extends AbstractWebScript {
 
     @Autowired
     UtilDocConfig utilDocConfig;
+
+    @Autowired
+    ActivityPostService activityPostService;
+
+    @Autowired
+    SiteService siteService;
 
     @Override
     public void execute(WebScriptRequest request, WebScriptResponse response) throws IOException {
@@ -117,6 +126,9 @@ public class Prepare extends AbstractWebScript {
                 writer.putContent(in);
                 util.ensureVersioningEnabled(nodeRef);
 
+                activityPostService.postActivity(ActivityType.FILE_ADDED, siteService.getSiteShortName(nodeRef), "",
+                        "{ title: \"" + (String) nodeService.getProperties(nodeRef).get(ContentModel.PROP_NAME) + "\" , " +
+                                "page: \"document-details?nodeRef=" + nodeRef + "\"}");
                 responseJson.put("nodeRef", nodeRef);
             } else {
                 NodeRef nodeRef = new NodeRef(request.getParameter("nodeRef"));
