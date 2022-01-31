@@ -66,11 +66,7 @@ public class Prepare extends AbstractWebScript {
     @Autowired
     UtilDocConfig utilDocConfig;
 
-    @Autowired
-    ActivityPostService activityPostService;
 
-    @Autowired
-    SiteService siteService;
 
     @Override
     public void execute(WebScriptRequest request, WebScriptResponse response) throws IOException {
@@ -125,11 +121,7 @@ public class Prepare extends AbstractWebScript {
                 }
                 writer.putContent(in);
                 util.ensureVersioningEnabled(nodeRef);
-                if (!siteService.getSiteShortName(nodeRef).equals("")) {
-                    activityPostService.postActivity(ActivityType.FILE_ADDED, siteService.getSiteShortName(nodeRef), "",
-                            "{ title: \"" + (String) nodeService.getProperties(nodeRef).get(ContentModel.PROP_NAME) + "\" , " +
-                                    "page: \"document-details?nodeRef=" + nodeRef + "\"}");
-                }
+                util.postActivity(nodeRef,true);
                 responseJson.put("nodeRef", nodeRef);
             } else {
                 NodeRef nodeRef = new NodeRef(request.getParameter("nodeRef"));

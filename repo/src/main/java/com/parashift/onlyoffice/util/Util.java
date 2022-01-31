@@ -3,12 +3,15 @@ package com.parashift.onlyoffice.util;
 import com.parashift.onlyoffice.constants.Format;
 import com.parashift.onlyoffice.constants.Formats;
 import org.alfresco.model.ContentModel;
+import org.alfresco.repo.activities.ActivityType;
 import org.alfresco.repo.admin.SysAdminParams;
+import org.alfresco.service.cmr.activities.ActivityPostService;
 import org.alfresco.service.cmr.coci.CheckOutCheckInService;
 import org.alfresco.service.cmr.repository.*;
 import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.cmr.security.AuthenticationService;
 import org.alfresco.service.cmr.security.PersonService;
+import org.alfresco.service.cmr.site.SiteService;
 import org.alfresco.service.cmr.version.Version;
 import org.alfresco.service.cmr.version.VersionService;
 import org.alfresco.service.cmr.version.VersionType;
@@ -75,6 +78,7 @@ public class Util {
 
     @Autowired
     JwtManager jwtManager;
+
 
     public static final QName EditingKeyAspect = QName.createQName("onlyoffice:editing-key");
     public static final QName EditingHashAspect = QName.createQName("onlyoffice:editing-hash");
@@ -519,6 +523,14 @@ public class Util {
             return null;
         } else {
             return parentAssoc.getParentRef();
+        }
+    }
+
+    public void postActivity(NodeRef nodeRef, boolean isNew){
+        if (!siteService.getSiteShortName(nodeRef).equals("")) {
+            activityPostService.postActivity(isNew ? ActivityType.FILE_ADDED:ActivityType.FILE_UPDATED, siteService.getSiteShortName(nodeRef), "",
+                    "{ title: \"" + (String) nodeService.getProperties(nodeRef).get(ContentModel.PROP_NAME) + "\" , " +
+                            "page: \"document-details?nodeRef=" + nodeRef + "\"}");
         }
     }
 }
