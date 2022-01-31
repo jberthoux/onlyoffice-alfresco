@@ -241,9 +241,11 @@ public class CallBack extends AbstractWebScript {
                     cociService.checkin(wc, null, null);
                     saveHistoryToChildNode(nodeRef, callBackJSon, false);
 
-                    activityPostService.postActivity(ActivityType.FILE_UPDATED, siteService.getSiteShortName(nodeRef), "",
-                            "{ title: \"" + (String) nodeService.getProperties(nodeRef).get(ContentModel.PROP_NAME) + "\" , " +
-                                    "page: \"document-details?nodeRef=" + nodeRef + "\"}");
+                    if (!siteService.getSiteShortName(nodeRef).equals("")) {
+                        activityPostService.postActivity(ActivityType.FILE_UPDATED, siteService.getSiteShortName(nodeRef), "",
+                                "{ title: \"" + (String) nodeService.getProperties(nodeRef).get(ContentModel.PROP_NAME) + "\" , " +
+                                        "page: \"document-details?nodeRef=" + nodeRef + "\"}");
+                    }
                     break;
                 case 3:
                     logger.error("ONLYOFFICE has reported that saving the document has failed");
@@ -277,11 +279,11 @@ public class CallBack extends AbstractWebScript {
                     nodeService.setProperty(wc, Util.EditingKeyAspect, key);
 
                     saveHistoryToChildNode(nodeRef, callBackJSon, true);
-
+                    if (!siteService.getSiteShortName(nodeRef).equals("")) {
                     activityPostService.postActivity(ActivityType.FILE_UPDATED, siteService.getSiteShortName(nodeRef), "",
                             "{ title: \"" + (String) nodeService.getProperties(nodeRef).get(ContentModel.PROP_NAME) + "\" , " +
                                     "page: \"document-details?nodeRef=" + nodeRef + "\"}");
-
+                    }
                     logger.debug("Forcesave complete");
                     break;
             }

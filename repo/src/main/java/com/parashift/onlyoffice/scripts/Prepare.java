@@ -125,10 +125,11 @@ public class Prepare extends AbstractWebScript {
                 }
                 writer.putContent(in);
                 util.ensureVersioningEnabled(nodeRef);
-
-                activityPostService.postActivity(ActivityType.FILE_ADDED, siteService.getSiteShortName(nodeRef), "",
-                        "{ title: \"" + (String) nodeService.getProperties(nodeRef).get(ContentModel.PROP_NAME) + "\" , " +
-                                "page: \"document-details?nodeRef=" + nodeRef + "\"}");
+                if (!siteService.getSiteShortName(nodeRef).equals("")) {
+                    activityPostService.postActivity(ActivityType.FILE_ADDED, siteService.getSiteShortName(nodeRef), "",
+                            "{ title: \"" + (String) nodeService.getProperties(nodeRef).get(ContentModel.PROP_NAME) + "\" , " +
+                                    "page: \"document-details?nodeRef=" + nodeRef + "\"}");
+                }
                 responseJson.put("nodeRef", nodeRef);
             } else {
                 NodeRef nodeRef = new NodeRef(request.getParameter("nodeRef"));
