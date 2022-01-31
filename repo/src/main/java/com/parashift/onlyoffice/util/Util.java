@@ -533,8 +533,9 @@ public class Util {
     }
 
     public void postActivity(NodeRef nodeRef, boolean isNew){
-        if (!siteService.getSiteShortName(nodeRef).equals("")) {
-            activityPostService.postActivity(isNew ? ActivityType.FILE_ADDED:ActivityType.FILE_UPDATED, siteService.getSiteShortName(nodeRef), "",
+        String site = siteService.getSiteShortName(nodeRef);
+        if (site != null && !site.equals("")) {
+            activityPostService.postActivity(isNew ? ActivityType.FILE_ADDED : ActivityType.FILE_UPDATED, site, "",
                     "{ title: \"" + (String) nodeService.getProperties(nodeRef).get(ContentModel.PROP_NAME) + "\" , " +
                             "page: \"document-details?nodeRef=" + nodeRef + "\"}");
         }
