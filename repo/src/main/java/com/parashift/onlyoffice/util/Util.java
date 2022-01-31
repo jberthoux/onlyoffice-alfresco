@@ -79,6 +79,12 @@ public class Util {
     @Autowired
     JwtManager jwtManager;
 
+    @Autowired
+    ActivityPostService activityPostService;
+
+    @Autowired
+    SiteService siteService;
+
 
     public static final QName EditingKeyAspect = QName.createQName("onlyoffice:editing-key");
     public static final QName EditingHashAspect = QName.createQName("onlyoffice:editing-hash");
