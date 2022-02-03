@@ -19,6 +19,10 @@
 - loading preview on document-details page
 - bug when user with role CONTRIBUTOR can't join to editing
 
+## 5.1.1
+## Fixed
+- fix support alfresco v6.2
+
 ## 5.1.0
 ## Added
 - support docxf and oform formats
