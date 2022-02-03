@@ -1,5 +1,9 @@
 # Change Log
 
+##
+## Fixed
+- fix support alfresco v6.2
+
 ## 5.1.0
 ## Added
 - support docxf and oform formats
