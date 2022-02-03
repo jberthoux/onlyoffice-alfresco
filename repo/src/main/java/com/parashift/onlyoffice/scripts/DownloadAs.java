@@ -33,7 +33,7 @@ import java.util.*;
 import java.util.zip.Deflater;
 
 /*
-    Copyright (c) Ascensio System SIA 2021. All rights reserved.
+    Copyright (c) Ascensio System SIA 2022. All rights reserved.
     http://www.onlyoffice.com
 */
 @Component(value = "webscript.onlyoffice.download-as.post")

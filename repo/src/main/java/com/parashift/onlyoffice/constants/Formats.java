@@ -3,7 +3,7 @@ package com.parashift.onlyoffice.constants;
 import java.util.*;
 
 /*
-    Copyright (c) Ascensio System SIA 2021. All rights reserved.
+    Copyright (c) Ascensio System SIA 2022. All rights reserved.
     http://www.onlyoffice.com
 */
 
