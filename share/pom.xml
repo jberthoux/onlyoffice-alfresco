@@ -10,7 +10,7 @@
     <parent>
         <groupId>com.onlyoffice.alfresco</groupId>
         <artifactId>onlyoffice-integration</artifactId>
-        <version>5.1.0</version>
+        <version>5.1.1</version>
     </parent>
 
     <properties>
