@@ -325,6 +325,10 @@
                                         document.getElementById("${id}-cancelButton-button").click()
                                     }
 
+                                    setTimeout(() => {
+                                        document.getElementById("doc-manage-permissions-authorityFinder").style.top = "90px";
+                                    }, 100);
+
                                     function hideDisplay(event){
                                         document.getElementById("popup").style.display = "none";
                                         document.getElementById("manage-permissions").style.display = "none";
