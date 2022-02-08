@@ -14,6 +14,7 @@
 - change favicon in editor by document type
 - detecting mobile browser
 - creating new file from document editor by document template
+- share file from editor
 
 ## Fixed
 - loading preview on document-details page
