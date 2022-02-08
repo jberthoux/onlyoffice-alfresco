@@ -326,7 +326,7 @@
 
                                     setTimeout(() => {
                                         document.getElementById("doc-manage-permissions-authorityFinder").style.top = "90px";
-                                    }, 100);
+                                    }, 500);
 
                                     function hideDisplay(event){
                                         document.getElementById("popup").style.display = "none";
