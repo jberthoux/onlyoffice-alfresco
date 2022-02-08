@@ -322,6 +322,7 @@
                                     document.getElementById("clouseShare").onclick = hideDisplay;
                                     document.getElementById("shareHeader").innerText = Alfresco.util.message("page.managePermissions.title");
                                     document.getElementById("manage-permissions").style.display = "block";
+                                    document.getElementById("shareHeader").style.margin = "0px";
 
                                     setTimeout(() => {
                                         document.getElementById("doc-manage-permissions-authorityFinder").style.top = "90px";
