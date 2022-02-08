@@ -98,7 +98,7 @@
     <script type="text/javascript" src="${url.context}/res/modules/documentlibrary/permissions.js"></script>
     <script type="text/javascript" src="${url.context}/res/templates/manage-permissions/template.manage-permissions.js"></script>
     <script type="text/javascript" src="${url.context}/res/components/manage-permissions/manage-permissions.js"></script>
-    <script type="text/javascript"  src="${url.context}/res/modules/roles-tooltip.js"></script>
+    <script type="text/javascript" src="${url.context}/res/modules/roles-tooltip.js"></script>
     <script type="text/javascript" src="${url.context}/res/components/people-finder/authority-finder.js"></script>
     <script type="text/javascript" src="${url.context}/res/components/manage-permissions/manage-permissions.js"></script>
 
@@ -319,11 +319,9 @@
                                     document.getElementsByClassName("center")[0].style = "padding-bottom: 1em;";
                                     document.getElementById("${id}-okButton-button").onclick = hideDisplay;
                                     document.getElementById("${id}-cancelButton-button").onclick = hideDisplay;
+                                    document.getElementById("clouseShare").onclick = hideDisplay;
                                     document.getElementById("shareHeader").innerText = Alfresco.util.message("page.managePermissions.title");
                                     document.getElementById("manage-permissions").style.display = "block";
-                                    document.getElementById("clouseShare").onclick = function (event) {
-                                        document.getElementById("${id}-cancelButton-button").click()
-                                    }
 
                                     setTimeout(() => {
                                         document.getElementById("doc-manage-permissions-authorityFinder").style.top = "90px";
@@ -381,44 +379,42 @@
             var title = event.data.title.substring(0, event.data.title.lastIndexOf("."));
             var ext = event.data.title.split(".").pop();
             var url = event.data.url;
-
             var time = 600;
+
             function insertFileNameInput () {
                 if (!copyMoveTo.widgets.dialog && time > 0) {
                     time--;
                     setTimeout(insertFileNameInput, 100);
                 } else if (!copyMoveTo.fileNameInput) {
-
                     copyMoveTo.widgets.dialog.hide();
                     copyMoveTo.widgets.okButton.set("label", "${msg('button.save')}");
+
                     var fileNameDiv = document.createElement("div");
-                    fileNameDiv.classList.add("wrapper");
+                        fileNameDiv.classList.add("wrapper");
                     var fileNameLabel = document.createElement("h3");
-                    fileNameLabel.classList.add("fileNameLabel");
-                    fileNameLabel.innerHTML = "${msg('label.name')}:";
+                        fileNameLabel.classList.add("fileNameLabel");
+                        fileNameLabel.innerHTML = "${msg('label.name')}:";
                     var fileNameInput = document.createElement("input");
-                    fileNameInput.id = "fileNameInput";
-                    fileNameInput.name = "fileNameInput";
+                        fileNameInput.id = "fileNameInput";
+                        fileNameInput.name = "fileNameInput";
+                        fileNameInput.type = "text";
+                        fileNameInput.value = title;
 
-                    fileNameInput.type = "text";
-                    fileNameInput.value = title;
                     fileNameDiv.append(fileNameLabel);
-
                     fileNameDiv.append(fileNameInput);
                     copyMoveTo.widgets.dialog.body.prepend(fileNameDiv);
-                    copyMoveTo.fileNameInput = true;
 
+                    copyMoveTo.fileNameInput = true;
                     copyMoveTo.widgets.dialog.show();
                 }
+
                 if (copyMoveTo.fileNameInput) {
                     document.getElementById("fileNameInput").value = title;
                     document.getElementById("fileNameInput").classList.remove("invalid");
                 }
-
             };
 
             copyMoveTo.showDialog();
-
             insertFileNameInput();
 
             copyMoveTo.onOK = function () {
