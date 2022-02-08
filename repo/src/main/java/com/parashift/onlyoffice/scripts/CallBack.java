@@ -231,8 +231,9 @@ public class CallBack extends AbstractWebScript {
 
                     cociService.checkin(wc, null, null);
                     saveHistoryToChildNode(nodeRef, callBackJSon, false);
+                    util.postActivity(nodeRef, false);
 
-                    util.postActivity(nodeRef,false);
+                    logger.debug("Save complete");
                     break;
                 case 3:
                     logger.error("ONLYOFFICE has reported that saving the document has failed");
@@ -266,7 +267,8 @@ public class CallBack extends AbstractWebScript {
                     nodeService.setProperty(wc, Util.EditingKeyAspect, key);
 
                     saveHistoryToChildNode(nodeRef, callBackJSon, true);
-                    util.postActivity(nodeRef,false);
+                    util.postActivity(nodeRef, false);
+
                     logger.debug("Forcesave complete");
                     break;
             }

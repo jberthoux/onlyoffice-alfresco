@@ -64,7 +64,6 @@ public class Prepare extends AbstractWebScript {
     UtilDocConfig utilDocConfig;
 
 
-
     @Override
     public void execute(WebScriptRequest request, WebScriptResponse response) throws IOException {
         mesService.registerResourceBundle("alfresco/messages/prepare");
@@ -118,7 +117,8 @@ public class Prepare extends AbstractWebScript {
                 }
                 writer.putContent(in);
                 util.ensureVersioningEnabled(nodeRef);
-                util.postActivity(nodeRef,true);
+                util.postActivity(nodeRef, true);
+
                 responseJson.put("nodeRef", nodeRef);
             } else {
                 NodeRef nodeRef = new NodeRef(request.getParameter("nodeRef"));
