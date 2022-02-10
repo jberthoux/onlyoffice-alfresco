@@ -1,0 +1,39 @@
+name: Artifact
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [opened, reopened]
+    branches: [master]
+jobs:
+  artifact:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      - name: Get Info 
+        run: |
+          echo "::set-output name=artifact::$(awk '/<artifactId>/,/<\/artifactId>/' pom.xml | head -n 1 | sed 's/^[[:space:]]*//g' | sed -n 's:.*<artifactId>\(.*\)</artifactId>.*:\1:p')"
+        id: info
+      - name: Build Artifact
+        run: |
+          cd ${{ github.workspace }}
+          cwd=$(pwd)
+          git submodule update --init --recursive
+          sudo apt install default-jre -y
+          sudo apt update -y
+          sudo apt install maven -y
+          mvn -version
+          mvn clean install
+          mv ./repo/target/${{ steps.info.outputs.artifact }}-repo.jar $cwd
+          mv ./share/target/${{ steps.info.outputs.artifact }}-share.jar $cwd
+      - name: Upload Repo Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ steps.info.outputs.artifact }}-repo
+          path: ${{ steps.info.outputs.artifact }}-repo.jar
+      - name: Upload Share Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ steps.info.outputs.artifact }}-share
+          path: ${{ steps.info.outputs.artifact }}-share.jar
