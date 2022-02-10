@@ -341,10 +341,17 @@
             editorConfig.type='mobile';
         }
 
+    var editorVersion = DocsAPI.DocEditor.version().split(".");
     if ((editorConfig.document.fileType === "docxf" || editorConfig.document.fileType === "oform")
-        && DocsAPI.DocEditor.version().split(".")[0] < 7) {
+        && editorVersion[0] < 7) {
         Alfresco.util.PopupManager.displayMessage({
             text : Alfresco.util.message("onlyoffice.editor.old-version-for-docxf-and-oform"),
+            spanClass : "",
+            displayTime : 0
+        });
+    } else if (editorVersion[0] < 6 || (editorVersion[0] == 6 && editorVersion[1] == 0)) {
+        Alfresco.util.PopupManager.displayMessage({
+            text : Alfresco.util.message("onlyoffice.editor.old-version.not-supported"),
             spanClass : "",
             displayTime : 0
         });
