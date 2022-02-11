@@ -18,6 +18,7 @@
 ## Fixed
 - loading preview on document-details page
 - bug when user with role CONTRIBUTOR can't join to editing
+- document server v6.0 and earlier is no longer supported
 
 ## 5.1.1
 ## Fixed
