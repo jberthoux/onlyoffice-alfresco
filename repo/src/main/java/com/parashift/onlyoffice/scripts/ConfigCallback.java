@@ -4,6 +4,7 @@ import com.parashift.onlyoffice.util.ConfigManager;
 import com.parashift.onlyoffice.util.ConvertManager;
 import com.parashift.onlyoffice.util.JwtManager;
 import com.parashift.onlyoffice.util.Util;
+import org.alfresco.repo.i18n.MessageService;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -51,6 +52,9 @@ public class ConfigCallback extends AbstractWebScript {
 
     @Autowired
     Util util;
+
+    @Autowired
+    MessageService mesService;
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -218,7 +222,7 @@ public class ConfigCallback extends AbstractWebScript {
         String key = new SimpleDateFormat("MMddyyyyHHmmss").format(new Date());
 
         try {
-            String newFileUrl = converter.convert(key, "txt", "docx", util.getTestConversionUrl());
+            String newFileUrl = converter.convert(key, "txt", "docx", util.getTestConversionUrl(), mesService.getLocale().toLanguageTag());
             logger.debug("/ConvertService url: " + newFileUrl);
 
             if (newFileUrl == null || newFileUrl.isEmpty()) {

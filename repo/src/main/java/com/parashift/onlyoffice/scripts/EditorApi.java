@@ -5,6 +5,7 @@ import com.parashift.onlyoffice.util.JwtManager;
 import com.parashift.onlyoffice.util.Util;
 
 import org.alfresco.model.ContentModel;
+import org.alfresco.repo.i18n.MessageService;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.favourites.FavouritesService;
 import org.alfresco.service.cmr.repository.*;
@@ -62,6 +63,9 @@ public class EditorApi extends AbstractWebScript {
 
     @Autowired
     ConvertManager converterService;
+
+    @Autowired
+    MessageService mesService;
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -152,7 +156,7 @@ public class EditorApi extends AbstractWebScript {
                 }
 
                 try {
-                    String downloadUrl = converterService.convert(util.getKey(node), fileType, "docxf", util.getContentUrl(node));
+                    String downloadUrl = converterService.convert(util.getKey(node), fileType, "docxf", util.getContentUrl(node), mesService.getLocale().toLanguageTag());
                     docTitle = docTitle.substring(0, docTitle.lastIndexOf("."));
                     String newNode = createNode(folderNode, docTitle, "docxf", downloadUrl);
                     data.put("nodeRef", newNode);
