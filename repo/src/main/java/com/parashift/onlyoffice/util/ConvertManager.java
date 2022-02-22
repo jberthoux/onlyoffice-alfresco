@@ -2,6 +2,7 @@ package com.parashift.onlyoffice.util;
 
 import com.parashift.onlyoffice.constants.Format;
 import com.parashift.onlyoffice.constants.Formats;
+import org.alfresco.repo.i18n.MessageService;
 import org.alfresco.service.cmr.repository.*;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.IOUtils;
@@ -50,6 +51,9 @@ public class ConvertManager {
     @Autowired
     Util util;
 
+    @Autowired
+    MessageService mesService;
+
     private static Set<String> ConvertBackList = new HashSet<String>() {{
         add("application/vnd.oasis.opendocument.text");
         add("application/vnd.oasis.opendocument.spreadsheet");
@@ -97,7 +101,7 @@ public class ConvertManager {
         logger.info("Received conversion request from " + srcType + " to " + outType);
 
         try {
-            String url = convert(key, srcType, outType, util.getContentUrl(sourceNodeRef));
+            String url = convert(key, srcType, outType, util.getContentUrl(sourceNodeRef), mesService.getLocale().toLanguageTag());
             saveFromUrl(url, writer);
         } catch (Exception ex) {
             logger.info("Conversion failed: " + ex.getMessage());
@@ -105,7 +109,7 @@ public class ConvertManager {
         }
     }
 
-    public String convert(String key, String srcType, String outType, String url) throws SecurityException, Exception {
+    public String convert(String key, String srcType, String outType, String url, String region) throws SecurityException, Exception {
         try (CloseableHttpClient httpClient = GetClient()) {
             JSONObject body = new JSONObject();
             body.put("async", false);
@@ -114,6 +118,7 @@ public class ConvertManager {
             body.put("outputtype", outType);
             body.put("key", key);
             body.put("url", url);
+            body.put("region", region);
 
             StringEntity requestEntity = new StringEntity(body.toString(), ContentType.APPLICATION_JSON);
             HttpPost request = new HttpPost(util.getEditorInnerUrl() + "ConvertService.ashx");

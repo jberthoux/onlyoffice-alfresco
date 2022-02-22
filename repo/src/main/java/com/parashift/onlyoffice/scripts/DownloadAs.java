@@ -6,6 +6,7 @@ import org.alfresco.model.ContentModel;
 import org.alfresco.repo.download.DownloadModel;
 import org.alfresco.repo.download.DownloadStatusUpdateService;
 import org.alfresco.repo.download.DownloadStorage;
+import org.alfresco.repo.i18n.MessageService;
 import org.alfresco.repo.security.permissions.AccessDeniedException;
 import org.alfresco.service.cmr.download.DownloadStatus;
 import org.alfresco.service.cmr.repository.*;
@@ -70,11 +71,15 @@ public class DownloadAs extends AbstractWebScript {
     @Autowired
     DownloadStatusUpdateService updateService;
 
+    @Autowired
+    MessageService mesService;
+
     @Override
     public void execute(WebScriptRequest request, WebScriptResponse response) throws IOException {
         try {
             String contentURL = null;
             JSONArray requestDataJson = new JSONArray(request.getContent().getContent());
+            String region = mesService.getLocale().toLanguageTag();
 
             if (requestDataJson.length() == 1) {
                 JSONObject data = requestDataJson.getJSONObject(0);
@@ -93,7 +98,7 @@ public class DownloadAs extends AbstractWebScript {
                 if (currentExt.equals(outputType)) {
                     contentURL = getDownloadAPIUrl(node, docTitle);
                 } else {
-                    String downloadUrl = converterService.convert(util.getKey(node), currentExt, outputType, util.getContentUrl(node));
+                    String downloadUrl = converterService.convert(util.getKey(node), currentExt, outputType, util.getContentUrl(node), region);
                     docTitle = docTitle.substring(0, docTitle.lastIndexOf(".") + 1) + outputType;
                     URL url = new URL(util.replaceDocEditorURLToInternal(downloadUrl));
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -133,7 +138,7 @@ public class DownloadAs extends AbstractWebScript {
                                 totalSize = totalSize + IOUtils.copyLarge(inputStream, out);
                             }
                         } else {
-                            String downloadUrl = converterService.convert(util.getKey(node), currentExt, outputType, util.getContentUrl(node));
+                            String downloadUrl = converterService.convert(util.getKey(node), currentExt, outputType, util.getContentUrl(node), region);
                             docTitle = docTitle.substring(0, docTitle.lastIndexOf(".") + 1) + outputType;
                             URL url = new URL(util.replaceDocEditorURLToInternal(downloadUrl));
                             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
