@@ -341,22 +341,30 @@
             editorConfig.type='mobile';
         }
 
-    var editorVersion = DocsAPI.DocEditor.version().split(".");
-    if ((editorConfig.document.fileType === "docxf" || editorConfig.document.fileType === "oform")
-        && editorVersion[0] < 7) {
+    try {
+        var editorVersion = DocsAPI.DocEditor.version().split(".");
+        if ((editorConfig.document.fileType === "docxf" || editorConfig.document.fileType === "oform")
+            && editorVersion[0] < 7) {
+            Alfresco.util.PopupManager.displayMessage({
+                text : Alfresco.util.message("onlyoffice.editor.old-version-for-docxf-and-oform"),
+                spanClass : "",
+                displayTime : 0
+            });
+        } else if (editorVersion[0] < 6 || (editorVersion[0] == 6 && editorVersion[1] == 0)) {
+            Alfresco.util.PopupManager.displayMessage({
+                text : Alfresco.util.message("onlyoffice.editor.old-version.not-supported"),
+                spanClass : "",
+                displayTime : 0
+            });
+        } else {
+            var docEditor = new DocsAPI.DocEditor("placeholder", editorConfig);
+        }
+    } catch (e) {
         Alfresco.util.PopupManager.displayMessage({
-            text : Alfresco.util.message("onlyoffice.editor.old-version-for-docxf-and-oform"),
-            spanClass : "",
-            displayTime : 0
+            text: Alfresco.util.message("onlyoffice.editor.unreachable"),
+            spanClass: "",
+            displayTime: 0
         });
-    } else if (editorVersion[0] < 6 || (editorVersion[0] == 6 && editorVersion[1] == 0)) {
-        Alfresco.util.PopupManager.displayMessage({
-            text : Alfresco.util.message("onlyoffice.editor.old-version.not-supported"),
-            spanClass : "",
-            displayTime : 0
-        });
-    } else {
-        var docEditor = new DocsAPI.DocEditor("placeholder", editorConfig);
     }
     </script>
 </body>
