@@ -417,7 +417,7 @@ public class Util {
             String docName = nodeService.getProperty(assoc.getChildRef(), ContentModel.PROP_NAME).toString();
             if(docExt.equals(docName.substring(docName.lastIndexOf(".") + 1))){
                 JSONObject template = new JSONObject();
-                String image = getShareUrl() + "proxy/alfresco/api/node/workspace/SpacesStore/" + assoc.getChildRef().toString().split("/SpacesStore/")[1] + "/content/thumbnails/doclib?ph=true";
+                String image = getShareUrl() + "res/components/images/filetypes/" + getDocType(docExt) + ".svg";
                 String title = nodeService.getProperty(assoc.getChildRef(), ContentModel.PROP_NAME).toString();
                 String url = getCreateNewUrl(nodeRef, mimeType) + "&templateNodeRef=" + assoc.getChildRef();
                 try {
