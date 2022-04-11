@@ -83,6 +83,9 @@ public class EditorApi extends AbstractWebScript {
             case "favorite":
                 favorite(request, response);
                 break;
+            case "from-docx":
+                docxToDocxf(request, response);
+                break;
             default:
                 throw new WebScriptException(Status.STATUS_NOT_FOUND, "API Not Found");
         }
