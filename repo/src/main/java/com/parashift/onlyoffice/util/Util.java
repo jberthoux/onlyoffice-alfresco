@@ -299,9 +299,21 @@ public class Util {
         return null;
     }
 
-    public String getCreateNewUrl(NodeRef nodeRef, String docExtMime){
+    public String getCreateNewUrl(NodeRef nodeRef, String docExt){
         String folderNodeRef = this.nodeService.getPrimaryParent(nodeRef).getParentRef().toString();
-        return getShareUrl() + "page/onlyoffice-edit?parentNodeRef=" + folderNodeRef + "&new=" + docExtMime;
+        String docType = getDocType(docExt);
+        String docMime = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+        switch (docType) {
+            case "cell": {
+                docMime = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                break;
+            }
+            case "slide": {
+                docMime = "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+                break;
+            }
+        }
+        return getShareUrl() + "page/onlyoffice-edit?parentNodeRef=" + folderNodeRef + "&new=" + docMime;
     }
 
     public String getFavoriteUrl(NodeRef nodeRef){
@@ -409,17 +421,21 @@ public class Util {
         return nodeRefs.get(0);
     }
 
-    public JSONArray getTemplates(NodeRef nodeRef, String docExt, String mimeType){
+    public JSONArray getTemplates(NodeRef nodeRef, String docExt){
         JSONArray templates = new JSONArray();
         NodeRef templatesNodeRef = getNodeByPath("/app:company_home/app:dictionary/app:node_templates");
         List<ChildAssociationRef> assocs = nodeService.getChildAssocs(templatesNodeRef);
+        String docType = getDocType(docExt);
+        List<String> templateExtList = Arrays.asList("docx", "pptx", "xlsx");
         for(ChildAssociationRef assoc : assocs){
             String docName = nodeService.getProperty(assoc.getChildRef(), ContentModel.PROP_NAME).toString();
-            if(docExt.equals(docName.substring(docName.lastIndexOf(".") + 1))){
+            String templateExt = docName.substring(docName.lastIndexOf(".") + 1);
+            String templateType = getDocType(templateExt);
+            if ((docType.equals(templateType) && templateExtList.contains(templateExt)) || (docType.equals("form") && templateExt.equals("docx"))) {
                 JSONObject template = new JSONObject();
-                String image = getShareUrl() + "res/components/images/filetypes/" + getDocType(docExt) + ".svg";
+                String image = getShareUrl() + "res/components/images/filetypes/" + (docType.equals("form") ? "word" : docType) + ".svg";
                 String title = nodeService.getProperty(assoc.getChildRef(), ContentModel.PROP_NAME).toString();
-                String url = getCreateNewUrl(nodeRef, mimeType) + "&templateNodeRef=" + assoc.getChildRef();
+                String url = getCreateNewUrl(nodeRef, docExt) + "&templateNodeRef=" + assoc.getChildRef();
                 try {
                     template.put("image", image);
                     template.put("title", title);
