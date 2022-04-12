@@ -341,7 +341,7 @@
             editorConfig.type='mobile';
         }
 
-    try {
+    if(typeof DocsAPI !== "undefined") {
         var editorVersion = DocsAPI.DocEditor.version().split(".");
         if ((editorConfig.document.fileType === "docxf" || editorConfig.document.fileType === "oform")
             && editorVersion[0] < 7) {
@@ -359,7 +359,7 @@
         } else {
             var docEditor = new DocsAPI.DocEditor("placeholder", editorConfig);
         }
-    } catch (e) {
+    } else {
         Alfresco.util.PopupManager.displayMessage({
             text: Alfresco.util.message("onlyoffice.editor.unreachable"),
             spanClass: "",
