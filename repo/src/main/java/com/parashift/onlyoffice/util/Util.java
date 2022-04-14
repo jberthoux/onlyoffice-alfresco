@@ -9,6 +9,7 @@ import org.alfresco.service.cmr.repository.*;
 import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.cmr.security.AuthenticationService;
 import org.alfresco.service.cmr.security.PersonService;
+import org.alfresco.service.cmr.site.SiteService;
 import org.alfresco.service.cmr.version.Version;
 import org.alfresco.service.cmr.version.VersionService;
 import org.alfresco.service.cmr.version.VersionType;
@@ -75,6 +76,9 @@ public class Util {
 
     @Autowired
     JwtManager jwtManager;
+
+    @Autowired
+    SiteService siteService;
 
     public static final QName EditingKeyAspect = QName.createQName("onlyoffice:editing-key");
     public static final QName EditingHashAspect = QName.createQName("onlyoffice:editing-hash");
@@ -332,29 +336,42 @@ public class Util {
         return configManager.demoActive() ? configManager.getDemo("url") : (String) configManager.getOrDefault("url", "http://127.0.0.1/");
     }
 
-    public String getBackUrl(NodeRef nodeRef){
+    public String getBackUrl(NodeRef nodeRef, String username){
+        String nodeCreator = this.nodeService.getProperty(nodeRef, ContentModel.PROP_CREATOR).toString();
+        String site = siteService.getSiteShortName(nodeRef);
         String path = "";
+        boolean storedInShared = false;
         while(this.nodeService.getPrimaryParent(nodeRef).getParentRef() != null){
-            if(this.nodeService.getProperty(this.nodeService.getPrimaryParent(nodeRef).getParentRef(),
-                    ContentModel.PROP_NAME).toString().equals(HOME_DIRECTORY)) {
+            String nodeName = this.nodeService.getProperty(this.nodeService.getPrimaryParent(nodeRef).getParentRef(), ContentModel.PROP_NAME).toString();
+            if (nodeName.equals("Shared") &&
+                    this.nodeService.getProperty(this.nodeService.getPrimaryParent(nodeRef).getParentRef(), ContentModel.PROP_CREATOR).toString().equals("System")) storedInShared = true;
+            if(nodeName.equals(HOME_DIRECTORY)) {
                 break;
             }
-            path = ("/" + this.nodeService.getProperty(this.nodeService.getPrimaryParent(nodeRef).getParentRef(),
-                    ContentModel.PROP_NAME)) + path;
-            nodeRef=this.nodeService.getPrimaryParent(nodeRef).getParentRef();
+            path = ("/" + nodeName) + path;
+            nodeRef = this.nodeService.getPrimaryParent(nodeRef).getParentRef();
         }
         path = "|" + path + "|";
 
-        if(path.equals("||")){
-            return getShareUrl() + "page/context/mine/myfiles";
-        } else{
+        String url = getShareUrl();
+        if (site != null && !site.equals("")) {
+            path = path.replace("/Sites/" + site + "/documentLibrary", "");
+            url += "page/site/" + site + "/documentlibrary";
+        } else if (username.equals(nodeCreator)) {
+            url += "page/context/mine/myfiles";
+        } else if (storedInShared){
+            path = path.replace("/Shared", "");
+            url += "page/context/shared/sharedfiles";
+        }
+
+        if (!path.equals("||")) {
             try {
-                return getShareUrl() + "page/context/mine/myfiles#filter=path" + java.net.URLEncoder.encode(path, String.valueOf(StandardCharsets.UTF_8));
+                url += "#filter=path" + java.net.URLEncoder.encode(path, String.valueOf(StandardCharsets.UTF_8));
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
         }
-        return null;
+        return url;
     }
 
     public String getEditorInnerUrl() {

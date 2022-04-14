@@ -126,7 +126,7 @@ public class UtilDocConfig {
         editorConfigObject.put("customization", customizationObject);
         customizationObject.put("forcesave", configManager.getAsBoolean("forcesave", "false"));
         JSONObject goBack = new JSONObject();
-        goBack.put("url", util.getBackUrl(nodeRef));
+        goBack.put("url", util.getBackUrl(nodeRef, username));
         customizationObject.put("goback",goBack);
         customizationObject.put("chat", configManager.getAsBoolean("chat", "true"));
         customizationObject.put("help", configManager.getAsBoolean("help", "true"));
