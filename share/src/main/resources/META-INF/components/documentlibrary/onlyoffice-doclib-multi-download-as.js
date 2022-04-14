@@ -44,23 +44,12 @@
                 fn: function (response) {
                     waitDialog.destroy()
 
-                    var form = document.createElement("form");
-                    form.method = "GET";
-                    form.action = Alfresco.constants.PROXY_URI + response.json.downloadUrl;
-                    document.body.appendChild(form);
-
-                    var d = form.ownerDocument;
-                    var iframe = d.createElement("iframe");
-                    iframe.style.display = "none";
-                    YAHOO.util.Dom.generateId(iframe, "downloadArchive");
-                    iframe.name = iframe.id;
-                    document.body.appendChild(iframe);
-
-                    // makes it possible to target the frame properly in IE.
-                    window.frames[iframe.name].name = iframe.name;
-
-                    form.target = iframe.name;
-                    form.submit();
+                    var a = document.createElement("a");
+                    a.href = Alfresco.constants.PROXY_URI + response.json.downloadUrl + "?a=true";
+                    document.body.appendChild(a);
+                    
+                    a.click();
+                    document.body.removeChild(a);
                 },
                 scope: this
             },
