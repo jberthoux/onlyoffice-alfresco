@@ -91,10 +91,10 @@ public class UtilDocConfig {
 
 
         String mimeType = mimetypeService.getMimetype(docExt);
-        editorConfigObject.put("createUrl", util.getCreateNewUrl(nodeRef, mimeType));
+        editorConfigObject.put("createUrl", util.getCreateNewUrl(nodeRef, docExt));
         boolean canWrite = util.isEditable(docExt) && permissionService.hasPermission(nodeRef, PermissionService.WRITE) == AccessStatus.ALLOWED;
 
-        editorConfigObject.put("templates", util.getTemplates(nodeRef, docExt, mimeType));
+        editorConfigObject.put("templates", util.getTemplates(nodeRef, docExt));
         if (isReadOnly || preview || !canWrite) {
             editorConfigObject.put("mode", "view");
             permObject.put("edit", false);
