@@ -1,5 +1,25 @@
 # Change Log
 
+## Added
+- save copy as from document editor
+- compare file from storage
+- mail merge from storage
+- insert image from storage
+- add action "download as" from document manager
+- changing document editor view
+- add history of file changes, highlighting changes between versions
+- changing favorite flag of the file from document editor
+- add goBack url for document editor
+- creating new file from document editor
+- change favicon in editor by document type
+- detecting mobile browser
+- creating new file from document editor by document template
+
+## Fixed
+- loading preview on document-details page
+- bug when user with role CONTRIBUTOR can't join to editing
+- document server v6.0 and earlier is no longer supported
+
 ## 5.1.1
 ## Fixed
 - fix support alfresco v6.2

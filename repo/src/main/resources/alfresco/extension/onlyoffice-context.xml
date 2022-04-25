@@ -10,17 +10,15 @@
     <context:component-scan base-package="com.parashift.onlyoffice" />
 
     <bean id="onlyoffice-convert"
-		  class="com.parashift.onlyoffice.ConvertAction"
-		  parent="action-executer">
+        class="com.parashift.onlyoffice.actions.ConvertAction"
+        parent="action-executer">
     </bean>
 
-    <bean id="webscripts.resources"
-          class="org.alfresco.i18n.ResourceBundleBootstrapComponent">
-
-      <property name="resourceBundles">
-         <list>
-            <value>alfresco.web-extension.messages.admin-console</value>
-         </list>
-      </property>
-   </bean>
+    <bean id="webscripts.resources" class="org.alfresco.i18n.ResourceBundleBootstrapComponent">
+        <property name="resourceBundles">
+            <list>
+                <value>alfresco.web-extension.messages.admin-console</value>
+            </list>
+        </property>
+    </bean>
 </beans>

@@ -1,8 +1,8 @@
-package com.parashift.onlyoffice;
+package com.parashift.onlyoffice.util;
 
 import com.parashift.onlyoffice.constants.Format;
 import com.parashift.onlyoffice.constants.Formats;
-import org.alfresco.model.ContentModel;
+import org.alfresco.repo.i18n.MessageService;
 import org.alfresco.service.cmr.repository.*;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.IOUtils;
@@ -34,16 +34,13 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSession;
 
 /*
-    Copyright (c) Ascensio System SIA 2021. All rights reserved.
+    Copyright (c) Ascensio System SIA 2022. All rights reserved.
     http://www.onlyoffice.com
 */
 @Service
-public class Converter {
+public class ConvertManager {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    @Autowired
-    ContentService contentService;
 
     @Autowired
     ConfigManager configManager;
@@ -53,6 +50,9 @@ public class Converter {
 
     @Autowired
     Util util;
+
+    @Autowired
+    MessageService mesService;
 
     private static Set<String> ConvertBackList = new HashSet<String>() {{
         add("application/vnd.oasis.opendocument.text");
@@ -101,7 +101,7 @@ public class Converter {
         logger.info("Received conversion request from " + srcType + " to " + outType);
 
         try {
-            String url = convert(key, srcType, outType, util.getContentUrl(sourceNodeRef));
+            String url = convert(key, srcType, outType, util.getContentUrl(sourceNodeRef), mesService.getLocale().toLanguageTag());
             saveFromUrl(url, writer);
         } catch (Exception ex) {
             logger.info("Conversion failed: " + ex.getMessage());
@@ -109,7 +109,7 @@ public class Converter {
         }
     }
 
-    public String convert(String key, String srcType, String outType, String url) throws SecurityException, Exception {
+    public String convert(String key, String srcType, String outType, String url, String region) throws SecurityException, Exception {
         try (CloseableHttpClient httpClient = GetClient()) {
             JSONObject body = new JSONObject();
             body.put("async", false);
@@ -118,6 +118,7 @@ public class Converter {
             body.put("outputtype", outType);
             body.put("key", key);
             body.put("url", url);
+            body.put("region", region);
 
             StringEntity requestEntity = new StringEntity(body.toString(), ContentType.APPLICATION_JSON);
             HttpPost request = new HttpPost(util.getEditorInnerUrl() + "ConvertService.ashx");
@@ -151,7 +152,7 @@ public class Converter {
                     }
 
                     if (!callBackJSon.isNull("error") && callBackJSon.getInt("error") == -8) throw new SecurityException();
-
+                    
                     if (callBackJSon.isNull("endConvert") || !callBackJSon.getBoolean("endConvert") || callBackJSon.isNull("fileUrl")) {
                         throw new Exception("'endConvert' is false or 'fileUrl' is empty");
                     }

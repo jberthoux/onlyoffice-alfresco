@@ -1,0 +1,6 @@
+<webscript>
+    <shortname>ONLYOFFICE Download as URL</shortname>
+    <description>Used to download file as...</description>
+    <url>/parashift/onlyoffice/download-as</url>
+    <authentication>user</authentication>
+</webscript>
