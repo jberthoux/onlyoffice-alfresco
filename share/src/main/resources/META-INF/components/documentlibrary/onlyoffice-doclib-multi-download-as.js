@@ -46,7 +46,7 @@
 
                     var form = document.createElement("form");
                     form.method = "GET";
-                    form.action = Alfresco.constants.PROXY_URI + response.json.downloadUrl;
+                    form.action = Alfresco.constants.PROXY_URI + response.json.downloadUrl + "?a=true";
                     document.body.appendChild(form);
 
                     var d = form.ownerDocument;
