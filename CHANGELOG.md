@@ -13,6 +13,7 @@
 - change favicon in editor by document type
 - detecting mobile browser
 - creating new file from document editor by document template
+- Galician empty file templates
 
 ## Fixed
 - loading preview on document-details page
