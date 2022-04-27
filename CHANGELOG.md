@@ -1,7 +1,6 @@
 # Change Log
 
 ## Added
-- save copy as from document editor
 - compare file from storage
 - mail merge from storage
 - insert image from storage
