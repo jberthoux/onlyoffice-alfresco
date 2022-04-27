@@ -1,18 +1,19 @@
 # Change Log
 
+## 6.0.0
 ## Added
+- creating new file from document editor
+- creating new file from document editor from document template
+- add action "download as" from document manager
 - compare file from storage
 - mail merge from storage
 - insert image from storage
-- add action "download as" from document manager
-- changing document editor view
 - add history of file changes, highlighting changes between versions
-- changing favorite flag of the file from document editor
+- customization document editor view
+- mark as favorite from document editor
 - add goBack url for document editor
-- creating new file from document editor
 - change favicon in editor by document type
 - detecting mobile browser
-- creating new file from document editor by document template
 - Galician empty file templates
 
 ## Fixed
