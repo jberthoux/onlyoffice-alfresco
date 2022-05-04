@@ -353,6 +353,7 @@ public class Util {
         String site = siteService.getSiteShortName(nodeRef);
         String path = "";
         boolean storedInShared = false;
+        boolean storedInUserHomes = false;
         while(this.nodeService.getPrimaryParent(nodeRef).getParentRef() != null){
             String nodeName = this.nodeService.getProperty(this.nodeService.getPrimaryParent(nodeRef).getParentRef(), ContentModel.PROP_NAME).toString();
             if (nodeName.equals("Shared") &&
@@ -360,9 +361,13 @@ public class Util {
             if(nodeName.equals(HOME_DIRECTORY)) {
                 break;
             }
+            if (nodeName.equals("User Homes") &&
+                    this.nodeService.getProperty(this.nodeService.getPrimaryParent(nodeRef).getParentRef(),
+                            ContentModel.PROP_CREATOR).toString().equals("System")) storedInUserHomes = true;
             path = ("/" + nodeName) + path;
             nodeRef = this.nodeService.getPrimaryParent(nodeRef).getParentRef();
         }
+        if (storedInUserHomes) path = path.replace("/User Homes/" + username, "");
         path = "|" + path + "|";
 
         String url = getShareUrl();
@@ -371,9 +376,10 @@ public class Util {
             url += "page/site/" + site + "/documentlibrary";
         } else if (username.equals(nodeCreator)) {
             url += "page/context/mine/myfiles";
-        } else if (storedInShared){
+        }
+        if (storedInShared){
             path = path.replace("/Shared", "");
-            url += "page/context/shared/sharedfiles";
+            url = getShareUrl() + "page/context/shared/sharedfiles";
         }
 
         if (!path.equals("||")) {
