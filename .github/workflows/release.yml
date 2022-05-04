@@ -15,14 +15,16 @@ jobs:
           echo "::set-output name=version::$(awk '/<version>/,/<\/version>/' pom.xml | head -n 1 | sed 's/^[[:space:]]*//g' | sed -n 's:.*<version>\(.*\)</version>.*:\1:p')"
           echo "::set-output name=artifact::$(awk '/<artifactId>/,/<\/artifactId>/' pom.xml | head -n 1 | sed 's/^[[:space:]]*//g' | sed -n 's:.*<artifactId>\(.*\)</artifactId>.*:\1:p')"
         id: info
+      - name: Install Java 11
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '11'
       - name: Build Artifact
         run: |
           cd ${{ github.workspace }}
           cwd=$(pwd)
           git submodule update --init --recursive
-          sudo apt install default-jre -y
-          sudo apt update -y
-          sudo apt install maven -y
           mvn -version
           mvn clean install
           mv ./repo/target/${{ steps.info.outputs.artifact }}-repo.jar $cwd
