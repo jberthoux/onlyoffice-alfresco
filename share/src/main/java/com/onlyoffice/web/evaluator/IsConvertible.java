@@ -67,6 +67,7 @@ public class IsConvertible extends BaseEvaluator {
             JSONArray outputTypes = (JSONArray) format.get("convertTo");
 
             if (format.get("name").equals(docExt)) {
+                if (docExt.equals("txt") || docExt.equals("csv")) return false;
                 switch (format.get("type").toString()) {
                     case "FORM":
                         if (outputTypes.contains("oform")) return true;
