@@ -1,5 +1,6 @@
-package com.parashift.onlyoffice;
+package com.parashift.onlyoffice.scripts;
 
+import com.parashift.onlyoffice.util.ConfigManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.extensions.webscripts.DeclarativeWebScript;
 import org.springframework.extensions.webscripts.WebScriptRequest;
@@ -11,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /*
-    Copyright (c) Ascensio System SIA 2021. All rights reserved.
+    Copyright (c) Ascensio System SIA 2022. All rights reserved.
     http://www.onlyoffice.com
 */
 @Component(value = "webscript.onlyoffice.onlyoffice-config.get")
@@ -31,6 +32,13 @@ public class Config extends DeclarativeWebScript {
         model.put("forcesave", getBoolAsAttribute("forcesave", "false"));
         model.put("webpreview", getBoolAsAttribute("webpreview", "false"));
         model.put("convertOriginal", getBoolAsAttribute("convertOriginal", "false"));
+
+        model.put("chat", getBoolAsAttribute("chat", "true"));
+        model.put("help", getBoolAsAttribute("help", "true"));
+        model.put("compactHeader", getBoolAsAttribute("compactHeader", "false"));
+        model.put("toolbarNoTabs", getBoolAsAttribute("toolbarNoTabs", "false"));
+        model.put("feedback", getBoolAsAttribute("feedback", "false"));
+        model.put("reviewDisplay", configManager.getOrDefault("reviewDisplay", "original"));
 
         model.put("jwtsecret", configManager.getOrDefault("jwtsecret", ""));
         model.put("demo", getBoolAsAttribute("demo", "false"));

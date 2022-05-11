@@ -1,5 +1,10 @@
-package com.parashift.onlyoffice;
+package com.parashift.onlyoffice.scripts;
 
+import com.parashift.onlyoffice.util.ConfigManager;
+import com.parashift.onlyoffice.util.ConvertManager;
+import com.parashift.onlyoffice.util.JwtManager;
+import com.parashift.onlyoffice.util.Util;
+import org.alfresco.repo.i18n.MessageService;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -21,13 +26,12 @@ import org.springframework.extensions.webscripts.WebScriptResponse;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
 
 /*
-    Copyright (c) Ascensio System SIA 2021. All rights reserved.
+    Copyright (c) Ascensio System SIA 2022. All rights reserved.
     http://www.onlyoffice.com
 */
 @Component(value = "webscript.onlyoffice.onlyoffice-config.post")
@@ -44,10 +48,13 @@ public class ConfigCallback extends AbstractWebScript {
     Properties globalProp;
 
     @Autowired
-    Converter converter;
+    ConvertManager converter;
 
     @Autowired
     Util util;
+
+    @Autowired
+    MessageService mesService;
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -82,6 +89,13 @@ public class ConfigCallback extends AbstractWebScript {
             configManager.set("webpreview", data.getString("webpreview"));
             configManager.set("convertOriginal", data.getString("convertOriginal"));
 
+            configManager.set("chat", data.getString("chat"));
+            configManager.set("help", data.getString("help"));
+            configManager.set("compactHeader", data.getString("compactHeader"));
+            configManager.set("toolbarNoTabs", data.getString("toolbarNoTabs"));
+            configManager.set("feedback", data.getString("feedback"));
+            configManager.set("reviewDisplay", data.getString("reviewDisplay"));
+
             JSONObject formats = (JSONObject) data.get("formats");
             configManager.set("formatODT", formats.getString("odt"));
             configManager.set("formatODS", formats.getString("ods"));
@@ -99,7 +113,7 @@ public class ConfigCallback extends AbstractWebScript {
 
             docInnerUrl = docInnerUrl.isEmpty() ? docUrl : docInnerUrl;
             logger.debug("Checking docserv url");
-            if (!CheckDocServUrl(docUrl)) {
+            if (!CheckDocServUrl(docInnerUrl)) {
                 response.getWriter().write("{\"success\": false, \"message\": \"docservunreachable\"}");
                 return;
             }
@@ -208,7 +222,7 @@ public class ConfigCallback extends AbstractWebScript {
         String key = new SimpleDateFormat("MMddyyyyHHmmss").format(new Date());
 
         try {
-            String newFileUrl = converter.convert(key, "txt", "docx", util.getTestConversionUrl());
+            String newFileUrl = converter.convert(key, "txt", "docx", util.getTestConversionUrl(), mesService.getLocale().toLanguageTag());
             logger.debug("/ConvertService url: " + newFileUrl);
 
             if (newFileUrl == null || newFileUrl.isEmpty()) {

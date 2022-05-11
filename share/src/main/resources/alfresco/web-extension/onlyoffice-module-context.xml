@@ -12,7 +12,7 @@
         <property name="remote" ref="webframework.webscripts.scriptremote" />
     </bean>
 
-    <bean id="evaluator.doclib.action.onlyofficeIsEditable" class="com.onlyoffice.web.evaluator.IsEditableMimetype" >
+    <bean id="evaluator.doclib.action.onlyofficeIsEditable" class="com.onlyoffice.web.evaluator.IsEditable" >
         <property name="onlyofficeSettings" ref="slingshot.scriptprocessor.OnlyofficeSettingsQuery" />
     </bean>
 
@@ -25,7 +25,7 @@
         <property name="negateOutput" value="true" />
     </bean>
 
-    <bean id="evaluator.doclib.action.onlyofficeIsViewable" class="com.onlyoffice.web.evaluator.IsViewMimetype">
+    <bean id="evaluator.doclib.action.onlyofficeIsViewable" class="com.onlyoffice.web.evaluator.IsViewable">
         <property name="onlyofficeSettings" ref="slingshot.scriptprocessor.OnlyofficeSettingsQuery" />
     </bean>
 
@@ -64,9 +64,9 @@
                 <ref bean="evaluator.doclib.action.isNotOnlyofficeFillForm" />
             </list>
         </property>
-    </bean>
+     </bean>
 
-    <bean id="evaluator.doclib.action.displayJoinEdit" parent="evaluator.doclib.action.chainedMatchAll">
+     <bean id="evaluator.doclib.action.displayJoinEdit" parent="evaluator.doclib.action.chainedMatchAll">
         <property name="evaluators">
             <list>
                 <ref bean="evaluator.doclib.action.onlyofficeIsEditable" />
@@ -75,25 +75,25 @@
                 <ref bean="evaluator.doclib.action.isNotOnlyofficeFillForm" />
             </list>
         </property>
-    </bean>
+     </bean>
 
-    <bean id="evaluator.doclib.action.readAvailable" parent="evaluator.doclib.action.chainedMatchAll">
+     <bean id="evaluator.doclib.action.readAvailable" parent="evaluator.doclib.action.chainedMatchAll">
         <property name="evaluators">
-            <list>
-                <ref bean="evaluator.doclib.action.onlyofficeIsEditable" />
-                <ref bean="evaluator.doclib.action.IsReadPermission" />
-            </list>
+           <list>
+              <ref bean="evaluator.doclib.action.onlyofficeIsEditable" />
+              <ref bean="evaluator.doclib.action.IsReadPermission" />
+           </list>
         </property>
-    </bean>
+     </bean>
 
-    <bean id="evaluator.doclib.action.displayRead" parent="evaluator.doclib.action.chainedMatchOne">
+     <bean id="evaluator.doclib.action.displayRead" parent="evaluator.doclib.action.chainedMatchOne">
         <property name="evaluators">
-            <list>
-                <ref bean="evaluator.doclib.action.onlyofficeIsViewable"/>
-                <ref bean="evaluator.doclib.action.readAvailable"/>
-            </list>
+           <list>
+              <ref bean="evaluator.doclib.action.onlyofficeIsViewable"/>
+              <ref bean="evaluator.doclib.action.readAvailable"/>
+           </list>
         </property>
-    </bean>
+     </bean>
 
     <bean id="onlyoffice.custom.config" class="org.springframework.extensions.config.ConfigBootstrap" init-method="register">
         <property name="configService" ref="web.config" />
@@ -134,12 +134,15 @@
     <bean id="evaluator.doclib.action.isNotOnlyofficeDocxfExtension" class="com.onlyoffice.web.evaluator.IsDocxfExtension" >
         <property name="negateOutput" value="true"/>
     </bean>
+    <bean id="evaluator.doclib.action.IsCorrectDownloadAs" class="com.onlyoffice.web.evaluator.IsCorrectDownloadAs">
+        <property name="onlyofficeSettings" ref="slingshot.scriptprocessor.OnlyofficeSettingsQuery" />
+    </bean>
     <bean id="evaluator.doclib.action.isOnlyEdit" class="com.onlyoffice.web.evaluator.IsOnlyEditEvaluator" />
     <bean id="evaluator.doclib.action.isNotOnlyEdit" parent="evaluator.doclib.action.isOnlyEdit">
         <property name="negateOutput" value="true" />
     </bean>
     <bean id="evaluator.doclib.action.IsWritePermission" class="com.onlyoffice.web.evaluator.IsWritePermission" />
-    <bean id="evaluator.doclib.action.IsConvertPermission" class="com.onlyoffice.web.evaluator.IsConvertPermission">
+    <bean id="evaluator.doclib.action.IsConvertible" class="com.onlyoffice.web.evaluator.IsConvertible">
         <property name="onlyofficeSettings" ref="slingshot.scriptprocessor.OnlyofficeSettingsQuery" />
     </bean>
     <bean id="evaluator.doclib.action.IsReadPermission" parent="evaluator.doclib.action.IsWritePermission">

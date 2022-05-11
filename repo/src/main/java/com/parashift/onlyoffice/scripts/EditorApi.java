@@ -1,6 +1,11 @@
-package com.parashift.onlyoffice;
+package com.parashift.onlyoffice.scripts;
+
+import com.parashift.onlyoffice.util.ConvertManager;
+import com.parashift.onlyoffice.util.JwtManager;
+import com.parashift.onlyoffice.util.Util;
 
 import org.alfresco.model.ContentModel;
+import org.alfresco.repo.i18n.MessageService;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.favourites.FavouritesService;
 import org.alfresco.service.cmr.repository.*;
@@ -14,6 +19,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.extensions.webscripts.*;
 import org.springframework.stereotype.Component;
 
@@ -28,7 +34,7 @@ import java.util.List;
 import java.util.Map;
 
 /*
-   Copyright (c) Ascensio System SIA 2021. All rights reserved.
+   Copyright (c) Ascensio System SIA 2022. All rights reserved.
    http://www.onlyoffice.com
 */
 @Component(value = "webscript.onlyoffice.editor-api.post")
@@ -56,7 +62,10 @@ public class EditorApi extends AbstractWebScript {
     JwtManager jwtManager;
 
     @Autowired
-    Converter converterService;
+    ConvertManager converterService;
+
+    @Autowired
+    MessageService mesService;
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -65,14 +74,60 @@ public class EditorApi extends AbstractWebScript {
         Map<String, String> templateVars = request.getServiceMatch().getTemplateVars();
         String type = templateVars.get("type");
         switch (type.toLowerCase()) {
+            case "insert":
+                insert(request, response);
+                break;
             case "save-as":
                 saveAs(request, response);
+                break;
+            case "favorite":
+                favorite(request, response);
                 break;
             case "from-docx":
                 docxToDocxf(request, response);
                 break;
             default:
                 throw new WebScriptException(Status.STATUS_NOT_FOUND, "API Not Found");
+        }
+    }
+
+    private void insert(WebScriptRequest request, WebScriptResponse response) throws IOException {
+        try {
+            JSONObject requestData = new JSONObject(request.getContent().getContent());
+            JSONArray nodes = requestData.getJSONArray("nodes");
+            List<Object> responseJson = new ArrayList<>();
+
+            for (int i = 0; i < nodes.length(); i++) {
+                JSONObject data = new JSONObject();
+
+                NodeRef node = new NodeRef(nodes.getString(i));
+
+                if (permissionService.hasPermission(node, PermissionService.READ) == AccessStatus.ALLOWED) {
+                    Map<QName, Serializable> properties = nodeService.getProperties(node);
+                    String docTitle = (String) properties.get(ContentModel.PROP_NAME);
+                    String fileType = docTitle.substring(docTitle.lastIndexOf(".") + 1).trim().toLowerCase();
+
+                    if (requestData.has("command")) {
+                        data.put("c", requestData.get("command"));
+                    }
+                    data.put("fileType", fileType);
+                    data.put("url", util.getContentUrl(node));
+                    if (jwtManager.jwtEnabled()) {
+                        try {
+                            data.put("token", jwtManager.createToken(data));
+                        } catch (Exception e) {
+                            throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR, "Token creation error", e);
+                        }
+                    }
+
+                    responseJson.add(data);
+                }
+            }
+
+            response.setContentType("application/json");
+            response.getWriter().write(responseJson.toString());
+        } catch (JSONException e) {
+            throw new WebScriptException(Status.STATUS_BAD_REQUEST, "Could not parse JSON from request", e);
         }
     }
 
@@ -104,7 +159,7 @@ public class EditorApi extends AbstractWebScript {
                 }
 
                 try {
-                    String downloadUrl = converterService.convert(util.getKey(node), fileType, "docxf", util.getContentUrl(node));
+                    String downloadUrl = converterService.convert(util.getKey(node), fileType, "docxf", util.getContentUrl(node), mesService.getLocale().toLanguageTag());
                     docTitle = docTitle.substring(0, docTitle.lastIndexOf("."));
                     String newNode = createNode(folderNode, docTitle, "docxf", downloadUrl);
                     data.put("nodeRef", newNode);
@@ -170,6 +225,20 @@ public class EditorApi extends AbstractWebScript {
             connection.disconnect();
         }
         return nodeRef.toString();
+    }
+    private void favorite(WebScriptRequest request, WebScriptResponse response) throws IOException {
+        if (request.getParameter("nodeRef") != null) {
+            NodeRef nodeRef = new NodeRef(request.getParameter("nodeRef"));
+            String username = AuthenticationUtil.getFullyAuthenticatedUser();
+
+            if (favouritesService.isFavourite(username, nodeRef)) {
+                favouritesService.removeFavourite(username, nodeRef);
+            } else {
+                favouritesService.addFavourite(username, nodeRef);
+            }
+        } else {
+            throw new WebScriptException(Status.STATUS_BAD_REQUEST, "Required query parameters not found");
+        }
     }
 }
 

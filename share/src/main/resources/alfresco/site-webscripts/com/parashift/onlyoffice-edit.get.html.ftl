@@ -1,18 +1,27 @@
 <!--
-    Copyright (c) Ascensio System SIA 2021. All rights reserved.
+    Copyright (c) Ascensio System SIA 2022. All rights reserved.
     http://www.onlyoffice.com
 -->
 <html>
 <head>
     <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
 
-    <title>${docTitle} - ONLYOFFICE</title>
+    <title>${docTitle!} - ONLYOFFICE</title>
+
+    <#if doRedirect>
+        <script type="text/javascript">
+           document.location.href = "${page.url.uri}?nodeRef=${nodeRef!}";
+        </script>
+    </#if>
 
     <link href="${url.context}/res/components/onlyoffice/onlyoffice.css" type="text/css" rel="stylesheet">
 
     <!--Change the address on installed ONLYOFFICE™ Online Editors-->
-    <script id="scriptApi" type="text/javascript" src="${onlyofficeUrl}OfficeWeb/apps/api/documents/api.js"></script>
+    <script id="scriptApi" type="text/javascript" src="${onlyofficeUrl!}web-apps/apps/api/documents/api.js"></script>
+    <link rel="shortcut icon" href="${url.context}/res/components/images/filetypes/${documentType!}.ico" type="image/vnd.microsoft.icon" />
+    <link rel="icon" href="${url.context}/res/components/images/filetypes/${documentType!}.ico" type="image/vnd.microsoft.icon" />
 
+    <!-- Alfresco web framework common resources -->
     <script type="text/javascript" src="${url.context}/res/js/yui-common.js"></script>
     <script type="text/javascript" src="${url.context}/noauth/messages.js?locale=${locale}"></script>
     <script type="text/javascript" src="${url.context}/res/js/bubbling.v2.1.js"></script>
@@ -22,7 +31,7 @@
         };
     </script>
     <script type="text/javascript">
-        <!-- Alfresco web framework constants -->
+    <!-- Alfresco web framework constants -->
         Alfresco.constants = Alfresco.constants || {};
         Alfresco.constants.PROXY_URI = window.location.protocol + "//" + window.location.host + "${url.context?js_string}/proxy/alfresco/";
         Alfresco.constants.PROXY_URI_RELATIVE = "${url.context?js_string}/proxy/alfresco/";
@@ -43,22 +52,22 @@
             properties: {}
         };
         <#if config.scoped["CSRFPolicy"]["properties"]??>
-        <#assign csrfProperties = (config.scoped["CSRFPolicy"]["properties"].children)![]>
-        <#list csrfProperties as csrfProperty>
+            <#assign csrfProperties = (config.scoped["CSRFPolicy"]["properties"].children)![]>
+            <#list csrfProperties as csrfProperty>
         Alfresco.constants.CSRF_POLICY.properties["${csrfProperty.name?js_string}"] = "${(csrfProperty.value!"")?js_string}";
-        </#list>
+            </#list>
         </#if>
 
         Alfresco.constants.IFRAME_POLICY = {
             sameDomain: "${config.scoped["IFramePolicy"]["same-domain"].value!"allow"}",
             crossDomainUrls: [<#list (config.scoped["IFramePolicy"]["cross-domain"].childrenMap["url"]![]) as c>
                 "${c.value?js_string}"<#if c_has_next>,</#if>
-                </#list>]
+            </#list>]
         };
 
         Alfresco.constants.HIDDEN_PICKER_VIEW_MODES = [
             <#list config.scoped["DocumentLibrary"]["hidden-picker-view-modes"].children as viewMode>
-            <#if viewMode.name?js_string == "mode">"${viewMode.value?js_string}"<#if viewMode_has_next>,</#if></#if>
+                <#if viewMode.name?js_string == "mode">"${viewMode.value?js_string}"<#if viewMode_has_next>,</#if></#if>
             </#list>
         ];
     </script>
@@ -87,17 +96,121 @@
 </head>
 
 <body id="Share" class="yui-skin-${theme} alfresco-share claro">
-    <div>
-        <div id="placeholder"></div>
-    </div>
-
+    <div id="placeholder"></div>
     <script>
+        var documentPicker = new Alfresco.module.DocumentPicker("onlyoffice-editor-docPicker", Alfresco.ObjectRenderer);
+        documentPicker.setOptions({
+           displayMode: "items",
+           itemFamily: "node",
+           itemType: "cm:content",
+           multipleSelectMode: false,
+           parentNodeRef: "${folderNode!}",
+           restrictParentNavigationToDocLib: true
+        });
+        documentPicker.onComponentsLoaded(); // Need to force the component loaded call to ensure setup gets completed.
 
-    var onAppReady = function (event) {
-        if (${demo?c}) {
-             docEditor.showMessage("${msg("alfresco.document.onlyoffice.action.edit.msg.demo")}");
-        }
-    };
+        YAHOO.Bubbling.on("onDocumentsSelected", function(eventName, payload) {
+            if (payload && payload[1].items) {
+                var items = [];
+
+                for (var i = 0; i < payload[1].items.length; i++) {
+                    items.push(payload[1].items[i].nodeRef);
+                }
+
+                if (items.length > 0) {
+                    Alfresco.util.Ajax.jsonPost({
+                        url: Alfresco.constants.PROXY_URI + "parashift/onlyoffice/editor-api/insert",
+                        dataObj: {
+                             command: documentPicker.docEditorCommand,
+                             nodes: items
+                        },
+                        successCallback: {
+                            fn: function(response) {
+                                documentPicker.docEditorEvent(response.json[0]);
+                            },
+                            scope: this
+                        }
+                    });
+                }
+            }
+        });
+
+
+        var onAppReady = function (event) {
+            if (${(demo!false)?c}) {
+                 docEditor.showMessage("${msg("alfresco.document.onlyoffice.action.edit.msg.demo")}");
+            }
+        };
+
+        var onMetaChange = function (event) {
+            var favorite = event.data.favorite;
+
+            Alfresco.util.Ajax.jsonPost({
+                url:  Alfresco.constants.PROXY_URI + "${favorite!}",
+                successCallback: {
+                    fn: function () {
+                        docEditor.setFavorite(favorite);
+                    },
+                    scope: this
+                }
+            });
+        };
+
+        var onRequestHistoryClose = function () {
+            document.location.reload();
+        };
+
+        var onRequestHistory = function () {
+            Alfresco.util.Ajax.jsonGet({
+                url:  Alfresco.constants.PROXY_URI + "${historyUrl!}",
+                successCallback: {
+                    fn: function (response) {
+                        var hist = response.json;
+                        docEditor.refreshHistory({
+                            currentVersion: hist[0].version,
+                            history: hist.reverse()
+                        });
+                    },
+                    scope: this
+                }
+            });
+        };
+
+        var onRequestHistoryData = function (event) {
+            var version = event.data;
+
+            Alfresco.util.Ajax.jsonGet({
+                url:  Alfresco.constants.PROXY_URI + "${historyUrl!}" + "&version=" + version,
+                successCallback: {
+                    fn: function (response) {
+                        var hist = response.json;
+                        docEditor.setHistoryData(response.json);
+                    },
+                    scope: this
+                }
+            });
+        };
+
+        var onRequestInsertImage = function (event) {
+            documentPicker.singleSelectedItem = null;
+            documentPicker.docEditorCommand = event.data.c;
+            documentPicker.docEditorEvent = docEditor.insertImage;
+            documentPicker.onShowPicker();
+        };
+
+        var onRequestMailMergeRecipients = function () {
+            documentPicker.singleSelectedItem = null;
+            documentPicker.docEditorCommand = null;
+            documentPicker.docEditorEvent = docEditor.setMailMergeRecipients;
+            documentPicker.onShowPicker();
+        };
+
+        var onRequestCompareFile = function () {
+            documentPicker.singleSelectedItem = null;
+            documentPicker.docEditorCommand = null;
+            documentPicker.docEditorEvent = docEditor.setRevisedFile;
+            documentPicker.onShowPicker();
+        };
 
         var onRequestSaveAs = function (event) {
             var copyMoveTo = new Alfresco.module.DoclibCopyMoveTo("onlyoffice-editor-copyMoveTo");
@@ -127,15 +240,15 @@
                     copyMoveTo.widgets.okButton.set("label", "${msg('button.save')}");
 
                     var fileNameDiv = document.createElement("div");
-                    fileNameDiv.classList.add("wrapper");
+                        fileNameDiv.classList.add("wrapper");
                     var fileNameLabel = document.createElement("h3");
-                    fileNameLabel.classList.add("fileNameLabel");
-                    fileNameLabel.innerHTML = "${msg('label.name')}:";
+                        fileNameLabel.classList.add("fileNameLabel");
+                        fileNameLabel.innerHTML = "${msg('label.name')}:";
                     var fileNameInput = document.createElement("input");
-                    fileNameInput.id = "fileNameInput";
-                    fileNameInput.name = "fileNameInput";
-                    fileNameInput.type = "text";
-                    fileNameInput.value = title;
+                        fileNameInput.id = "fileNameInput";
+                        fileNameInput.name = "fileNameInput";
+                        fileNameInput.type = "text";
+                        fileNameInput.value = title;
 
                     fileNameDiv.append(fileNameLabel);
                     fileNameDiv.append(fileNameInput);
@@ -209,24 +322,50 @@
             };
         };
 
-    var config = ${editorConfig!};
+        var editorConfig = ${editorConfig!};
 
-    config.events = {
-        "onAppReady": onAppReady,
-        "onRequestSaveAs": onRequestSaveAs
-    };
+        editorConfig.events = {
+            "onAppReady": onAppReady,
+            "onMetaChange": onMetaChange,
+            "onRequestHistoryClose": onRequestHistoryClose,
+            "onRequestHistory": onRequestHistory,
+            "onRequestHistoryData": onRequestHistoryData,
+            "onRequestInsertImage": onRequestInsertImage,
+            "onRequestMailMergeRecipients": onRequestMailMergeRecipients,
+            "onRequestCompareFile": onRequestCompareFile,
+            "onRequestSaveAs": onRequestSaveAs
+        };
 
-     if ((config.document.fileType === "docxf" || config.document.fileType === "oform")
-         && DocsAPI.DocEditor.version().split(".")[0] < 7) {
-         Alfresco.util.PopupManager.displayMessage({
-             text : Alfresco.util.message("onlyoffice.editor.old-version-for-docxf-and-oform"),
-             spanClass : "",
-             displayTime : 0
-         });
-     } else {
-         var docEditor = new DocsAPI.DocEditor("placeholder", config);
-     }
+        if (/android|avantgo|playbook|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od|ad)|iris|kindle|lge |maemo|midp|mmp|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\\|plucker|pocket|psp|symbian|treo|up\\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i
+            .test(navigator.userAgent)) {
+            editorConfig.type='mobile';
+        }
 
+    if(typeof DocsAPI !== "undefined") {
+        var editorVersion = DocsAPI.DocEditor.version().split(".");
+        if ((editorConfig.document.fileType === "docxf" || editorConfig.document.fileType === "oform")
+            && editorVersion[0] < 7) {
+            Alfresco.util.PopupManager.displayMessage({
+                text : Alfresco.util.message("onlyoffice.editor.old-version-for-docxf-and-oform"),
+                spanClass : "",
+                displayTime : 0
+            });
+        } else if (editorVersion[0] < 6 || (editorVersion[0] == 6 && editorVersion[1] == 0)) {
+            Alfresco.util.PopupManager.displayMessage({
+                text : Alfresco.util.message("onlyoffice.editor.old-version.not-supported"),
+                spanClass : "",
+                displayTime : 0
+            });
+        } else {
+            var docEditor = new DocsAPI.DocEditor("placeholder", editorConfig);
+        }
+    } else {
+        Alfresco.util.PopupManager.displayMessage({
+            text: Alfresco.util.message("onlyoffice.editor.unreachable"),
+            spanClass: "",
+            displayTime: 0
+        });
+    }
     </script>
 </body>
 </html>

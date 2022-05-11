@@ -1,0 +1,25 @@
+ONLYOFFICE Alfresco module package uses code from the following 3rd party projects.
+
+alfresco-community-repo    - This project contains the bulk of the Alfresco Content Services Repository code. (https://github.com/Alfresco/alfresco-community-repo/blob/master/LICENSE.txt)
+License:                     LGPL v3.0
+License File                 alfresco-community-repo.license
+
+alfresco-sdk               - The Alfresco SDK is used by developers to build extensions for the Alfresco Digital Business Platform. (https://github.com/Alfresco/alfresco-sdk/blob/master/LICENSE)
+License:                     Apache
+License File                 alfresco-sdk.license
+
+alfresco-share             - Share is an option for the front end of the Alfresco Content Service offering. (https://github.com/Alfresco/share/blob/master/LICENSE)
+License:                     LGPL v3.0
+License File                 alfresco-share.license
+
+alfresco-solr              - Solr is the popular, blazing fast open source enterprise search platform from the Apache Lucene project. (https://github.com/Alfresco/lucene-solr/blob/master/solr/LICENSE.txt)
+License:                     Apache
+License File                 alfresco-solr.license
+
+alfresco-surf              - Surf is a user interface development framework that is used for implementing Share Web Scripts, pages and Dashlets. (https://github.com/Alfresco/surf/blob/develop/LICENSE.md)
+License:                     LGPL v3.0
+License File                 alfresco-surf.license
+
+alfresco-surf-webscripts   - Surf Web Scripts are basically Rest-based APIs that are used when implementing pages and Dashlets for the Alfresco Share web application. (https://github.com/Alfresco/surf-webscripts/blob/master/LICENSE)
+License:                     Apache
+License File                 alfresco-surf-webscripts.license

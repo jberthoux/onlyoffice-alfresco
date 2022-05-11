@@ -1,5 +1,5 @@
 /*
-   Copyright (c) Ascensio System SIA 2021. All rights reserved.
+   Copyright (c) Ascensio System SIA 2022. All rights reserved.
    http://www.onlyoffice.com
 */
 
@@ -11,10 +11,7 @@ import org.alfresco.web.evaluator.BaseEvaluator;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import java.util.HashSet;
-import java.util.Set;
-
-public class IsViewMimetype extends BaseEvaluator {
+public class IsEditable extends BaseEvaluator {
     private OnlyofficeSettingsQuery onlyofficeSettings;
 
     public void setOnlyofficeSettings(OnlyofficeSettingsQuery onlyofficeSettings) {
@@ -29,22 +26,25 @@ public class IsViewMimetype extends BaseEvaluator {
                 String docExt = fileName.substring(fileName.lastIndexOf(".") + 1).trim().toLowerCase();
 
                 JSONArray supportedFormats = onlyofficeSettings.getSupportedFormats();
-                boolean canView = false;
+                boolean defaultEditFormat = false;
 
                 for (int i = 0; i < supportedFormats.size(); i++) {
                     JSONObject format = (JSONObject) supportedFormats.get(i);
-                    if (format.get("name").equals(docExt) && !Boolean.parseBoolean(format.get("edit").toString())) {
-                        canView = true;
+
+                    if (format.get("name").equals(docExt)) {
+                        defaultEditFormat = Boolean.parseBoolean(format.get("edit").toString());
                         break;
                     }
                 }
 
-                return canView && !onlyofficeSettings.getEditableFormats().contains(docExt);
+                if (defaultEditFormat || onlyofficeSettings.getEditableFormats().contains(docExt)) {
+                    return true;
+                }
             }
         } catch (Exception err) {
             throw new AlfrescoRuntimeException("Failed to run action evaluator", err);
         }
 
-        return false ;
+        return false;
     }
 }

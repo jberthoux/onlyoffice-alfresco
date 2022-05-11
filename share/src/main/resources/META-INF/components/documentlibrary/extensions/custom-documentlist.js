@@ -1,3 +1,8 @@
+/*
+    Copyright (c) Ascensio System SIA 2022. All rights reserved.
+    http://www.onlyoffice.com
+*/
+
 var addSubMenu = function () {
     var elem = document.getElementsByClassName("document-onlyoffice-create-docxf-file")[0];
     var li = elem.parentElement.parentElement;
@@ -104,7 +109,7 @@ var addSubMenu = function () {
       });
 
       $("#onlyoffice-newform-blank").on("mousedown", function () {
-          window.open("onlyoffice-edit?nodeRef=" + YAHOO.Bubbling.bubble.ready.scope.docListToolbar.doclistMetadata.parent.nodeRef
+          window.open("onlyoffice-edit?parentNodeRef=" + YAHOO.Bubbling.bubble.ready.scope.docListToolbar.doclistMetadata.parent.nodeRef
               + "&new=application/vnd.openxmlformats-officedocument.wordprocessingml.document.docxf");
           setTimeout(function () {
               location.reload();

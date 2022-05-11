@@ -1,5 +1,5 @@
 /*
-   Copyright (c) Ascensio System SIA 2021. All rights reserved.
+   Copyright (c) Ascensio System SIA 2022. All rights reserved.
    http://www.onlyoffice.com
 */
 
@@ -11,7 +11,7 @@ import org.alfresco.web.evaluator.BaseEvaluator;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-public class IsConvertPermission extends BaseEvaluator {
+public class IsConvertible extends BaseEvaluator {
     private OnlyofficeSettingsQuery onlyofficeSettings;
 
     public void setOnlyofficeSettings(OnlyofficeSettingsQuery onlyofficeSettings) {
@@ -67,6 +67,7 @@ public class IsConvertPermission extends BaseEvaluator {
             JSONArray outputTypes = (JSONArray) format.get("convertTo");
 
             if (format.get("name").equals(docExt)) {
+                if (docExt.equals("txt") || docExt.equals("csv")) return false;
                 switch (format.get("type").toString()) {
                     case "FORM":
                         if (outputTypes.contains("oform")) return true;

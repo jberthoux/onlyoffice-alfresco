@@ -1,0 +1,34 @@
+<extension>
+    <modules>
+        <module>
+            <id>ONLYOFFICE DOWNLOAD AS </id>
+            <version>1.0</version>
+            <auto-deploy>true</auto-deploy>
+            <configurations>
+                <config evaluator="string-compare" condition="DocumentLibrary">
+                    <multi-select>
+                        <action id="onOnlyofficeDownloadAs" type="action-link" icon="document-onlyoffice-download-as" label="actions.document.onlyoffice-download-as" />
+                    </multi-select>
+                </config>
+
+                <config evaluator="string-compare" condition="DocLibActions">
+                    <actions>
+                        <action id="document-onlyoffice-download-as" type="javascript" label="actions.document.onlyoffice-download-as">
+                            <param name="function">onOnlyofficeDownloadAs</param>
+                            <evaluator>evaluator.doclib.action.IsCorrectDownloadAs</evaluator>
+                        </action>
+                    </actions>
+
+                    <actionGroups>
+                        <actionGroup id="document-browse">
+                            <action index="92" id="document-onlyoffice-download-as"/>
+                        </actionGroup>
+                        <actionGroup id="document-details">
+                            <action index="92" id="document-onlyoffice-download-as"/>
+                        </actionGroup>
+                    </actionGroups>
+                </config>
+            </configurations>
+        </module>
+    </modules>
+</extension>

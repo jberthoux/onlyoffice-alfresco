@@ -1,18 +1,17 @@
-package com.parashift.onlyoffice;
+package com.parashift.onlyoffice.util;
 
 import org.alfresco.service.cmr.attributes.AttributeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.io.InputStream;
 import java.text.ParseException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 /*
-    Copyright (c) Ascensio System SIA 2021. All rights reserved.
+    Copyright (c) Ascensio System SIA 2022. All rights reserved.
     http://www.onlyoffice.com
 */
 @Service
@@ -71,6 +70,7 @@ public class ConfigManager {
 
     public Set<String> getCustomizableEditableSet() {
         Set<String> editableSet = new HashSet<>();
+
         if (getAsBoolean("formatODT", "false")){
             editableSet.add("odt");
         }
@@ -89,6 +89,7 @@ public class ConfigManager {
         if (getAsBoolean("formatRTF", "false")){
             editableSet.add("rtf");
         }
+
         return editableSet;
     }
 
@@ -141,24 +142,5 @@ public class ConfigManager {
     public String getDemo(String key) {
         return demoData.get(key);
     }
-
-    private Properties getDefaultProperties() {
-        try {
-            Properties properties = new Properties();
-            InputStream inputStream = getClass().getClassLoader().getResourceAsStream("onlyoffice-config.properties");
-            properties.load(inputStream);
-            return properties;
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    public List<String> getListDefaultProperty(String nameProperty) {
-        Properties properties = getDefaultProperties();
-        String property = properties.getProperty(nameProperty);
-
-        return Arrays.asList(property.split("\\|"));
-    }
-
 }
 

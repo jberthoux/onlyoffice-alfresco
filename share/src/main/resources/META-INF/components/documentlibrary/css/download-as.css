@@ -1,0 +1,42 @@
+.toolbar .onOnlyofficeDownloadAs {
+    background-image: url("../actions/document-onlyoffice-download-as-16.png");
+}
+
+.download-as-main {
+    overflow-y: auto;
+    max-height: 375px;
+}
+
+.download-as-file {
+    text-align: left;
+    padding: 4px;
+}
+
+.download-as-checkbox {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.download-as-filename {
+    display: inline-block;
+    margin-left: 15px;
+    vertical-align: middle;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 240px;
+    white-space: nowrap;
+}
+
+.download-as-convert-label {
+    display: inline-block;
+    margin-left: 15px;
+    vertical-align: middle;
+    overflow: hidden;
+    width: 140px;
+}
+
+.download-as-select {
+    display: inline-block;
+    vertical-align: middle;
+    width: 60px !important;
+}

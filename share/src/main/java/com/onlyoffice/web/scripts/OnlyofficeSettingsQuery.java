@@ -1,5 +1,5 @@
 /*
-   Copyright (c) Ascensio System SIA 2021. All rights reserved.
+   Copyright (c) Ascensio System SIA 2022. All rights reserved.
    http://www.onlyoffice.com
 */
 
@@ -40,9 +40,9 @@ public class OnlyofficeSettingsQuery {
                     for (Object format : formats) {
                         editableFormats.add((String) format);
                     }
-                    OnlyofficeSettingsQuery.editableFormats = editableFormats;
-                    OnlyofficeSettingsQuery.convertOriginal = (Boolean) json.get("convertOriginal");
-                    OnlyofficeSettingsQuery.supportedFormats = (JSONArray) json.get("supportedFormats");
+                    this.editableFormats = editableFormats;
+                    this.convertOriginal = (Boolean) json.get("convertOriginal");
+                    this.supportedFormats = (JSONArray) json.get("supportedFormats");
                 } catch (Exception err) {
                     throw new AlfrescoRuntimeException("Failed to parse response from Alfresco: " + err.getMessage());
                 }

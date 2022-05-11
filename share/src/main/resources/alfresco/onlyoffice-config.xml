@@ -84,7 +84,7 @@
                 <param name="action">onlyoffice-convert</param>
                 <param name="successMessage">alfresco.document.onlyoffice.action.convert.msg.success</param>
                 <param name="failureMessage">alfresco.document.onlyoffice.action.convert.msg.failure</param>
-                <evaluator>evaluator.doclib.action.IsConvertPermission</evaluator>
+                <evaluator>evaluator.doclib.action.IsConvertible</evaluator>
                 <evaluator>evaluator.doclib.action.isNotWorkingCopy</evaluator>
                 <evaluator>evaluator.doclib.action.notLocked</evaluator>
                 <evaluator>evaluator.doclib.action.isNotOnlyofficeDocxfExtension</evaluator>
@@ -95,7 +95,7 @@
                 <param name="successMessage">alfresco.document.onlyoffice.action.convert.msg.success</param>
                 <param name="failureMessage">alfresco.document.onlyoffice.action.convert.msg.failure</param>
                 <evaluator>evaluator.doclib.action.isOnlyofficeDocxfExtension</evaluator>
-                <evaluator>evaluator.doclib.action.IsConvertPermission</evaluator>
+                <evaluator>evaluator.doclib.action.IsConvertible</evaluator>
                 <evaluator>evaluator.doclib.action.isNotWorkingCopy</evaluator>
                 <evaluator>evaluator.doclib.action.notLocked</evaluator>
             </action>
@@ -127,8 +127,10 @@
             <js src="modules/document-picker/document-picker.js"/>
             <css src="modules/document-picker/document-picker.css"/>
             <js src="components/documentlibrary/extensions/custom-documentlist.js" />
+            <css src="components/documentlibrary/css/download-as.css"/>
             <js src="components/documentlibrary/onlyoffice-doclib-actions.js" />
             <js src="components/documentlibrary/onlyoffice-doclib-lock-banner.js" />
+            <js src="components/documentlibrary/onlyoffice-doclib-multi-download-as.js" />
         </dependencies>
     </config>
 </alfresco-config>
