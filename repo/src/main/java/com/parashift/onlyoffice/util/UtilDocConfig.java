@@ -78,7 +78,9 @@ public class UtilDocConfig {
         documentObject.put("key", util.getKey(nodeRef));
 
         JSONObject info = new JSONObject();
-        info.put("favorite", favouritesService.isFavourite(username, nodeRef));
+        if (username != null) {
+            info.put("favorite", favouritesService.isFavourite(username, nodeRef));
+        }
         documentObject.put("info", info);
 
         JSONObject permObject = new JSONObject();
